@@ -700,51 +700,76 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </Collapsible>
 
               {/* Total Exposure Coverage Summary */}
-              <div className="bg-primary/5 rounded-lg p-4 border border-primary/20 space-y-4">
-                <p className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Total Exposure Coverage</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Total Reserve Amount */}
-                  <div className="bg-card rounded-lg p-3 border">
-                    <p className="text-xs text-muted-foreground">Total Reserve Amount</p>
-                    <p className="text-lg font-mono font-bold">
-                      {formatCurrency(
-                        (caseData.exposure.dailyVolume * 
-                          ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
-                          (caseData.reserves?.rollingReserveDays || 0)) +
-                        (caseData.reserves?.minimumReserveAmount || 0)
-                      )}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Rolling + Minimum Reserve</p>
+              {(() => {
+                const rollingReserveAmount = caseData.exposure.dailyVolume * 
+                  ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
+                  (caseData.reserves?.rollingReserveDays || 0)
+                const minimumReserveAmount = caseData.reserves?.minimumReserveAmount || 0
+                const bankGuaranteeAmount = getGuarantee('bank')?.enabled ? (getGuarantee('bank')?.amount || 0) : 0
+                const locAmount = getGuarantee('loc')?.enabled ? (getGuarantee('loc')?.amount || 0) : 0
+                const totalReserveAmount = rollingReserveAmount + minimumReserveAmount + bankGuaranteeAmount + locAmount
+                const coverageRatio = caseData.exposure.totalExposure > 0 
+                  ? (totalReserveAmount / caseData.exposure.totalExposure) * 100 
+                  : 0
+
+                return (
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/20 space-y-4">
+                    <p className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Total Exposure Coverage</p>
+                    
+                    {/* Breakdown */}
+                    <div className="bg-card rounded-lg p-3 border space-y-2">
+                      <p className="text-xs text-muted-foreground font-medium">Reserve Breakdown</p>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Rolling Reserve:</span>
+                          <span className="font-mono">{formatCurrency(rollingReserveAmount)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Minimum Reserve:</span>
+                          <span className="font-mono">{formatCurrency(minimumReserveAmount)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bank Guarantee:</span>
+                          <span className="font-mono">{formatCurrency(bankGuaranteeAmount)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Letter of Credit:</span>
+                          <span className="font-mono">{formatCurrency(locAmount)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Total Reserve Amount */}
+                      <div className="bg-card rounded-lg p-3 border">
+                        <p className="text-xs text-muted-foreground">Total Reserve Amount</p>
+                        <p className="text-lg font-mono font-bold">
+                          {formatCurrency(totalReserveAmount)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Rolling + Min + Bank + LOC</p>
+                      </div>
+                      
+                      {/* Total Exposure */}
+                      <div className="bg-card rounded-lg p-3 border">
+                        <p className="text-xs text-muted-foreground">Total Exposure</p>
+                        <p className="text-lg font-mono font-bold">
+                          {formatCurrency(caseData.exposure.totalExposure)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">From Section C</p>
+                      </div>
+                      
+                      {/* Coverage Ratio */}
+                      <div className={`rounded-lg p-3 border ${coverageRatio >= 100 ? 'bg-success/10 border-success/30' : coverageRatio >= 50 ? 'bg-warning/10 border-warning/30' : 'bg-card'}`}>
+                        <p className="text-xs text-muted-foreground">Coverage Ratio</p>
+                        <p className={`text-lg font-mono font-bold ${coverageRatio >= 100 ? 'text-success' : coverageRatio >= 50 ? 'text-warning' : ''}`}>
+                          {coverageRatio.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Total Reserve / Exposure</p>
+                      </div>
+                    </div>
                   </div>
-                  
-                  {/* Total Exposure */}
-                  <div className="bg-card rounded-lg p-3 border">
-                    <p className="text-xs text-muted-foreground">Total Exposure</p>
-                    <p className="text-lg font-mono font-bold">
-                      {formatCurrency(caseData.exposure.totalExposure)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">From Section C</p>
-                  </div>
-                  
-                  {/* Coverage Ratio */}
-                  <div className="bg-card rounded-lg p-3 border">
-                    <p className="text-xs text-muted-foreground">Coverage Ratio</p>
-                    <p className="text-lg font-mono font-bold">
-                      {caseData.exposure.totalExposure > 0 
-                        ? (((
-                            (caseData.exposure.dailyVolume * 
-                              ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
-                              (caseData.reserves?.rollingReserveDays || 0)) +
-                            (caseData.reserves?.minimumReserveAmount || 0)
-                          ) / caseData.exposure.totalExposure) * 100).toFixed(1) + '%'
-                        : '0%'
-                      }
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Reserve / Exposure</p>
-                  </div>
-                </div>
-              </div>
+                )
+              })()}
 
               <Separator />
 
