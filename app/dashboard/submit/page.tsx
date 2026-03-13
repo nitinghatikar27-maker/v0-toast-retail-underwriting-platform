@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle, Save } from 'lucide-react'
 import Link from 'next/link'
 
 interface FormData {
@@ -103,6 +103,85 @@ export default function SubmitRequestPage() {
     }))
   }
 
+  const handleSaveAsDraft = () => {
+    if (!user) return
+    
+    // Calculate exposure if we have enough data, otherwise use default
+    let caseExposure = exposure
+    if (!caseExposure && formData.annualProcessingVolume && formData.advanceDeliveryDays) {
+      caseExposure = calculateExposure({
+        annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
+        advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0
+      })
+    }
+    
+    // Create default exposure if still null
+    if (!caseExposure) {
+      caseExposure = {
+        dailyVolume: 0,
+        baseExposure: 0,
+        chargebackExposure: 0,
+        refundReturnExposure: 0,
+        totalExposure: 0
+      }
+    }
+
+    const caseId = generateId()
+    const newCase: Case = {
+      id: caseId,
+      caseNumber: storage.generateCaseNumber(),
+      parentCompanyName: formData.parentCompanyName || 'Draft Case',
+      subsidiaryName: formData.subsidiaryName || '',
+      dba: formData.dba || '',
+      mcc: formData.mcc || '',
+      salesforceAccountNumber: formData.salesforceAccountNumber || '',
+      salesforceLink: formData.salesforceLink || undefined,
+      annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
+      averageTicketSize: parseFloat(formData.averageTicketSize) || 0,
+      cnpVolume: parseFloat(formData.cnpVolume) || 0,
+      advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0,
+      exposure: caseExposure,
+      status: 'draft',
+      approvalType: 'manual',
+      createdAt: new Date().toISOString(),
+      createdBy: user.id,
+      lastModifiedBy: user.id,
+      lastModifiedAt: new Date().toISOString()
+    }
+
+    storage.addCase(newCase)
+
+    // Add audit entry
+    const auditEntry: AuditEntry = {
+      id: generateId(),
+      caseId,
+      userId: user.id,
+      userName: user.name,
+      action: 'created',
+      comment: 'Case saved as draft',
+      timestamp: new Date().toISOString()
+    }
+    storage.addAuditEntry(auditEntry)
+
+    // Add initial notes as a chat message if provided
+    if (initialNotes.trim()) {
+      const chatMessage: ChatMessage = {
+        id: generateId(),
+        caseId,
+        senderId: user.id,
+        senderName: user.name,
+        message: initialNotes.trim(),
+        timestamp: new Date().toISOString(),
+        isRead: true,
+        readBy: [user.id]
+      }
+      storage.addChatMessage(chatMessage)
+    }
+
+    toast.success('Case saved as draft')
+    router.push(`/dashboard/case/${caseId}/edit`)
+  }
+
   const handleSubmit = () => {
     if (!user || !exposure) return
 
@@ -179,17 +258,23 @@ export default function SubmitRequestPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Submit Request</h1>
-          <p className="text-muted-foreground">Enter merchant information to calculate exposure</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Submit Request</h1>
+            <p className="text-muted-foreground">Enter merchant information to calculate exposure</p>
+          </div>
         </div>
+        <Button variant="outline" onClick={handleSaveAsDraft}>
+          <Save className="h-4 w-4 mr-2" />
+          Save as Draft
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -356,6 +441,10 @@ export default function SubmitRequestPage() {
                   <Link href="/dashboard">
                     <Button variant="outline">Cancel</Button>
                   </Link>
+                  <Button variant="secondary" onClick={handleSaveAsDraft}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save as Draft
+                  </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? 'Processing...' : decision === 'auto_approved' ? 'Submit & Auto-Approve' : 'Proceed to Manual Review'}
                   </Button>
