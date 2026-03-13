@@ -2,7 +2,9 @@
 
 import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
-import { storage } from '@/lib/storage'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
+import { storage, generateId } from '@/lib/storage'
 import { Case, AuditEntry, Document as DocType } from '@/lib/types'
 import { formatCurrency } from '@/lib/exposure'
 import { AuditTrail } from '@/components/audit-trail'
@@ -10,6 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Sheet,
   SheetContent,
@@ -18,6 +23,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { toast } from 'sonner'
 import { 
   ArrowLeft, 
   Building2, 
@@ -28,15 +43,27 @@ import {
   History, 
   Upload,
   Pencil,
-  Download
+  Download,
+  CheckCircle,
+  XCircle,
+  RotateCcw
 } from 'lucide-react'
 
 export default function CaseViewPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
+  const router = useRouter()
+  const { user } = useAuth()
   const [caseData, setCaseData] = useState<Case | null>(null)
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([])
   const [documents, setDocuments] = useState<DocType[]>([])
   const [activeTab, setActiveTab] = useState<'audit' | 'documents'>('audit')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false)
+  const [declineDialogOpen, setDeclineDialogOpen] = useState(false)
+  const [revisionDialogOpen, setRevisionDialogOpen] = useState(false)
+  const [nextReviewDate, setNextReviewDate] = useState('')
+  const [declineReason, setDeclineReason] = useState('')
+  const [revisionComment, setRevisionComment] = useState('')
 
   const loadData = useCallback(() => {
     const foundCase = storage.getCaseById(resolvedParams.id)
@@ -67,6 +94,103 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  const canApprove = user && (user.role === 'approver' || user.role === 'admin') && caseData?.status === 'pending_review'
+
+  const handleApprove = () => {
+    if (!caseData || !user) return
+    
+    setIsProcessing(true)
+    
+    const updatedCase: Case = {
+      ...caseData,
+      status: 'approved',
+      approvedAt: new Date().toISOString(),
+      nextReviewDate: nextReviewDate || undefined,
+      lastModifiedBy: user.id,
+      lastModifiedAt: new Date().toISOString()
+    }
+    
+    storage.updateCase(updatedCase)
+    
+    const auditEntry: AuditEntry = {
+      id: generateId(),
+      caseId: caseData.id,
+      userId: user.id,
+      userName: user.name,
+      action: 'approved',
+      comment: nextReviewDate ? `Case approved. Next review: ${nextReviewDate}` : 'Case approved',
+      timestamp: new Date().toISOString()
+    }
+    storage.addAuditEntry(auditEntry)
+    
+    toast.success('Case approved successfully')
+    setApprovalDialogOpen(false)
+    setIsProcessing(false)
+    router.push('/dashboard')
+  }
+
+  const handleDecline = () => {
+    if (!caseData || !user || !declineReason.trim()) return
+    
+    setIsProcessing(true)
+    
+    const updatedCase: Case = {
+      ...caseData,
+      status: 'declined',
+      lastModifiedBy: user.id,
+      lastModifiedAt: new Date().toISOString()
+    }
+    
+    storage.updateCase(updatedCase)
+    
+    const auditEntry: AuditEntry = {
+      id: generateId(),
+      caseId: caseData.id,
+      userId: user.id,
+      userName: user.name,
+      action: 'declined',
+      comment: declineReason,
+      timestamp: new Date().toISOString()
+    }
+    storage.addAuditEntry(auditEntry)
+    
+    toast.success('Case declined')
+    setDeclineDialogOpen(false)
+    setIsProcessing(false)
+    router.push('/dashboard')
+  }
+
+  const handleRequestRevision = () => {
+    if (!caseData || !user || !revisionComment.trim()) return
+    
+    setIsProcessing(true)
+    
+    const updatedCase: Case = {
+      ...caseData,
+      status: 'revision_requested',
+      lastModifiedBy: user.id,
+      lastModifiedAt: new Date().toISOString()
+    }
+    
+    storage.updateCase(updatedCase)
+    
+    const auditEntry: AuditEntry = {
+      id: generateId(),
+      caseId: caseData.id,
+      userId: user.id,
+      userName: user.name,
+      action: 'revision_requested',
+      comment: revisionComment,
+      timestamp: new Date().toISOString()
+    }
+    storage.addAuditEntry(auditEntry)
+    
+    toast.success('Revision requested')
+    setRevisionDialogOpen(false)
+    setIsProcessing(false)
+    router.push('/dashboard')
   }
 
   const getStatusBadge = (status: Case['status']) => {
@@ -127,6 +251,130 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* Approval Actions for Approvers */}
+          {canApprove && (
+            <>
+              {/* Request Revision */}
+              <Dialog open={revisionDialogOpen} onOpenChange={setRevisionDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Request Revision
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Request Revision</DialogTitle>
+                    <DialogDescription>
+                      Specify what changes are needed before approval
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Revision Comments *</Label>
+                      <Textarea
+                        value={revisionComment}
+                        onChange={(e) => setRevisionComment(e.target.value)}
+                        placeholder="Describe the required changes..."
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setRevisionDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleRequestRevision} disabled={isProcessing || !revisionComment.trim()}>
+                      {isProcessing ? 'Processing...' : 'Request Revision'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Decline */}
+              <Dialog open={declineDialogOpen} onOpenChange={setDeclineDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Decline
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Decline Case</DialogTitle>
+                    <DialogDescription>
+                      Please provide a reason for declining this case
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Decline Reason *</Label>
+                      <Textarea
+                        value={declineReason}
+                        onChange={(e) => setDeclineReason(e.target.value)}
+                        placeholder="Enter the reason for declining..."
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setDeclineDialogOpen(false)}>Cancel</Button>
+                    <Button variant="destructive" onClick={handleDecline} disabled={isProcessing || !declineReason.trim()}>
+                      {isProcessing ? 'Processing...' : 'Decline Case'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Approve */}
+              <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="bg-success hover:bg-success/90 text-success-foreground">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Approve
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Approve Case</DialogTitle>
+                    <DialogDescription>
+                      Review the case details and set a next review date
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Case:</span>
+                        <span className="font-medium">{caseData?.caseNumber}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Company:</span>
+                        <span className="font-medium">{caseData?.parentCompanyName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Exposure:</span>
+                        <span className="font-mono font-bold">{formatCurrency(caseData?.exposure.totalExposure || 0)}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Next Review Date (Optional)</Label>
+                      <Input
+                        type="date"
+                        value={nextReviewDate}
+                        onChange={(e) => setNextReviewDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setApprovalDialogOpen(false)}>Cancel</Button>
+                    <Button className="bg-success hover:bg-success/90 text-success-foreground" onClick={handleApprove} disabled={isProcessing}>
+                      {isProcessing ? 'Processing...' : 'Approve Case'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm">
