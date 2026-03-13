@@ -24,14 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -75,7 +68,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
   const [documents, setDocuments] = useState<DocType[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [rightPanelOpen, setRightPanelOpen] = useState(false)
+  
   const [activeTab, setActiveTab] = useState<'chatter' | 'audit' | 'documents'>('chatter')
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false)
   const [declineDialogOpen, setDeclineDialogOpen] = useState(false)
@@ -312,7 +305,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
   const isEditable = caseData.status === 'draft' || caseData.status === 'revision_requested'
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto space-y-6">
@@ -338,65 +331,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <History className="h-4 w-4 mr-2" />
-                    Activity
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
-                  <SheetHeader>
-                    <SheetTitle>Case Activity</SheetTitle>
-                    <SheetDescription>
-                      Chatter, audit trail and documents
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="mt-6 flex flex-col flex-1 overflow-hidden">
-                    <div className="flex gap-2 mb-4">
-                      <Button
-                        variant={activeTab === 'chatter' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setActiveTab('chatter')}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Chatter
-                      </Button>
-                      <Button
-                        variant={activeTab === 'audit' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setActiveTab('audit')}
-                      >
-                        <History className="h-4 w-4 mr-2" />
-                        Audit Trail
-                      </Button>
-                      <Button
-                        variant={activeTab === 'documents' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setActiveTab('documents')}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Documents ({documents.length})
-                      </Button>
-                    </div>
-                    
-                    <div className="flex-1 overflow-hidden">
-                      {activeTab === 'chatter' ? (
-                        <Chatter caseId={caseData.id} caseName={caseData.caseNumber} />
-                      ) : activeTab === 'audit' ? (
-                        <AuditTrail entries={auditEntries} />
-                      ) : (
-                        <DocumentUpload
-                          caseId={caseData.id}
-                          documents={documents}
-                          onDocumentAdded={loadData}
-                          onDocumentDeleted={loadData}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
               
               {isEditable && (
                 <>
@@ -1240,6 +1174,56 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* Right Side Chatter Panel */}
+      <div className="w-[400px] border-l bg-card flex flex-col h-screen sticky top-0">
+        <div className="p-4 border-b">
+          <div className="flex gap-2">
+            <Button
+              variant={activeTab === 'chatter' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveTab('chatter')}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chatter
+            </Button>
+            <Button
+              variant={activeTab === 'audit' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveTab('audit')}
+            >
+              <History className="h-4 w-4 mr-2" />
+              Audit
+            </Button>
+            <Button
+              variant={activeTab === 'documents' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveTab('documents')}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Docs ({documents.length})
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          {activeTab === 'chatter' ? (
+            <Chatter caseId={caseData.id} caseName={caseData.caseNumber} />
+          ) : activeTab === 'audit' ? (
+            <div className="p-4 overflow-auto h-full">
+              <AuditTrail entries={auditEntries} />
+            </div>
+          ) : (
+            <div className="p-4 overflow-auto h-full">
+              <DocumentUpload
+                caseId={caseData.id}
+                documents={documents}
+                onDocumentAdded={loadData}
+                onDocumentDeleted={loadData}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

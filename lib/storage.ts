@@ -1,6 +1,6 @@
 import { AppState, User, Case, AuditEntry, Document, ApprovalMatrixEntry, ChatMessage, Notification } from './types'
 
-// Storage key for localStorage persistence
+// Storage key for localStorage persistence - v2 with chat support
 const STORAGE_KEY = 'toast_underwriting_data'
 
 // Default admin user as specified
