@@ -312,6 +312,25 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="dba">DBA (Doing Business As)</Label>
+                  <Input
+                    id="dba"
+                    value={caseData.dba}
+                    onChange={(e) => updateField('dba', e.target.value)}
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mcc">MCC (Merchant Category Code)</Label>
+                  <Input
+                    id="mcc"
+                    value={caseData.mcc}
+                    onChange={(e) => updateField('mcc', e.target.value)}
+                    placeholder="e.g., 5812"
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="salesforceAccountNumber">Salesforce Account Number</Label>
                   <Input
                     id="salesforceAccountNumber"
@@ -321,12 +340,13 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="mcc">MCC Code</Label>
+                  <Label htmlFor="salesforceLink">Salesforce Link</Label>
                   <Input
-                    id="mcc"
-                    value={caseData.mcc || ''}
-                    onChange={(e) => updateField('mcc', e.target.value)}
-                    placeholder="e.g., 5812"
+                    id="salesforceLink"
+                    type="url"
+                    value={caseData.salesforceLink || ''}
+                    onChange={(e) => updateField('salesforceLink', e.target.value)}
+                    placeholder="https://toast.lightning.force.com/..."
                     disabled={!isEditable}
                   />
                 </div>

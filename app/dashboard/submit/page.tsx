@@ -19,7 +19,10 @@ import Link from 'next/link'
 interface FormData {
   parentCompanyName: string
   subsidiaryName: string
+  dba: string
+  mcc: string
   salesforceAccountNumber: string
+  salesforceLink: string
   annualProcessingVolume: string
   advanceDeliveryDays: string
   averageTicketSize: string
@@ -32,7 +35,10 @@ export default function SubmitRequestPage() {
   const [formData, setFormData] = useState<FormData>({
     parentCompanyName: '',
     subsidiaryName: '',
+    dba: '',
+    mcc: '',
     salesforceAccountNumber: '',
+    salesforceLink: '',
     annualProcessingVolume: '',
     advanceDeliveryDays: '',
     averageTicketSize: '',
@@ -47,6 +53,8 @@ export default function SubmitRequestPage() {
     return (
       formData.parentCompanyName.trim() !== '' &&
       formData.subsidiaryName.trim() !== '' &&
+      formData.dba.trim() !== '' &&
+      formData.mcc.trim() !== '' &&
       formData.salesforceAccountNumber.trim() !== '' &&
       formData.annualProcessingVolume !== '' &&
       formData.advanceDeliveryDays !== '' &&
@@ -107,7 +115,10 @@ export default function SubmitRequestPage() {
       caseNumber: storage.generateCaseNumber(),
       parentCompanyName: formData.parentCompanyName,
       subsidiaryName: formData.subsidiaryName,
+      dba: formData.dba,
+      mcc: formData.mcc,
       salesforceAccountNumber: formData.salesforceAccountNumber,
+      salesforceLink: formData.salesforceLink || undefined,
       annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
       averageTicketSize: parseFloat(formData.averageTicketSize),
       cnpVolume: parseFloat(formData.cnpVolume),
@@ -198,14 +209,48 @@ export default function SubmitRequestPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="salesforceAccountNumber">Salesforce Account Number *</Label>
-                <Input
-                  id="salesforceAccountNumber"
-                  value={formData.salesforceAccountNumber}
-                  onChange={handleChange('salesforceAccountNumber')}
-                  placeholder="e.g., 0018X00002ABC123"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dba">DBA (Doing Business As) *</Label>
+                  <Input
+                    id="dba"
+                    value={formData.dba}
+                    onChange={handleChange('dba')}
+                    placeholder="Enter DBA name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mcc">MCC (Merchant Category Code) *</Label>
+                  <Input
+                    id="mcc"
+                    value={formData.mcc}
+                    onChange={handleChange('mcc')}
+                    placeholder="e.g., 5812"
+                  />
+                  <p className="text-xs text-muted-foreground">4-digit merchant category code</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="salesforceAccountNumber">Salesforce Account Number *</Label>
+                  <Input
+                    id="salesforceAccountNumber"
+                    value={formData.salesforceAccountNumber}
+                    onChange={handleChange('salesforceAccountNumber')}
+                    placeholder="e.g., 0018X00002ABC123"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="salesforceLink">Salesforce Link</Label>
+                  <Input
+                    id="salesforceLink"
+                    type="url"
+                    value={formData.salesforceLink}
+                    onChange={handleChange('salesforceLink')}
+                    placeholder="https://toast.lightning.force.com/..."
+                  />
+                  <p className="text-xs text-muted-foreground">Optional: Direct link to Salesforce record</p>
+                </div>
               </div>
             </CardContent>
           </Card>

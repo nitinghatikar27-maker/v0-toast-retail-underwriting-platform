@@ -229,12 +229,31 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="font-medium">{caseData.subsidiaryName || '-'}</p>
                 </div>
                 <div>
+                  <p className="text-muted-foreground">DBA</p>
+                  <p className="font-medium">{caseData.dba}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">MCC</p>
+                  <p className="font-medium">{caseData.mcc}</p>
+                </div>
+                <div>
                   <p className="text-muted-foreground">SF Account #</p>
                   <p className="font-mono">{caseData.salesforceAccountNumber}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">MCC</p>
-                  <p className="font-medium">{caseData.mcc || '-'}</p>
+                  <p className="text-muted-foreground">Salesforce Link</p>
+                  {caseData.salesforceLink ? (
+                    <a 
+                      href={caseData.salesforceLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Open in Salesforce
+                    </a>
+                  ) : (
+                    <p className="font-medium">-</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-muted-foreground">Business Type</p>

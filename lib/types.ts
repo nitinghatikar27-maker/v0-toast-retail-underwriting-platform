@@ -73,12 +73,14 @@ export interface Case {
   // Section A - Merchant Information
   parentCompanyName: string
   subsidiaryName: string
+  dba: string
+  mcc: string
   salesforceAccountNumber: string
+  salesforceLink?: string
   businessType?: string
   yearsInBusiness?: number
   websiteUrl?: string
   businessAddress?: string
-  mcc?: string
   
   // Section B - Processing Profile
   annualProcessingVolume: number
