@@ -179,7 +179,7 @@ export default function SubmitRequestPage() {
     }
 
     toast.success('Case saved as draft')
-    router.push(`/dashboard/case/${caseId}/edit`)
+    router.push('/dashboard')
   }
 
   const handleSubmit = () => {
