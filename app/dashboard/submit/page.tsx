@@ -377,28 +377,55 @@ export default function SubmitRequestPage() {
               ) : exposure ? (
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Daily Volume</span>
-                      <span className="font-mono">{formatCurrency(exposure.dailyVolume)}</span>
+                    {/* Base Exposure */}
+                    <div className="border-b border-dashed pb-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-medium">Base Exposure</span>
+                        <span className="font-mono font-semibold">{formatCurrency(exposure.baseExposure)}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Daily Volume x ADD = {formatCurrency(exposure.dailyVolume)} x {formData.advanceDeliveryDays} days
+                      </p>
                     </div>
-                    <Separator />
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Base Exposure</span>
-                      <span className="font-mono">{formatCurrency(exposure.baseExposure)}</span>
+                    
+                    {/* Chargeback Exposure */}
+                    <div className="border-b border-dashed pb-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-medium">Chargeback Exposure</span>
+                        <span className="font-mono font-semibold">{formatCurrency(exposure.chargebackExposure)}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Daily Volume x 5% = {formatCurrency(exposure.dailyVolume)} x 5%
+                      </p>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Chargeback (5%)</span>
-                      <span className="font-mono">{formatCurrency(exposure.chargebackExposure)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Refund/Return (1%)</span>
-                      <span className="font-mono">{formatCurrency(exposure.refundReturnExposure)}</span>
+                    
+                    {/* Refund/Return Exposure */}
+                    <div className="border-b border-dashed pb-2">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-medium">Refund/Return Exposure</span>
+                        <span className="font-mono font-semibold">{formatCurrency(exposure.refundReturnExposure)}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Daily Volume x 1% = {formatCurrency(exposure.dailyVolume)} x 1%
+                      </p>
                     </div>
                   </div>
-                  <Separator />
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total Exposure</span>
-                    <span className="font-mono font-bold text-lg">{formatCurrency(exposure.totalExposure)}</span>
+                  
+                  {/* Total */}
+                  <div className="bg-primary/10 rounded-lg p-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-semibold">Total Exposure</span>
+                        <p className="text-xs text-muted-foreground">Base + Chargeback + Refund</p>
+                      </div>
+                      <span className="font-mono font-bold text-lg text-primary">{formatCurrency(exposure.totalExposure)}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Daily Volume info */}
+                  <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+                    <p className="font-medium text-foreground">Daily Volume: {formatCurrency(exposure.dailyVolume)}</p>
+                    <p>Annual Volume / 365 = {formatCurrency(parseFloat(formData.annualProcessingVolume))} / 365</p>
                   </div>
                 </div>
               ) : null}

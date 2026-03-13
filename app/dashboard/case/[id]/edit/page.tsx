@@ -503,38 +503,86 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               <CardDescription>Auto-calculated exposure values (read-only)</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">Daily Volume</p>
-                  <p className="text-lg font-mono font-semibold">
-                    {formatCurrency(caseData.exposure.dailyVolume)}
-                  </p>
+              {/* Exposure Calculator - Calculation Breakdown */}
+              <div className="bg-muted/30 rounded-lg p-4 space-y-3 mb-6 border">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Exposure Calculator</p>
+                
+                {/* Daily Volume */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed">
+                  <div>
+                    <p className="text-sm font-medium">Daily Volume</p>
+                    <p className="text-xs text-muted-foreground">Annual Processing Volume / 365</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground font-mono">
+                      {formatCurrency(caseData.annualProcessingVolume)} / 365
+                    </p>
+                    <p className="font-mono font-semibold text-foreground">
+                      {formatCurrency(caseData.exposure.dailyVolume)}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">Base Exposure</p>
-                  <p className="text-lg font-mono font-semibold">
-                    {formatCurrency(caseData.exposure.baseExposure)}
-                  </p>
+                
+                {/* Base Exposure */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed">
+                  <div>
+                    <p className="text-sm font-medium">Base Exposure</p>
+                    <p className="text-xs text-muted-foreground">Daily Volume x ADD</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground font-mono">
+                      {formatCurrency(caseData.exposure.dailyVolume)} x {caseData.advanceDeliveryDays} days
+                    </p>
+                    <p className="font-mono font-semibold text-foreground">
+                      {formatCurrency(caseData.exposure.baseExposure)}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">Chargeback (5%)</p>
-                  <p className="text-lg font-mono font-semibold">
-                    {formatCurrency(caseData.exposure.chargebackExposure)}
-                  </p>
+                
+                {/* Chargeback Exposure */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed">
+                  <div>
+                    <p className="text-sm font-medium">Chargeback Exposure</p>
+                    <p className="text-xs text-muted-foreground">Daily Volume x 5%</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground font-mono">
+                      {formatCurrency(caseData.exposure.dailyVolume)} x 5%
+                    </p>
+                    <p className="font-mono font-semibold text-foreground">
+                      {formatCurrency(caseData.exposure.chargebackExposure)}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">Refund/Return (1%)</p>
-                  <p className="text-lg font-mono font-semibold">
-                    {formatCurrency(caseData.exposure.refundReturnExposure)}
-                  </p>
+                
+                {/* Refund/Return Exposure */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed">
+                  <div>
+                    <p className="text-sm font-medium">Refund/Return Exposure</p>
+                    <p className="text-xs text-muted-foreground">Daily Volume x 1%</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground font-mono">
+                      {formatCurrency(caseData.exposure.dailyVolume)} x 1%
+                    </p>
+                    <p className="font-mono font-semibold text-foreground">
+                      {formatCurrency(caseData.exposure.refundReturnExposure)}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <Separator className="my-4" />
-              <div className="flex justify-between items-center bg-primary/10 rounded-lg p-4">
-                <span className="font-semibold">Total Exposure</span>
-                <span className="text-2xl font-mono font-bold">
-                  {formatCurrency(caseData.exposure.totalExposure)}
-                </span>
+
+              {/* Total Exposure */}
+              <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">TOTAL EXPOSURE</p>
+                    <p className="text-xs text-muted-foreground">Base + Chargeback + Refund/Return</p>
+                  </div>
+                  <span className="text-2xl font-mono font-bold text-primary">
+                    {formatCurrency(caseData.exposure.totalExposure)}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
