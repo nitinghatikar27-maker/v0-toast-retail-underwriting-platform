@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
@@ -288,6 +289,21 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
 
   const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && caseData?.status === 'pending_review'
 
+  // Get decline reason from audit entries
+  const declineEntry = auditEntries.find(entry => entry.action === 'declined')
+  const declineReasonText = declineEntry?.comment || 'No reason provided'
+  const declinedBy = declineEntry?.userName
+  const declinedAt = declineEntry?.timestamp
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-'
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
   if (!caseData) {
     return (
       <div className="p-6">
@@ -331,7 +347,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </div>
             </div>
             <div className="flex items-center gap-2">
-              
               {isEditable && (
                 <>
                   <Button variant="outline" onClick={handleSave}>
@@ -469,6 +484,45 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               )}
             </div>
           </div>
+
+          {/* Decline Reason Alert */}
+          {caseData.status === 'declined' && (
+            <Alert variant="destructive">
+              <XCircle className="h-4 w-4" />
+              <AlertTitle>Case Declined</AlertTitle>
+              <AlertDescription>
+                <p className="mt-1">{declineReasonText}</p>
+                {declinedBy && declinedAt && (
+                  <p className="mt-2 text-xs opacity-80">
+                    Declined by {declinedBy} on {formatDate(declinedAt)}
+                  </p>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Revision Requested Alert */}
+          {caseData.status === 'revision_requested' && (
+            <Alert variant="default" className="border-warning bg-warning/10">
+              <RotateCcw className="h-4 w-4 text-warning" />
+              <AlertTitle>Revision Requested</AlertTitle>
+              <AlertDescription>
+                {(() => {
+                  const revisionEntry = auditEntries.find(entry => entry.action === 'revision_requested')
+                  return (
+                    <>
+                      <p className="mt-1">{revisionEntry?.comment || 'Revisions requested'}</p>
+                      {revisionEntry?.userName && revisionEntry?.timestamp && (
+                        <p className="mt-2 text-xs opacity-80">
+                          Requested by {revisionEntry.userName} on {formatDate(revisionEntry.timestamp)}
+                        </p>
+                      )}
+                    </>
+                  )
+                })()}
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Section A - Merchant Information */}
           <Card>
