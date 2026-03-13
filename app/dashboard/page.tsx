@@ -8,6 +8,7 @@ import { formatCurrency } from '@/lib/exposure'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -23,7 +24,9 @@ import {
   DollarSign,
   Shield,
   Eye,
-  Plus
+  Plus,
+  Edit,
+  AlertCircle
 } from 'lucide-react'
 
 interface DashboardMetrics {
@@ -35,7 +38,7 @@ interface DashboardMetrics {
 }
 
 export default function DashboardPage() {
-  const [cases, setCases] = useState<Case[]>([])
+  const [allCases, setAllCases] = useState<Case[]>([])
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalCases: 0,
     pendingApproval: 0,
@@ -49,12 +52,12 @@ export default function DashboardPage() {
   }, [])
 
   const loadData = () => {
-    const allCases = storage.getCases()
-    const approvedCases = allCases.filter(c => 
+    const cases = storage.getCases()
+    const approvedCases = cases.filter(c => 
       c.status === 'approved' || c.status === 'auto_approved'
     )
-    const pendingCases = allCases.filter(c => 
-      c.status === 'pending_review' || c.status === 'revision_requested'
+    const pendingCases = cases.filter(c => 
+      c.status === 'pending_review' || c.status === 'revision_requested' || c.status === 'draft'
     )
 
     const totalExposure = approvedCases.reduce((sum, c) => sum + c.exposure.totalExposure, 0)
@@ -64,15 +67,18 @@ export default function DashboardPage() {
     }, 0)
 
     setMetrics({
-      totalCases: allCases.length,
+      totalCases: cases.length,
       pendingApproval: pendingCases.length,
       totalApproved: approvedCases.length,
       totalExposure,
       totalReserves
     })
 
-    setCases(approvedCases)
+    setAllCases(cases.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))
   }
+
+  const approvedCases = allCases.filter(c => c.status === 'approved' || c.status === 'auto_approved')
+  const pendingCases = allCases.filter(c => c.status === 'pending_review' || c.status === 'revision_requested' || c.status === 'draft')
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
@@ -89,6 +95,14 @@ export default function DashboardPage() {
         return <Badge className="bg-success text-success-foreground">Auto Approved</Badge>
       case 'approved':
         return <Badge className="bg-success text-success-foreground">Approved</Badge>
+      case 'draft':
+        return <Badge variant="outline" className="border-warning text-warning">Draft</Badge>
+      case 'pending_review':
+        return <Badge className="bg-warning text-warning-foreground">Pending Review</Badge>
+      case 'revision_requested':
+        return <Badge variant="outline" className="border-destructive text-destructive">Revision Requested</Badge>
+      case 'declined':
+        return <Badge variant="destructive">Declined</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -162,86 +176,132 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Cases Table */}
+      {/* Cases Table with Tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>Approved Cases</CardTitle>
-          <CardDescription>All approved cases in the portfolio</CardDescription>
+          <CardTitle>All Cases</CardTitle>
+          <CardDescription>View and manage all underwriting cases</CardDescription>
         </CardHeader>
         <CardContent>
-          {cases.length === 0 ? (
-            <div className="text-center py-12">
-              <Briefcase className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-              <p className="text-muted-foreground">No approved cases yet</p>
-              <p className="text-sm text-muted-foreground mt-1">Submit a new request to get started</p>
-              <Link href="/dashboard/submit">
-                <Button className="mt-4" variant="outline">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Submit Request
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Case ID</TableHead>
-                    <TableHead>MCC</TableHead>
-                    <TableHead>SF Account #</TableHead>
-                    <TableHead>Parent Name</TableHead>
-                    <TableHead>Subsidiary</TableHead>
-                    <TableHead className="text-right">Total Exposure</TableHead>
-                    <TableHead className="text-right">Total Reserve</TableHead>
-                    <TableHead>Approved Date</TableHead>
-                    <TableHead>Next Review</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cases.map(caseItem => (
-                    <TableRow key={caseItem.id}>
-                      <TableCell className="font-mono text-sm">{caseItem.caseNumber}</TableCell>
-                      <TableCell>{caseItem.mcc || '-'}</TableCell>
-                      <TableCell className="font-mono text-sm">{caseItem.salesforceAccountNumber}</TableCell>
-                      <TableCell className="font-medium">{caseItem.parentCompanyName}</TableCell>
-                      <TableCell>{caseItem.subsidiaryName || '-'}</TableCell>
-                      <TableCell className="text-right font-mono">
-                        {formatCurrency(caseItem.exposure.totalExposure)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {formatCurrency(caseItem.reserves?.minimumReserveAmount || 0)}
-                      </TableCell>
-                      <TableCell>{formatDate(caseItem.approvedAt)}</TableCell>
-                      <TableCell>
-                        {caseItem.approvalType === 'auto' ? (
-                          <span className="text-muted-foreground">-</span>
-                        ) : (
-                          formatDate(caseItem.nextReviewDate)
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : 'default'}>
-                          {caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link href={`/dashboard/case/${caseItem.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                            <span className="sr-only">View case</span>
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">All Cases ({allCases.length})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({pendingCases.length})</TabsTrigger>
+              <TabsTrigger value="approved">Approved ({approvedCases.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all">
+              {renderCasesTable(allCases)}
+            </TabsContent>
+            
+            <TabsContent value="pending">
+              {pendingCases.length === 0 ? (
+                <div className="text-center py-12">
+                  <Clock className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                  <p className="text-muted-foreground">No pending cases</p>
+                </div>
+              ) : (
+                renderCasesTable(pendingCases)
+              )}
+            </TabsContent>
+            
+            <TabsContent value="approved">
+              {approvedCases.length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                  <p className="text-muted-foreground">No approved cases yet</p>
+                </div>
+              ) : (
+                renderCasesTable(approvedCases)
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
   )
+
+  function renderCasesTable(cases: Case[]) {
+    if (cases.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <Briefcase className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+          <p className="text-muted-foreground">No cases found</p>
+          <p className="text-sm text-muted-foreground mt-1">Submit a new request to get started</p>
+          <Link href="/dashboard/submit">
+            <Button className="mt-4" variant="outline">
+              <Plus className="mr-2 h-4 w-4" />
+              Submit Request
+            </Button>
+          </Link>
+        </div>
+      )
+    }
+
+    return (
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Case ID</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>MCC</TableHead>
+              <TableHead>SF Account #</TableHead>
+              <TableHead>Parent Name</TableHead>
+              <TableHead>Subsidiary</TableHead>
+              <TableHead className="text-right">Total Exposure</TableHead>
+              <TableHead className="text-right">Total Reserve</TableHead>
+              <TableHead>Created/Approved</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {cases.map(caseItem => (
+              <TableRow key={caseItem.id}>
+                <TableCell className="font-mono text-sm">{caseItem.caseNumber}</TableCell>
+                <TableCell>{getStatusBadge(caseItem.status)}</TableCell>
+                <TableCell>{caseItem.mcc || '-'}</TableCell>
+                <TableCell className="font-mono text-sm">{caseItem.salesforceAccountNumber}</TableCell>
+                <TableCell className="font-medium">{caseItem.parentCompanyName}</TableCell>
+                <TableCell>{caseItem.subsidiaryName || '-'}</TableCell>
+                <TableCell className="text-right font-mono">
+                  {formatCurrency(caseItem.exposure.totalExposure)}
+                </TableCell>
+                <TableCell className="text-right font-mono">
+                  {formatCurrency(caseItem.reserves?.minimumReserveAmount || 0)}
+                </TableCell>
+                <TableCell>
+                  {caseItem.approvedAt ? formatDate(caseItem.approvedAt) : formatDate(caseItem.createdAt)}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : 'default'}>
+                    {caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    {(caseItem.status === 'draft' || caseItem.status === 'revision_requested') && (
+                      <Link href={`/dashboard/case/${caseItem.id}/edit`}>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit case</span>
+                        </Button>
+                      </Link>
+                    )}
+                    <Link href={`/dashboard/case/${caseItem.id}`}>
+                      <Button variant="ghost" size="sm">
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">View case</span>
+                      </Button>
+                    </Link>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    )
+  }
 }
