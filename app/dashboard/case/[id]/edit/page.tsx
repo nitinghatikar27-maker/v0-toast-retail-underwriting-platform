@@ -597,12 +597,12 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Rolling Reserve */}
-              <Collapsible>
+              <Collapsible defaultOpen>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 rounded-lg hover:bg-muted">
                   <span className="font-medium">Rolling Reserve Calculator</span>
                   <ChevronDown className="h-4 w-4" />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="pt-4">
+                <CollapsibleContent className="pt-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Reserve Percentage (%)</Label>
@@ -633,16 +633,37 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                       />
                     </div>
                   </div>
+                  
+                  {/* Rolling Reserve Total Calculation */}
+                  {(caseData.reserves?.rollingReservePercentage || 0) > 0 && (
+                    <div className="bg-muted/30 rounded-lg p-4 border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Total Rolling Reserve Amount</p>
+                          <p className="text-xs text-muted-foreground">
+                            Daily Volume x Reserve % x Reserve Days = {formatCurrency(caseData.exposure.dailyVolume)} x {caseData.reserves?.rollingReservePercentage || 0}% x {caseData.reserves?.rollingReserveDays || 0} days
+                          </p>
+                        </div>
+                        <p className="text-lg font-mono font-bold">
+                          {formatCurrency(
+                            caseData.exposure.dailyVolume * 
+                            ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
+                            (caseData.reserves?.rollingReserveDays || 0)
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </CollapsibleContent>
               </Collapsible>
 
               {/* Minimum Reserve */}
-              <Collapsible>
+              <Collapsible defaultOpen>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 rounded-lg hover:bg-muted">
                   <span className="font-medium">Minimum Reserve Calculator</span>
                   <ChevronDown className="h-4 w-4" />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="pt-4">
+                <CollapsibleContent className="pt-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Daily Hold Percentage (%)</Label>
@@ -658,6 +679,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                         })}
                         disabled={!isEditable}
                       />
+                      <p className="text-xs text-muted-foreground">Percentage of daily transactions held until target is reached</p>
                     </div>
                     <div className="space-y-2">
                       <Label>Target Amount ($)</Label>
@@ -671,10 +693,58 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                         })}
                         disabled={!isEditable}
                       />
+                      <p className="text-xs text-muted-foreground">Hold daily transactions until this amount is reached</p>
                     </div>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* Total Exposure Coverage Summary */}
+              <div className="bg-primary/5 rounded-lg p-4 border border-primary/20 space-y-4">
+                <p className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Total Exposure Coverage</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Total Reserve Amount */}
+                  <div className="bg-card rounded-lg p-3 border">
+                    <p className="text-xs text-muted-foreground">Total Reserve Amount</p>
+                    <p className="text-lg font-mono font-bold">
+                      {formatCurrency(
+                        (caseData.exposure.dailyVolume * 
+                          ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
+                          (caseData.reserves?.rollingReserveDays || 0)) +
+                        (caseData.reserves?.minimumReserveAmount || 0)
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Rolling + Minimum Reserve</p>
+                  </div>
+                  
+                  {/* Total Exposure */}
+                  <div className="bg-card rounded-lg p-3 border">
+                    <p className="text-xs text-muted-foreground">Total Exposure</p>
+                    <p className="text-lg font-mono font-bold">
+                      {formatCurrency(caseData.exposure.totalExposure)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">From Section C</p>
+                  </div>
+                  
+                  {/* Coverage Ratio */}
+                  <div className="bg-card rounded-lg p-3 border">
+                    <p className="text-xs text-muted-foreground">Coverage Ratio</p>
+                    <p className="text-lg font-mono font-bold">
+                      {caseData.exposure.totalExposure > 0 
+                        ? (((
+                            (caseData.exposure.dailyVolume * 
+                              ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
+                              (caseData.reserves?.rollingReserveDays || 0)) +
+                            (caseData.reserves?.minimumReserveAmount || 0)
+                          ) / caseData.exposure.totalExposure) * 100).toFixed(1) + '%'
+                        : '0%'
+                      }
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Reserve / Exposure</p>
+                  </div>
+                </div>
+              </div>
 
               <Separator />
 
