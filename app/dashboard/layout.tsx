@@ -34,7 +34,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen flex bg-background">
       <AppSidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 min-w-0">
         {children}
       </main>
     </div>

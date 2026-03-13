@@ -84,7 +84,7 @@ export function AppSidebar() {
   })
 
   return (
-    <aside className="w-64 h-screen bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border">
+    <aside className="w-64 min-h-screen sticky top-0 h-screen bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border">
       <div className="p-4 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex items-center gap-3">
