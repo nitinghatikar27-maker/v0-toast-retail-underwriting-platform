@@ -10,8 +10,10 @@ export function calculateExposure(input: ExposureInput): Exposure {
   
   const dailyVolume = annualProcessingVolume / 365
   const baseExposure = dailyVolume * advanceDeliveryDays
-  const chargebackExposure = dailyVolume * 0.05 // 5%
-  const refundReturnExposure = dailyVolume * 0.01 // 1%
+  
+  // Only calculate chargeback and refund exposure if ADD > 0
+  const chargebackExposure = advanceDeliveryDays > 0 ? dailyVolume * 0.05 : 0 // 5%
+  const refundReturnExposure = advanceDeliveryDays > 0 ? dailyVolume * 0.01 : 0 // 1%
   const totalExposure = baseExposure + chargebackExposure + refundReturnExposure
 
   return {
