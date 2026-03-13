@@ -14,7 +14,16 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle, Save } from 'lucide-react'
+import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle, Save, XCircle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import Link from 'next/link'
 
 interface FormData {
@@ -51,6 +60,8 @@ export default function SubmitRequestPage() {
   const [isCalculating, setIsCalculating] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [initialNotes, setInitialNotes] = useState('')
+  const [declineDialogOpen, setDeclineDialogOpen] = useState(false)
+  const [declineReason, setDeclineReason] = useState('')
   const calculationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const isFormComplete = useCallback(() => {
@@ -104,6 +115,74 @@ export default function SubmitRequestPage() {
       ...prev,
       [field]: e.target.value
     }))
+  }
+
+  const handleDecline = () => {
+    if (!user || !declineReason.trim()) return
+    
+    setIsSubmitting(true)
+    
+    // Calculate exposure if available
+    let caseExposure = exposure
+    if (!caseExposure && formData.annualProcessingVolume && formData.advanceDeliveryDays) {
+      caseExposure = calculateExposure({
+        annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
+        advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0
+      })
+    }
+    
+    if (!caseExposure) {
+      caseExposure = {
+        dailyVolume: 0,
+        baseExposure: 0,
+        chargebackExposure: 0,
+        refundReturnExposure: 0,
+        totalExposure: 0
+      }
+    }
+
+    const caseId = generateId()
+    const newCase: Case = {
+      id: caseId,
+      caseNumber: storage.generateCaseNumber(),
+      parentCompanyName: formData.parentCompanyName || 'Declined Case',
+      subsidiaryName: formData.subsidiaryName || '',
+      dba: formData.dba || '',
+      mcc: formData.mcc || '',
+      salesforceAccountNumber: formData.salesforceAccountNumber || '',
+      salesforceLink: formData.salesforceLink || undefined,
+      aeName: formData.aeName || '',
+      annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
+      averageTicketSize: parseFloat(formData.averageTicketSize) || 0,
+      cnpVolume: parseFloat(formData.cnpVolume) || 0,
+      advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0,
+      exposure: caseExposure,
+      status: 'declined',
+      approvalType: 'manual',
+      createdAt: new Date().toISOString(),
+      createdBy: user.id,
+      lastModifiedBy: user.id,
+      lastModifiedAt: new Date().toISOString()
+    }
+
+    storage.addCase(newCase)
+
+    // Add audit entry with decline reason
+    const auditEntry: AuditEntry = {
+      id: generateId(),
+      caseId,
+      userId: user.id,
+      userName: user.name,
+      action: 'declined',
+      comment: declineReason.trim(),
+      timestamp: new Date().toISOString()
+    }
+    storage.addAuditEntry(auditEntry)
+
+    toast.success('Case declined')
+    setDeclineDialogOpen(false)
+    setIsSubmitting(false)
+    router.push('/dashboard')
   }
 
   const handleSaveAsDraft = () => {
@@ -455,6 +534,53 @@ export default function SubmitRequestPage() {
                   <Link href="/dashboard">
                     <Button variant="outline">Cancel</Button>
                   </Link>
+                  
+                  {/* Decline Button with Dialog */}
+                  <Dialog open={declineDialogOpen} onOpenChange={setDeclineDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Decline
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Decline Case</DialogTitle>
+                        <DialogDescription>
+                          Please provide a reason for declining this case
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Company:</span>
+                            <span className="font-medium">{formData.parentCompanyName || 'Not specified'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Exposure:</span>
+                            <span className="font-mono font-bold">{formatCurrency(exposure?.totalExposure || 0)}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="declineReason">Decline Reason *</Label>
+                          <Textarea
+                            id="declineReason"
+                            value={declineReason}
+                            onChange={(e) => setDeclineReason(e.target.value)}
+                            placeholder="Enter the reason for declining this case..."
+                            rows={4}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeclineDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDecline} disabled={isSubmitting || !declineReason.trim()}>
+                          {isSubmitting ? 'Processing...' : 'Decline Case'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  
                   <Button variant="secondary" onClick={handleSaveAsDraft}>
                     <Save className="h-4 w-4 mr-2" />
                     Save as Draft
