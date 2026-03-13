@@ -1,12 +1,15 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { storage } from '@/lib/storage'
 import { ToastLogo } from '@/components/toast-logo'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +26,9 @@ import {
   LogOut,
   ChevronDown,
   Users,
-  Shield
+  Shield,
+  Bell,
+  MessageCircle
 } from 'lucide-react'
 
 const navItems = [
@@ -63,6 +68,20 @@ export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout, isAdmin, isApprover } = useAuth()
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
+
+  useEffect(() => {
+    if (user) {
+      const checkNotifications = () => {
+        const unread = storage.getUnreadNotificationsForUser(user.id)
+        setUnreadNotifications(unread.length)
+      }
+      checkNotifications()
+      // Poll for new notifications every 5 seconds
+      const interval = setInterval(checkNotifications, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
 
   const handleLogout = () => {
     logout()
@@ -121,6 +140,19 @@ export function AppSidebar() {
             </Link>
           )
         })}
+        
+        {/* Notifications indicator */}
+        {unreadNotifications > 0 && (
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-primary/10 text-primary">
+            <div className="relative">
+              <Bell className="h-4 w-4" />
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full flex items-center justify-center text-[8px] text-destructive-foreground">
+                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              </span>
+            </div>
+            <span>{unreadNotifications} new message{unreadNotifications > 1 ? 's' : ''}</span>
+          </div>
+        )}
       </nav>
 
       <div className="p-4 border-t border-sidebar-border">

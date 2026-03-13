@@ -120,11 +120,35 @@ export interface Case {
   lastModifiedAt: string
 }
 
+export interface ChatMessage {
+  id: string
+  caseId: string
+  senderId: string
+  senderName: string
+  message: string
+  timestamp: string
+  isRead: boolean
+  readBy: string[]
+}
+
+export interface Notification {
+  id: string
+  userId: string
+  type: 'chat' | 'case_update' | 'approval_request'
+  title: string
+  message: string
+  caseId?: string
+  timestamp: string
+  isRead: boolean
+}
+
 export interface AppState {
   users: User[]
   cases: Case[]
   auditTrail: AuditEntry[]
   documents: Document[]
   approvalMatrix: ApprovalMatrixEntry[]
+  chatMessages: ChatMessage[]
+  notifications: Notification[]
   currentUserId: string | null
 }

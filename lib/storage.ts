@@ -1,4 +1,4 @@
-import { AppState, User, Case, AuditEntry, Document, ApprovalMatrixEntry } from './types'
+import { AppState, User, Case, AuditEntry, Document, ApprovalMatrixEntry, ChatMessage, Notification } from './types'
 
 const STORAGE_KEY = 'toast_underwriting_data'
 
@@ -37,6 +37,8 @@ const getInitialState = (): AppState => ({
   auditTrail: [],
   documents: [],
   approvalMatrix: DEFAULT_APPROVAL_MATRIX,
+  chatMessages: [],
+  notifications: [],
   currentUserId: null
 })
 
@@ -227,6 +229,78 @@ export const storage = {
     }
     // Default to highest approver if no match
     return sorted[sorted.length - 1]?.approverId || 'admin-1'
+  },
+
+  // Chat operations
+  getChatMessages(): ChatMessage[] {
+    return this.getState().chatMessages || []
+  },
+
+  getChatMessagesForCase(caseId: string): ChatMessage[] {
+    return this.getChatMessages().filter(m => m.caseId === caseId)
+  },
+
+  addChatMessage(message: ChatMessage): void {
+    const state = this.getState()
+    if (!state.chatMessages) state.chatMessages = []
+    state.chatMessages.push(message)
+    this.setState(state)
+  },
+
+  markChatMessagesAsRead(caseId: string, userId: string): void {
+    const state = this.getState()
+    if (!state.chatMessages) return
+    state.chatMessages = state.chatMessages.map(m => {
+      if (m.caseId === caseId && m.senderId !== userId && !m.readBy.includes(userId)) {
+        return { ...m, readBy: [...m.readBy, userId] }
+      }
+      return m
+    })
+    this.setState(state)
+  },
+
+  getUnreadMessageCount(caseId: string, userId: string): number {
+    return this.getChatMessagesForCase(caseId).filter(
+      m => m.senderId !== userId && !m.readBy.includes(userId)
+    ).length
+  },
+
+  // Notification operations
+  getNotifications(): Notification[] {
+    return this.getState().notifications || []
+  },
+
+  getNotificationsForUser(userId: string): Notification[] {
+    return this.getNotifications().filter(n => n.userId === userId)
+  },
+
+  getUnreadNotificationsForUser(userId: string): Notification[] {
+    return this.getNotificationsForUser(userId).filter(n => !n.isRead)
+  },
+
+  addNotification(notification: Notification): void {
+    const state = this.getState()
+    if (!state.notifications) state.notifications = []
+    state.notifications.push(notification)
+    this.setState(state)
+  },
+
+  markNotificationAsRead(notificationId: string): void {
+    const state = this.getState()
+    if (!state.notifications) return
+    state.notifications = state.notifications.map(n =>
+      n.id === notificationId ? { ...n, isRead: true } : n
+    )
+    this.setState(state)
+  },
+
+  markAllNotificationsAsRead(userId: string): void {
+    const state = this.getState()
+    if (!state.notifications) return
+    state.notifications = state.notifications.map(n =>
+      n.userId === userId ? { ...n, isRead: true } : n
+    )
+    this.setState(state)
   }
 }
 

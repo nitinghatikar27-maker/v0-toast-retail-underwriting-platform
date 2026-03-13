@@ -8,6 +8,7 @@ import { Case, AuditEntry, Guarantee, Document as DocType } from '@/lib/types'
 import { calculateExposure, formatCurrency } from '@/lib/exposure'
 import { AuditTrail } from '@/components/audit-trail'
 import { DocumentUpload } from '@/components/document-upload'
+import { Chatter } from '@/components/chatter'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -60,7 +61,8 @@ import {
   ImageIcon,
   CheckCircle,
   XCircle,
-  RotateCcw
+  RotateCcw,
+  MessageCircle
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -74,7 +76,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [rightPanelOpen, setRightPanelOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'audit' | 'documents'>('audit')
+  const [activeTab, setActiveTab] = useState<'chatter' | 'audit' | 'documents'>('chatter')
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false)
   const [declineDialogOpen, setDeclineDialogOpen] = useState(false)
   const [revisionDialogOpen, setRevisionDialogOpen] = useState(false)
@@ -343,15 +345,23 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     Activity
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="w-[400px] sm:w-[540px]">
+                <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
                   <SheetHeader>
                     <SheetTitle>Case Activity</SheetTitle>
                     <SheetDescription>
-                      Audit trail and document uploads
+                      Chatter, audit trail and documents
                     </SheetDescription>
                   </SheetHeader>
-                  <div className="mt-6">
+                  <div className="mt-6 flex flex-col flex-1 overflow-hidden">
                     <div className="flex gap-2 mb-4">
+                      <Button
+                        variant={activeTab === 'chatter' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setActiveTab('chatter')}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Chatter
+                      </Button>
                       <Button
                         variant={activeTab === 'audit' ? 'default' : 'outline'}
                         size="sm"
@@ -370,16 +380,20 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                       </Button>
                     </div>
                     
-                    {activeTab === 'audit' ? (
-                      <AuditTrail entries={auditEntries} />
-                    ) : (
-                      <DocumentUpload
-                        caseId={caseData.id}
-                        documents={documents}
-                        onDocumentAdded={loadData}
-                        onDocumentDeleted={loadData}
-                      />
-                    )}
+                    <div className="flex-1 overflow-hidden">
+                      {activeTab === 'chatter' ? (
+                        <Chatter caseId={caseData.id} caseName={caseData.caseNumber} />
+                      ) : activeTab === 'audit' ? (
+                        <AuditTrail entries={auditEntries} />
+                      ) : (
+                        <DocumentUpload
+                          caseId={caseData.id}
+                          documents={documents}
+                          onDocumentAdded={loadData}
+                          onDocumentDeleted={loadData}
+                        />
+                      )}
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
