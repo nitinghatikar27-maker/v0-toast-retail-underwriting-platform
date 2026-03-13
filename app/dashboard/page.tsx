@@ -26,7 +26,11 @@ import {
   Eye,
   Plus,
   Edit,
-  AlertCircle
+  AlertCircle,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Calendar
 } from 'lucide-react'
 
 interface DashboardMetrics {
@@ -89,6 +93,182 @@ export default function DashboardPage() {
     })
   }
 
+  const exportToExcel = () => {
+    const approvedCasesData = approvedCases.map(c => ({
+      'Case Number': c.caseNumber,
+      'Status': c.status === 'auto_approved' ? 'Auto Approved' : 'Approved',
+      'AE Name': c.aeName || '',
+      'Parent Company': c.parentCompanyName,
+      'Subsidiary': c.subsidiaryName,
+      'DBA': c.dba,
+      'MCC': c.mcc,
+      'SF Account #': c.salesforceAccountNumber,
+      'Annual Volume': c.annualProcessingVolume,
+      'Average Ticket': c.averageTicketSize,
+      'CNP Volume %': c.cnpVolume,
+      'ADD': c.advanceDeliveryDays,
+      'Daily Volume': c.exposure.dailyVolume,
+      'Base Exposure': c.exposure.baseExposure,
+      'Chargeback Exposure': c.exposure.chargebackExposure,
+      'Refund Exposure': c.exposure.refundReturnExposure,
+      'Total Exposure': c.exposure.totalExposure,
+      'Reserve %': c.reserves?.rollingReservePercentage || 0,
+      'Reserve Amount': c.reserves?.minimumReserveAmount || 0,
+      'Approval Type': c.approvalType,
+      'Created Date': formatDate(c.createdAt),
+      'Approved Date': formatDate(c.approvedAt),
+      'Next Review Date': formatDate(c.nextReviewDate)
+    }))
+
+    // Convert to CSV
+    if (approvedCasesData.length === 0) {
+      alert('No approved cases to export')
+      return
+    }
+
+    const headers = Object.keys(approvedCasesData[0])
+    const csvContent = [
+      headers.join(','),
+      ...approvedCasesData.map(row => 
+        headers.map(h => {
+          const val = row[h as keyof typeof row]
+          // Escape commas and quotes in string values
+          if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) {
+            return `"${val.replace(/"/g, '""')}"`
+          }
+          return val
+        }).join(',')
+      )
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `approved_cases_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const exportCaseToPDF = (caseItem: Case) => {
+    // Create a printable HTML content
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Case ${caseItem.caseNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+          h1 { color: #FF4C29; border-bottom: 2px solid #FF4C29; padding-bottom: 10px; }
+          h2 { color: #666; margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+          .section { margin-bottom: 20px; }
+          .row { display: flex; margin-bottom: 8px; }
+          .label { font-weight: bold; width: 200px; color: #555; }
+          .value { flex: 1; }
+          .status { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; }
+          .approved { background: #dcfce7; color: #166534; }
+          .pending { background: #fef3c7; color: #92400e; }
+          .declined { background: #fecaca; color: #991b1b; }
+          .exposure-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          .exposure-table th, .exposure-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          .exposure-table th { background: #f5f5f5; }
+          .total-row { font-weight: bold; background: #f0f9ff; }
+          @media print { body { margin: 20px; } }
+        </style>
+      </head>
+      <body>
+        <h1>Toast Underwriting Case Report</h1>
+        <div class="section">
+          <div class="row">
+            <span class="label">Case Number:</span>
+            <span class="value">${caseItem.caseNumber}</span>
+          </div>
+          <div class="row">
+            <span class="label">Status:</span>
+            <span class="value">
+              <span class="status ${caseItem.status === 'approved' || caseItem.status === 'auto_approved' ? 'approved' : caseItem.status === 'declined' ? 'declined' : 'pending'}">
+                ${caseItem.status.replace('_', ' ').toUpperCase()}
+              </span>
+            </span>
+          </div>
+          <div class="row">
+            <span class="label">Approval Type:</span>
+            <span class="value">${caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}</span>
+          </div>
+        </div>
+
+        <h2>Section A - Merchant Information</h2>
+        <div class="section">
+          <div class="row"><span class="label">AE Name:</span><span class="value">${caseItem.aeName || '-'}</span></div>
+          <div class="row"><span class="label">Parent Company:</span><span class="value">${caseItem.parentCompanyName}</span></div>
+          <div class="row"><span class="label">Subsidiary:</span><span class="value">${caseItem.subsidiaryName || '-'}</span></div>
+          <div class="row"><span class="label">DBA:</span><span class="value">${caseItem.dba || '-'}</span></div>
+          <div class="row"><span class="label">MCC:</span><span class="value">${caseItem.mcc || '-'}</span></div>
+          <div class="row"><span class="label">SF Account #:</span><span class="value">${caseItem.salesforceAccountNumber}</span></div>
+        </div>
+
+        <h2>Section B - Processing Profile</h2>
+        <div class="section">
+          <div class="row"><span class="label">Annual Processing Volume:</span><span class="value">$${caseItem.annualProcessingVolume.toLocaleString()}</span></div>
+          <div class="row"><span class="label">Average Ticket Size:</span><span class="value">$${caseItem.averageTicketSize.toLocaleString()}</span></div>
+          <div class="row"><span class="label">CNP Volume:</span><span class="value">${caseItem.cnpVolume}%</span></div>
+          <div class="row"><span class="label">Advance Delivery Days:</span><span class="value">${caseItem.advanceDeliveryDays}</span></div>
+        </div>
+
+        <h2>Section C - Exposure Summary</h2>
+        <div class="section">
+          <table class="exposure-table">
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Daily Volume</td><td>$${caseItem.exposure.dailyVolume.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>
+            <tr><td>Base Exposure</td><td>$${caseItem.exposure.baseExposure.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>
+            <tr><td>Chargeback Exposure</td><td>$${caseItem.exposure.chargebackExposure.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>
+            <tr><td>Refund/Return Exposure</td><td>$${caseItem.exposure.refundReturnExposure.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>
+            <tr class="total-row"><td>Total Exposure</td><td>$${caseItem.exposure.totalExposure.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>
+          </table>
+        </div>
+
+        ${caseItem.reserves ? `
+        <h2>Section D - Reserves</h2>
+        <div class="section">
+          <div class="row"><span class="label">Rolling Reserve %:</span><span class="value">${caseItem.reserves.rollingReservePercentage}%</span></div>
+          <div class="row"><span class="label">Rolling Reserve Days:</span><span class="value">${caseItem.reserves.rollingReserveDays}</span></div>
+          <div class="row"><span class="label">Minimum Reserve %:</span><span class="value">${caseItem.reserves.minimumReservePercentage}%</span></div>
+          <div class="row"><span class="label">Minimum Reserve Amount:</span><span class="value">$${caseItem.reserves.minimumReserveAmount.toLocaleString()}</span></div>
+        </div>
+        ` : ''}
+
+        <h2>Section E - Case Details</h2>
+        <div class="section">
+          <div class="row"><span class="label">Description:</span><span class="value">${caseItem.description || '-'}</span></div>
+          <div class="row"><span class="label">Next Review Date:</span><span class="value">${caseItem.nextReviewDate ? new Date(caseItem.nextReviewDate).toLocaleDateString() : '-'}</span></div>
+        </div>
+
+        <h2>Timeline</h2>
+        <div class="section">
+          <div class="row"><span class="label">Created:</span><span class="value">${new Date(caseItem.createdAt).toLocaleString()}</span></div>
+          ${caseItem.approvedAt ? `<div class="row"><span class="label">Approved:</span><span class="value">${new Date(caseItem.approvedAt).toLocaleString()}</span></div>` : ''}
+          <div class="row"><span class="label">Last Modified:</span><span class="value">${new Date(caseItem.lastModifiedAt).toLocaleString()}</span></div>
+        </div>
+
+        <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
+          Generated on ${new Date().toLocaleString()} | Toast Underwriting System
+        </footer>
+      </body>
+      </html>
+    `
+
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    }
+  }
+
   const getStatusBadge = (status: Case['status']) => {
     switch (status) {
       case 'auto_approved':
@@ -115,12 +295,18 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Overview of approved cases and portfolio metrics</p>
         </div>
-        <Link href="/dashboard/submit">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Submit New Request
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportToExcel} disabled={approvedCases.length === 0}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export Approved (CSV)
           </Button>
-        </Link>
+          <Link href="/dashboard/submit">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Submit New Request
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Metrics Cards */}
@@ -252,6 +438,7 @@ export default function DashboardPage() {
               <TableHead className="text-right">Total Exposure</TableHead>
               <TableHead className="text-right">Total Reserve</TableHead>
               <TableHead>Created/Approved</TableHead>
+              <TableHead>Next Review</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -275,6 +462,16 @@ export default function DashboardPage() {
                   {caseItem.approvedAt ? formatDate(caseItem.approvedAt) : formatDate(caseItem.createdAt)}
                 </TableCell>
                 <TableCell>
+                  {caseItem.nextReviewDate ? (
+                    <span className="flex items-center gap-1 text-sm">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      {formatDate(caseItem.nextReviewDate)}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
                   <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : 'default'}>
                     {caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}
                   </Badge>
@@ -295,6 +492,10 @@ export default function DashboardPage() {
                         <span className="sr-only">View case</span>
                       </Button>
                     </Link>
+                    <Button variant="ghost" size="sm" onClick={() => exportCaseToPDF(caseItem)}>
+                      <FileText className="h-4 w-4" />
+                      <span className="sr-only">Export PDF</span>
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

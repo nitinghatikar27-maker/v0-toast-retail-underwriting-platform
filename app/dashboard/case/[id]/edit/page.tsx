@@ -56,7 +56,8 @@ import {
   CheckCircle,
   XCircle,
   RotateCcw,
-  MessageCircle
+  MessageCircle,
+  Calendar
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -1163,15 +1164,33 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Section E - Case Description */}
+          {/* Section E - Case Description & Review */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Section E - Case Description
+                Section E - Case Description & Review
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Next Review Date */}
+              <div className="space-y-2">
+                <Label htmlFor="nextReviewDate" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Next Review Date
+                </Label>
+                <Input
+                  id="nextReviewDate"
+                  type="date"
+                  value={caseData.nextReviewDate ? caseData.nextReviewDate.split('T')[0] : ''}
+                  onChange={(e) => updateField('nextReviewDate', e.target.value ? new Date(e.target.value).toISOString() : undefined)}
+                  disabled={!isEditable}
+                  className="max-w-xs"
+                />
+                <p className="text-xs text-muted-foreground">Set the date for the next case review</p>
+              </div>
+
+              <Separator />
               {/* Snapshot */}
               <div className="space-y-2">
                 <Label>Snapshot</Label>
