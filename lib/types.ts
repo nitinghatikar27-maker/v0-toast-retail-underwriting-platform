@@ -77,6 +77,7 @@ export interface Case {
   mcc: string
   salesforceAccountNumber: string
   salesforceLink?: string
+  aeName: string
   businessType?: string
   yearsInBusiness?: number
   websiteUrl?: string

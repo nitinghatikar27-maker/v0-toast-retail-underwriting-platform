@@ -24,6 +24,7 @@ interface FormData {
   mcc: string
   salesforceAccountNumber: string
   salesforceLink: string
+  aeName: string
   annualProcessingVolume: string
   advanceDeliveryDays: string
   averageTicketSize: string
@@ -40,6 +41,7 @@ export default function SubmitRequestPage() {
     mcc: '',
     salesforceAccountNumber: '',
     salesforceLink: '',
+    aeName: '',
     annualProcessingVolume: '',
     advanceDeliveryDays: '',
     averageTicketSize: '',
@@ -58,6 +60,7 @@ export default function SubmitRequestPage() {
       formData.dba.trim() !== '' &&
       formData.mcc.trim() !== '' &&
       formData.salesforceAccountNumber.trim() !== '' &&
+      formData.aeName.trim() !== '' &&
       formData.annualProcessingVolume !== '' &&
       formData.advanceDeliveryDays !== '' &&
       formData.averageTicketSize !== '' &&
@@ -136,6 +139,7 @@ export default function SubmitRequestPage() {
       mcc: formData.mcc || '',
       salesforceAccountNumber: formData.salesforceAccountNumber || '',
       salesforceLink: formData.salesforceLink || undefined,
+      aeName: formData.aeName || '',
       annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
       averageTicketSize: parseFloat(formData.averageTicketSize) || 0,
       cnpVolume: parseFloat(formData.cnpVolume) || 0,
@@ -200,6 +204,7 @@ export default function SubmitRequestPage() {
       mcc: formData.mcc,
       salesforceAccountNumber: formData.salesforceAccountNumber,
       salesforceLink: formData.salesforceLink || undefined,
+      aeName: formData.aeName,
       annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
       averageTicketSize: parseFloat(formData.averageTicketSize),
       cnpVolume: parseFloat(formData.cnpVolume),
@@ -352,6 +357,15 @@ export default function SubmitRequestPage() {
                     placeholder="https://toast.lightning.force.com/..."
                   />
                   <p className="text-xs text-muted-foreground">Optional: Direct link to Salesforce record</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="aeName">AE Name *</Label>
+                  <Input
+                    id="aeName"
+                    value={formData.aeName}
+                    onChange={handleChange('aeName')}
+                    placeholder="e.g., John Smith"
+                  />
                 </div>
               </div>
             </CardContent>
