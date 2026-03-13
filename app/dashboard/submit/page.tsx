@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { storage, generateId } from '@/lib/storage'
-import { Exposure, Case, AuditEntry } from '@/lib/types'
+import { Exposure, Case, AuditEntry, ChatMessage } from '@/lib/types'
 import { calculateExposure, getExposureDecision, formatCurrency } from '@/lib/exposure'
 import { ExposureCalculator, DecisionBanner } from '@/components/exposure-calculator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { ArrowLeft, Calculator, CheckCircle, FileText } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 
 interface FormData {
@@ -47,6 +48,7 @@ export default function SubmitRequestPage() {
   const [exposure, setExposure] = useState<Exposure | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [initialNotes, setInitialNotes] = useState('')
   const calculationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const isFormComplete = useCallback(() => {
@@ -148,6 +150,21 @@ export default function SubmitRequestPage() {
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
+
+    // Add initial notes as a chat message if provided
+    if (initialNotes.trim()) {
+      const chatMessage: ChatMessage = {
+        id: generateId(),
+        caseId,
+        senderId: user.id,
+        senderName: user.name,
+        message: initialNotes.trim(),
+        timestamp: new Date().toISOString(),
+        isRead: true,
+        readBy: [user.id]
+      }
+      storage.addChatMessage(chatMessage)
+    }
 
     if (isAutoApproved) {
       toast.success('Case auto-approved successfully!')
@@ -429,6 +446,30 @@ export default function SubmitRequestPage() {
                   </div>
                 </div>
               ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Initial Notes
+              </CardTitle>
+              <CardDescription>
+                Add notes that will appear in the case chatter
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                placeholder="Add any initial notes or context for this case..."
+                value={initialNotes}
+                onChange={(e) => setInitialNotes(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                These notes will be added to the case chatter when created
+              </p>
             </CardContent>
           </Card>
 
