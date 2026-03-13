@@ -375,6 +375,15 @@ export default function SubmitRequestPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="aeName">AE Name *</Label>
+                <Input
+                  id="aeName"
+                  value={formData.aeName}
+                  onChange={handleChange('aeName')}
+                  placeholder="e.g., John Smith"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="parentCompanyName">Parent Company Name *</Label>
@@ -436,15 +445,6 @@ export default function SubmitRequestPage() {
                     placeholder="https://toast.lightning.force.com/..."
                   />
                   <p className="text-xs text-muted-foreground">Optional: Direct link to Salesforce record</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="aeName">AE Name *</Label>
-                  <Input
-                    id="aeName"
-                    value={formData.aeName}
-                    onChange={handleChange('aeName')}
-                    placeholder="e.g., John Smith"
-                  />
                 </div>
               </div>
             </CardContent>
