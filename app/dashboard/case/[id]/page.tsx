@@ -96,7 +96,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     })
   }
 
-  const canApprove = user && (user.role === 'approver' || user.role === 'admin') && caseData?.status === 'pending_review'
+  const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && caseData?.status === 'pending_review'
 
   const handleApprove = () => {
     if (!caseData || !user) return

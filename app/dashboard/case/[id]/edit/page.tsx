@@ -291,7 +291,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     router.push('/dashboard')
   }
 
-  const canApprove = user && (user.role === 'approver' || user.role === 'admin') && caseData?.status === 'pending_review'
+  const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && caseData?.status === 'pending_review'
 
   if (!caseData) {
     return (
