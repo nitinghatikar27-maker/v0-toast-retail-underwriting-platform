@@ -63,7 +63,7 @@ export default function SubmitRequestPage() {
       formData.averageTicketSize !== '' &&
       formData.cnpVolume !== '' &&
       parseFloat(formData.annualProcessingVolume) > 0 &&
-      parseFloat(formData.advanceDeliveryDays) > 0 &&
+      parseFloat(formData.advanceDeliveryDays) >= 0 &&
       parseFloat(formData.averageTicketSize) > 0 &&
       parseFloat(formData.cnpVolume) >= 0 &&
       parseFloat(formData.cnpVolume) <= 100
