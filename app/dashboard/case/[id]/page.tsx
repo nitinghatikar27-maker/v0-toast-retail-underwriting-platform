@@ -554,81 +554,132 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           </Card>
 
           {/* Reserves & Guarantees */}
-          {(caseData.reserves || caseData.guarantees?.some(g => g.enabled)) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Reserves & Guarantees
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {caseData.reserves && (
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    {caseData.reserves.rollingReservePercentage > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Reserves & Guarantees
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Rolling Reserve */}
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Rolling Reserve</p>
+                {caseData.reserves?.rollingReservePercentage && caseData.reserves.rollingReservePercentage > 0 ? (
+                  <p className="font-medium">
+                    {caseData.reserves.rollingReservePercentage}% for {caseData.reserves.rollingReserveDays} days
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground italic">Not configured</p>
+                )}
+              </div>
+              
+              {/* Minimum Reserve */}
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Minimum Reserve</p>
+                {caseData.reserves?.minimumReserveAmount && caseData.reserves.minimumReserveAmount > 0 ? (
+                  <div>
+                    <p className="font-mono font-medium">{formatCurrency(caseData.reserves.minimumReserveAmount)}</p>
+                    {caseData.reserves.minimumReservePercentage && caseData.reserves.minimumReservePercentage > 0 && (
+                      <p className="text-xs text-muted-foreground">Daily hold: {caseData.reserves.minimumReservePercentage}%</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground italic">Not configured</p>
+                )}
+              </div>
+              
+              {/* Guarantees */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Guarantees</p>
+                {caseData.guarantees?.some(g => g.enabled) ? (
+                  caseData.guarantees.filter(g => g.enabled).map(g => (
+                    <div key={g.type} className="p-3 bg-muted/50 rounded-lg">
+                      <p className="font-medium capitalize">{g.type === 'loc' ? 'Letter of Credit' : g.type} Guarantee</p>
+                      {g.amount && (
+                        <p className="text-sm text-muted-foreground">
+                          Amount: {formatCurrency(g.amount)}
+                        </p>
+                      )}
+                      {g.type === 'corporate' && (
+                        <p className="text-sm text-success">Covers 100% of exposure</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground italic p-3 bg-muted/30 rounded-lg">No guarantees configured</p>
+                )}
+              </div>
+              
+              {/* Total Coverage Summary */}
+              {(() => {
+                const rollingReserveAmount = caseData.exposure.dailyVolume * 
+                  ((caseData.reserves?.rollingReservePercentage || 0) / 100) * 
+                  (caseData.reserves?.rollingReserveDays || 0)
+                const minimumReserveAmount = caseData.reserves?.minimumReserveAmount || 0
+                const bankGuaranteeAmount = caseData.guarantees?.find(g => g.type === 'bank' && g.enabled)?.amount || 0
+                const locAmount = caseData.guarantees?.find(g => g.type === 'loc' && g.enabled)?.amount || 0
+                const totalReserveAmount = rollingReserveAmount + minimumReserveAmount + bankGuaranteeAmount + locAmount
+                const coverageRatio = caseData.exposure.totalExposure > 0 
+                  ? (totalReserveAmount / caseData.exposure.totalExposure) * 100 
+                  : 0
+
+                return (
+                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 mt-4">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Total Exposure Coverage</p>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-muted-foreground">Rolling Reserve</p>
-                        <p className="font-medium">
-                          {caseData.reserves.rollingReservePercentage}% for {caseData.reserves.rollingReserveDays} days
+                        <p className="text-xs text-muted-foreground">Total Reserve</p>
+                        <p className="font-mono font-bold">{formatCurrency(totalReserveAmount)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Coverage Ratio</p>
+                        <p className={`font-mono font-bold ${coverageRatio >= 100 ? 'text-success' : coverageRatio >= 50 ? 'text-warning' : ''}`}>
+                          {coverageRatio.toFixed(1)}%
                         </p>
                       </div>
-                    )}
-                    {caseData.reserves.minimumReserveAmount > 0 && (
-                      <div>
-                        <p className="text-muted-foreground">Minimum Reserve</p>
-                        <p className="font-mono">{formatCurrency(caseData.reserves.minimumReserveAmount)}</p>
-                      </div>
-                    )}
+                    </div>
                   </div>
-                )}
-                {caseData.guarantees?.filter(g => g.enabled).map(g => (
-                  <div key={g.type} className="p-3 bg-muted/50 rounded-lg">
-                    <p className="font-medium capitalize">{g.type} Guarantee</p>
-                    {g.amount && (
-                      <p className="text-sm text-muted-foreground">
-                        Amount: {formatCurrency(g.amount)}
-                      </p>
-                    )}
-                    {g.type === 'corporate' && (
-                      <p className="text-sm text-success">Covers 100% of exposure</p>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                )
+              })()}
+            </CardContent>
+          </Card>
 
           {/* Description */}
-          {caseData.description && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Case Description
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Case Description
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {caseData.description ? (
                 <p className="whitespace-pre-wrap">{caseData.description}</p>
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <p className="text-muted-foreground italic">No description provided</p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Snapshot */}
-          {caseData.snapshotImage && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Snapshot</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {caseData.snapshotImage ? (
                 <img
                   src={caseData.snapshotImage}
                   alt="Case snapshot"
                   className="max-w-full h-auto rounded-lg"
                   style={{ maxHeight: '400px', objectFit: 'contain' }}
                 />
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <p className="text-muted-foreground italic">No snapshot uploaded</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
