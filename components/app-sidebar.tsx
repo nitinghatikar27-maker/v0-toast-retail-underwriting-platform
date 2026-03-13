@@ -73,8 +73,14 @@ export function AppSidebar() {
   useEffect(() => {
     if (user) {
       const checkNotifications = () => {
-        const unread = storage.getUnreadNotificationsForUser(user.id)
-        setUnreadNotifications(unread.length)
+        try {
+          if (storage && typeof storage.getUnreadNotificationsForUser === 'function') {
+            const unread = storage.getUnreadNotificationsForUser(user.id)
+            setUnreadNotifications(unread.length)
+          }
+        } catch {
+          // Silently handle if function not available
+        }
       }
       checkNotifications()
       // Poll for new notifications every 5 seconds
