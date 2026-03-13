@@ -258,49 +258,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
         <div className="flex items-center gap-2">
-        </div>
-      </div>
-
-      {/* Decline Reason Alert */}
-      {caseData.status === 'declined' && (
-        <Alert variant="destructive" className="mb-6">
-          <XCircle className="h-4 w-4" />
-          <AlertTitle>Case Declined</AlertTitle>
-          <AlertDescription>
-            <p className="mt-1">{declineReasonText}</p>
-            {declinedBy && declinedAt && (
-              <p className="mt-2 text-xs opacity-80">
-                Declined by {declinedBy} on {formatDate(declinedAt)}
-              </p>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Revision Requested Alert */}
-      {caseData.status === 'revision_requested' && (
-        <Alert variant="default" className="mb-6 border-warning bg-warning/10">
-          <RotateCcw className="h-4 w-4 text-warning" />
-          <AlertTitle>Revision Requested</AlertTitle>
-          <AlertDescription>
-            {(() => {
-              const revisionEntry = auditEntries.find(entry => entry.action === 'revision_requested')
-              return (
-                <>
-                  <p className="mt-1">{revisionEntry?.comment || 'Revisions requested'}</p>
-                  {revisionEntry?.userName && revisionEntry?.timestamp && (
-                    <p className="mt-2 text-xs opacity-80">
-                      Requested by {revisionEntry.userName} on {formatDate(revisionEntry.timestamp)}
-                    </p>
-                  )}
-                </>
-              )
-            })()}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex items-center gap-2">
           {/* Approval Actions for Approvers */}
           {canApprove && (
             <>
@@ -505,6 +462,45 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           )}
         </div>
       </div>
+
+      {/* Decline Reason Alert */}
+      {caseData.status === 'declined' && (
+        <Alert variant="destructive" className="mb-6">
+          <XCircle className="h-4 w-4" />
+          <AlertTitle>Case Declined</AlertTitle>
+          <AlertDescription>
+            <p className="mt-1">{declineReasonText}</p>
+            {declinedBy && declinedAt && (
+              <p className="mt-2 text-xs opacity-80">
+                Declined by {declinedBy} on {formatDate(declinedAt)}
+              </p>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Revision Requested Alert */}
+      {caseData.status === 'revision_requested' && (
+        <Alert variant="default" className="mb-6 border-warning bg-warning/10">
+          <RotateCcw className="h-4 w-4 text-warning" />
+          <AlertTitle>Revision Requested</AlertTitle>
+          <AlertDescription>
+            {(() => {
+              const revisionEntry = auditEntries.find(entry => entry.action === 'revision_requested')
+              return (
+                <>
+                  <p className="mt-1">{revisionEntry?.comment || 'Revisions requested'}</p>
+                  {revisionEntry?.userName && revisionEntry?.timestamp && (
+                    <p className="mt-2 text-xs opacity-80">
+                      Requested by {revisionEntry.userName} on {formatDate(revisionEntry.timestamp)}
+                    </p>
+                  )}
+                </>
+              )
+            })()}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
