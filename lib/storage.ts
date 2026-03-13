@@ -1,0 +1,234 @@
+import { AppState, User, Case, AuditEntry, Document, ApprovalMatrixEntry } from './types'
+
+const STORAGE_KEY = 'toast_underwriting_data'
+
+// Default admin user as specified
+const DEFAULT_ADMIN: User = {
+  id: 'admin-1',
+  name: 'Nitin Ghatikar',
+  email: 'nitin.ghatikar@toasttab.com',
+  password: 'Apple@123',
+  roles: ['admin', 'user', 'approver'],
+  approvalLimit: 10000000,
+  createdAt: new Date().toISOString()
+}
+
+// Default approval matrix
+const DEFAULT_APPROVAL_MATRIX: ApprovalMatrixEntry[] = [
+  {
+    id: 'matrix-1',
+    minExposure: 0,
+    maxExposure: 200000,
+    approverId: 'auto',
+    order: 1
+  },
+  {
+    id: 'matrix-2',
+    minExposure: 200001,
+    maxExposure: 10000000,
+    approverId: 'admin-1',
+    order: 2
+  }
+]
+
+const getInitialState = (): AppState => ({
+  users: [DEFAULT_ADMIN],
+  cases: [],
+  auditTrail: [],
+  documents: [],
+  approvalMatrix: DEFAULT_APPROVAL_MATRIX,
+  currentUserId: null
+})
+
+export const storage = {
+  getState(): AppState {
+    if (typeof window === 'undefined') {
+      return getInitialState()
+    }
+    try {
+      const data = localStorage.getItem(STORAGE_KEY)
+      if (!data) {
+        const initial = getInitialState()
+        this.setState(initial)
+        return initial
+      }
+      return JSON.parse(data)
+    } catch {
+      return getInitialState()
+    }
+  },
+
+  setState(state: AppState): void {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  },
+
+  // User operations
+  getUsers(): User[] {
+    return this.getState().users
+  },
+
+  getUserById(id: string): User | undefined {
+    return this.getUsers().find(u => u.id === id)
+  },
+
+  getUserByEmail(email: string): User | undefined {
+    return this.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase())
+  },
+
+  addUser(user: User): void {
+    const state = this.getState()
+    state.users.push(user)
+    this.setState(state)
+  },
+
+  updateUser(user: User): void {
+    const state = this.getState()
+    const index = state.users.findIndex(u => u.id === user.id)
+    if (index !== -1) {
+      state.users[index] = user
+      this.setState(state)
+    }
+  },
+
+  deleteUser(id: string): void {
+    const state = this.getState()
+    state.users = state.users.filter(u => u.id !== id)
+    this.setState(state)
+  },
+
+  // Authentication
+  getCurrentUser(): User | null {
+    const state = this.getState()
+    if (!state.currentUserId) return null
+    return this.getUserById(state.currentUserId) || null
+  },
+
+  setCurrentUser(userId: string | null): void {
+    const state = this.getState()
+    state.currentUserId = userId
+    this.setState(state)
+  },
+
+  login(email: string, password: string): User | null {
+    const user = this.getUserByEmail(email)
+    if (user && user.password === password) {
+      this.setCurrentUser(user.id)
+      return user
+    }
+    return null
+  },
+
+  logout(): void {
+    this.setCurrentUser(null)
+  },
+
+  // Case operations
+  getCases(): Case[] {
+    return this.getState().cases
+  },
+
+  getCaseById(id: string): Case | undefined {
+    return this.getCases().find(c => c.id === id)
+  },
+
+  getCasesByStatus(status: Case['status']): Case[] {
+    return this.getCases().filter(c => c.status === status)
+  },
+
+  getCasesForApprover(approverId: string): Case[] {
+    return this.getCases().filter(c => 
+      c.assignedApproverId === approverId && 
+      (c.status === 'pending_review' || c.status === 'revision_requested')
+    )
+  },
+
+  getApprovedCases(): Case[] {
+    return this.getCases().filter(c => 
+      c.status === 'approved' || c.status === 'auto_approved'
+    )
+  },
+
+  addCase(caseData: Case): void {
+    const state = this.getState()
+    state.cases.push(caseData)
+    this.setState(state)
+  },
+
+  updateCase(caseData: Case): void {
+    const state = this.getState()
+    const index = state.cases.findIndex(c => c.id === caseData.id)
+    if (index !== -1) {
+      state.cases[index] = caseData
+      this.setState(state)
+    }
+  },
+
+  generateCaseNumber(): string {
+    const cases = this.getCases()
+    const nextNum = cases.length + 1
+    return `TRU-${new Date().getFullYear()}-${String(nextNum).padStart(5, '0')}`
+  },
+
+  // Audit Trail operations
+  getAuditTrail(): AuditEntry[] {
+    return this.getState().auditTrail
+  },
+
+  getAuditTrailForCase(caseId: string): AuditEntry[] {
+    return this.getAuditTrail().filter(a => a.caseId === caseId)
+  },
+
+  addAuditEntry(entry: AuditEntry): void {
+    const state = this.getState()
+    state.auditTrail.push(entry)
+    this.setState(state)
+  },
+
+  // Document operations
+  getDocuments(): Document[] {
+    return this.getState().documents
+  },
+
+  getDocumentsForCase(caseId: string): Document[] {
+    return this.getDocuments().filter(d => d.caseId === caseId)
+  },
+
+  addDocument(doc: Document): void {
+    const state = this.getState()
+    state.documents.push(doc)
+    this.setState(state)
+  },
+
+  deleteDocument(id: string): void {
+    const state = this.getState()
+    state.documents = state.documents.filter(d => d.id !== id)
+    this.setState(state)
+  },
+
+  // Approval Matrix operations
+  getApprovalMatrix(): ApprovalMatrixEntry[] {
+    return this.getState().approvalMatrix
+  },
+
+  setApprovalMatrix(matrix: ApprovalMatrixEntry[]): void {
+    const state = this.getState()
+    state.approvalMatrix = matrix
+    this.setState(state)
+  },
+
+  getApproverForExposure(exposure: number): string {
+    const matrix = this.getApprovalMatrix()
+    const sorted = [...matrix].sort((a, b) => a.order - b.order)
+    for (const entry of sorted) {
+      if (exposure >= entry.minExposure && exposure <= entry.maxExposure) {
+        return entry.approverId
+      }
+    }
+    // Default to highest approver if no match
+    return sorted[sorted.length - 1]?.approverId || 'admin-1'
+  }
+}
+
+// Helper to generate unique IDs
+export const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
