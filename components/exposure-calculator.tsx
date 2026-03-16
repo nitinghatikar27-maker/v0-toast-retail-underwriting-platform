@@ -93,7 +93,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
           Exposure exceeds $200K: PMF approval required.
         </p>
         <p className="text-sm text-warning-foreground/80 mt-1">
-          Case will first go for PMF approval. After PMF approval, you will complete the manual form. Then case goes for Risk approval.
+          After PMF approval, please submit the below information to get Risk approval.
         </p>
       </div>
       <DocumentRequirements type="red" />
