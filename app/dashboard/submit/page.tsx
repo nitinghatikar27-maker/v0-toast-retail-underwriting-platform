@@ -324,23 +324,16 @@ export default function SubmitRequestPage() {
 
     // Determine approval flow based on exposure thresholds:
     // <= $200K: Standard flow - Submit for dual approval (PMF + Risk)
-    // > $200K and <= $300K: Manual form required, then dual approval (PMF + Risk)
-    // > $300K: PMF approval first, then manual form, then Risk approval only
+    // > $200K: PMF approval first, then manual form, then Risk approval
     const isStandard = exposure.totalExposure <= 200000
-    const isHighExposure = exposure.totalExposure > 200000 && exposure.totalExposure <= 300000
-    const isVeryHighExposure = exposure.totalExposure > 300000
+    const isHighExposure = exposure.totalExposure > 200000
     
     const approvalTypeValue = isStandard ? 'standard' : 'manual'
     
     // Determine initial status based on exposure tier
-    let initialStatus: 'pending_review' | 'draft' | 'pending_pmf_approval'
-    if (isStandard) {
-      initialStatus = 'pending_review' // Goes directly for PMF + Risk dual approval
-    } else if (isHighExposure) {
-      initialStatus = 'draft' // Goes to manual form first
-    } else {
-      initialStatus = 'pending_pmf_approval' // Needs PMF approval before manual form
-    }
+    const initialStatus: 'pending_review' | 'pending_pmf_approval' = isStandard 
+      ? 'pending_review'  // Goes directly for PMF + Risk dual approval
+      : 'pending_pmf_approval' // Needs PMF approval first, then manual form, then Risk
 
     const caseId = generateId()
     const newCase: Case = {
@@ -371,23 +364,16 @@ export default function SubmitRequestPage() {
     storage.addCase(newCase)
 
     // Add audit entry
-    let auditComment: string
-    let auditAction: 'created' | 'submitted' = 'submitted'
-    if (isStandard) {
-      auditComment = 'Case submitted for dual approval (PMF + Risk) - Standard'
-    } else if (isHighExposure) {
-      auditComment = 'Case created - Manual review form required (Exposure $200K-$300K)'
-      auditAction = 'created'
-    } else {
-      auditComment = 'Case submitted for PMF approval (Exposure > $300K) - Manual form required after PMF approval'
-    }
+    const auditComment = isStandard 
+      ? 'Case submitted for dual approval (PMF + Risk) - Standard'
+      : 'Case submitted for PMF approval (Exposure > $200K) - Manual form required after PMF approval'
 
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId,
       userId: user.id,
       userName: user.name,
-      action: auditAction,
+      action: 'submitted',
       comment: auditComment,
       timestamp: new Date().toISOString()
     }
@@ -412,14 +398,10 @@ export default function SubmitRequestPage() {
     
     if (isStandard) {
       toast.success('Case submitted for approval!')
-      router.push('/dashboard')
-    } else if (isHighExposure) {
-      toast.success('Case created! Please complete the manual review form.')
-      router.push(`/dashboard/case/${caseId}/edit`)
     } else {
       toast.success('Case submitted for PMF approval!')
-      router.push('/dashboard')
     }
+    router.push('/dashboard')
   }
 
   const decision = exposure ? getExposureDecision(exposure.totalExposure) : null
@@ -683,9 +665,8 @@ export default function SubmitRequestPage() {
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? 'Processing...' : 
-                      decision === 'manual_review_amber' ? 'Proceed to Manual Form' : 
-                      decision === 'manual_review_red' ? 'Submit for PMF Approval' : 
-                      'Submit for Approval'}
+                      decision === 'auto_approved' ? 'Submit for Approval' : 
+                      'Submit for PMF Approval'}
                   </Button>
                 </div>
               </CardContent>

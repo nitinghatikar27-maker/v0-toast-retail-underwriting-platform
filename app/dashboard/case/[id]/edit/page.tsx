@@ -162,30 +162,16 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     
     setIsSubmitting(true)
     
-    // Determine submission flow based on exposure and PMF approval status
-    const isVeryHighExposure = caseData.exposure.totalExposure > 300000
+    // For exposure > $200K with PMF pre-approval, go to Risk approval only
     const hasPmfApproval = !!caseData.approvals?.pmfApproverId
     
     // Find the appropriate approver based on exposure
     const approverId = storage.getApproverForExposure(caseData.exposure.totalExposure)
     
-    // For very high exposure with PMF pre-approval, go to Risk approval only
-    // For other manual cases, go to pending_review for dual approval
-    let newStatus: Case['status']
-    let auditComment: string
-    let toastMessage: string
-    
-    if (isVeryHighExposure && hasPmfApproval) {
-      // Very high exposure case with PMF already approved - go directly to Risk approval
-      newStatus = 'pending_risk_approval'
-      auditComment = 'Manual form completed. Case submitted for Risk approval.'
-      toastMessage = 'Case submitted for Risk approval!'
-    } else {
-      // Standard high exposure case - go for dual approval
-      newStatus = 'pending_review'
-      auditComment = 'Manual form completed. Case submitted for dual approval (PMF + Risk).'
-      toastMessage = 'Case submitted for approval!'
-    }
+    // Manual form submission always goes to Risk approval (PMF already approved)
+    const newStatus: Case['status'] = 'pending_risk_approval'
+    const auditComment = 'Manual form completed. Case submitted for Risk approval.'
+    const toastMessage = 'Case submitted for Risk approval!'
     
     const updatedCase: Case = {
       ...caseData,
