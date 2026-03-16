@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle, Save, XCircle } from 'lucide-react'
 import {
   Dialog,
@@ -525,6 +526,24 @@ export default function SubmitRequestPage() {
                   <p className="text-xs text-muted-foreground">Optional: Direct link to Salesforce record</p>
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="brickAndMortar">Brick & Mortar *</Label>
+                  <Select
+                    value={formData.brickAndMortar}
+                    onValueChange={(value: 'yes' | 'no') => setFormData(prev => ({ ...prev, brickAndMortar: value }))}
+                  >
+                    <SelectTrigger id="brickAndMortar">
+                      <SelectValue placeholder="Select Yes or No" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Does this business have a physical location?</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -590,6 +609,40 @@ export default function SubmitRequestPage() {
                   />
                   <p className="text-xs text-muted-foreground">Card Not Present percentage (0-100)</p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Business Description Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Business Description
+              </CardTitle>
+              <CardDescription>
+                Provide a brief description of the business
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="businessDescription">Description</Label>
+                <Textarea
+                  id="businessDescription"
+                  value={formData.businessDescription}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, businessDescription: e.target.value }))
+                    // Auto-resize the textarea
+                    e.target.style.height = 'auto'
+                    e.target.style.height = e.target.scrollHeight + 'px'
+                  }}
+                  placeholder="Describe the nature of the business, products/services offered, target customers, etc."
+                  className="min-h-[100px] resize-none overflow-hidden"
+                  style={{ height: 'auto' }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This helps approvers understand the business context
+                </p>
               </div>
             </CardContent>
           </Card>
