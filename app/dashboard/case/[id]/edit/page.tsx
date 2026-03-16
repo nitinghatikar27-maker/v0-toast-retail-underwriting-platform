@@ -939,7 +939,11 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                 const minimumReserveAmount = caseData.reserves?.minimumReserveAmount || 0
                 const bankGuaranteeAmount = getGuarantee('bank')?.enabled ? (getGuarantee('bank')?.amount || 0) : 0
                 const locAmount = getGuarantee('loc')?.enabled ? (getGuarantee('loc')?.amount || 0) : 0
-                const totalReserveAmount = rollingReserveAmount + minimumReserveAmount + bankGuaranteeAmount + locAmount
+                // Corporate guarantee equals total exposure when enabled
+                const corporateGuaranteeAmount = getGuarantee('corporate')?.enabled ? caseData.exposure.totalExposure : 0
+                const totalReserveAmount = corporateGuaranteeAmount > 0 
+                  ? caseData.exposure.totalExposure  // If corporate guarantee is enabled, total reserve equals total exposure
+                  : rollingReserveAmount + minimumReserveAmount + bankGuaranteeAmount + locAmount
                 const coverageRatio = caseData.exposure.totalExposure > 0 
                   ? (totalReserveAmount / caseData.exposure.totalExposure) * 100 
                   : 0
@@ -952,22 +956,31 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     <div className="bg-card rounded-lg p-3 border space-y-2">
                       <p className="text-xs text-muted-foreground font-medium">Reserve Breakdown</p>
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Rolling Reserve:</span>
-                          <span className="font-mono">{formatCurrency(rollingReserveAmount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Minimum Reserve:</span>
-                          <span className="font-mono">{formatCurrency(minimumReserveAmount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Bank Guarantee:</span>
-                          <span className="font-mono">{formatCurrency(bankGuaranteeAmount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Letter of Credit:</span>
-                          <span className="font-mono">{formatCurrency(locAmount)}</span>
-                        </div>
+                        {corporateGuaranteeAmount > 0 ? (
+                          <div className="flex justify-between col-span-2">
+                            <span className="text-success font-medium">Corporate Guarantee (100% Coverage):</span>
+                            <span className="font-mono text-success font-bold">{formatCurrency(corporateGuaranteeAmount)}</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Rolling Reserve:</span>
+                              <span className="font-mono">{formatCurrency(rollingReserveAmount)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Minimum Reserve:</span>
+                              <span className="font-mono">{formatCurrency(minimumReserveAmount)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Bank Guarantee:</span>
+                              <span className="font-mono">{formatCurrency(bankGuaranteeAmount)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Letter of Credit:</span>
+                              <span className="font-mono">{formatCurrency(locAmount)}</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                     
