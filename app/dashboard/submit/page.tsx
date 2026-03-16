@@ -552,8 +552,8 @@ export default function SubmitRequestPage() {
                 <div className="space-y-2">
                   <Label htmlFor="brickAndMortar">Brick & Mortar *</Label>
                   <Select
-                    value={formData.brickAndMortar || undefined}
-                    onValueChange={(value: 'yes' | 'no') => setFormData(prev => ({ ...prev, brickAndMortar: value }))}
+                    value={formData.brickAndMortar}
+                    onValueChange={(value: string) => setFormData(prev => ({ ...prev, brickAndMortar: value }))}
                   >
                     <SelectTrigger id="brickAndMortar">
                       <SelectValue placeholder="Select Yes or No" />
