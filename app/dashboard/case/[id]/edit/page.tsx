@@ -627,54 +627,18 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                   </Select>
                 </div>
                 {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
+                {/* Website URL - Only for manual (high exposure) cases */}
                 {caseData.approvalType === 'manual' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="businessType">Business Type / Industry</Label>
-                      <Input
-                        id="businessType"
-                        value={caseData.businessType || ''}
-                        onChange={(e) => updateField('businessType', e.target.value)}
-                        placeholder="e.g., Restaurant"
-                        disabled={!isEditable}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="yearsInBusiness">Years in Business</Label>
-                      <Input
-                        id="yearsInBusiness"
-                        type="number"
-                        min="0"
-                        value={caseData.yearsInBusiness || ''}
-                        onChange={(e) => updateField('yearsInBusiness', parseInt(e.target.value) || 0)}
-                        disabled={!isEditable}
-                      />
-                    </div>
-                  </>
-                )}
-                {/* Website URL and Business Address - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="websiteUrl">Website URL</Label>
-                      <Input
-                        id="websiteUrl"
-                        value={caseData.websiteUrl || ''}
-                        onChange={(e) => updateField('websiteUrl', e.target.value)}
-                        placeholder="https://example.com"
-                        disabled={!isEditable}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="businessAddress">Business Address</Label>
-                      <Input
-                        id="businessAddress"
-                        value={caseData.businessAddress || ''}
-                        onChange={(e) => updateField('businessAddress', e.target.value)}
-                        disabled={!isEditable}
-                      />
-                    </div>
-                  </>
+                  <div className="space-y-2">
+                    <Label htmlFor="websiteUrl">Website URL</Label>
+                    <Input
+                      id="websiteUrl"
+                      value={caseData.websiteUrl || ''}
+                      onChange={(e) => updateField('websiteUrl', e.target.value)}
+                      placeholder="https://example.com"
+                      disabled={!isEditable}
+                    />
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -714,21 +678,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     disabled={!isEditable}
                   />
                 </div>
-                {/* Highest Ticket Size - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="highestTicketSize">Highest Ticket Size (USD)</Label>
-                    <Input
-                      id="highestTicketSize"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={caseData.highestTicketSize || ''}
-                      onChange={(e) => updateField('highestTicketSize', parseFloat(e.target.value) || 0)}
-                      disabled={!isEditable}
-                    />
-                  </div>
-                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="cnpVolume">CNP Volume (%)</Label>
                   <Input
@@ -787,40 +737,86 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Business Description Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Business Description
-              </CardTitle>
-              <CardDescription>
-                Provide a brief description of the business
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="businessDescription">Description *</Label>
-                <Textarea
-                  id="businessDescription"
-                  value={caseData.businessDescription || ''}
-                  onChange={(e) => {
-                    updateField('businessDescription', e.target.value)
-                    // Auto-resize the textarea
-                    e.target.style.height = 'auto'
-                    e.target.style.height = e.target.scrollHeight + 'px'
-                  }}
-                  placeholder="Describe the nature of the business, products/services offered, target customers, etc."
-                  className="min-h-[100px] resize-none overflow-hidden"
-                  style={{ height: 'auto' }}
-                  disabled={!isEditable}
-                />
-                <p className="text-xs text-muted-foreground">
-                  This helps approvers understand the business context
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Business Description Section - Only for standard (low exposure) cases */}
+          {caseData.approvalType === 'standard' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Business Description
+                </CardTitle>
+                <CardDescription>
+                  Provide a brief description of the business
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="businessDescription">Description *</Label>
+                  <Textarea
+                    id="businessDescription"
+                    value={caseData.businessDescription || ''}
+                    onChange={(e) => {
+                      updateField('businessDescription', e.target.value)
+                      // Auto-resize the textarea
+                      e.target.style.height = 'auto'
+                      e.target.style.height = e.target.scrollHeight + 'px'
+                    }}
+                    placeholder="Describe the nature of the business, products/services offered, target customers, etc."
+                    className="min-h-[100px] resize-none overflow-hidden"
+                    style={{ height: 'auto' }}
+                    disabled={!isEditable}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This helps approvers understand the business context
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Exposure Calculator - Only for manual (high exposure) cases */}
+          {caseData.approvalType === 'manual' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5" />
+                  Section C - Exposure Calculator
+                </CardTitle>
+                <CardDescription>
+                  Calculated exposure based on processing profile
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {caseData.exposure && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">Daily Volume</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.dailyVolume)}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">Refund Exposure</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.refundExposure)}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">Chargeback Exposure</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.chargebackExposure)}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-primary/10 border border-primary">
+                      <p className="text-sm text-primary">Total Exposure</p>
+                      <p className="text-lg font-bold text-primary">{formatCurrency(caseData.exposure.totalExposure)}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium mb-1">Calculation Formula:</p>
+                  <p>Daily Volume = Annual Volume / 365</p>
+                  <p>Refund Exposure = Daily Volume × ADD × (CNP% / 100)</p>
+                  <p>Chargeback Exposure = Daily Volume × 180 × (CNP% / 100)</p>
+                  <p>Total Exposure = Refund Exposure + Chargeback Exposure</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Section D - Reserves & Guarantees - Only for manual (high exposure) cases */}
           {caseData.approvalType === 'manual' && (
