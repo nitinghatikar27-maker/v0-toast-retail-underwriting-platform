@@ -820,8 +820,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Business Description */}
-          {caseData.businessDescription && (
+          {/* Business Description - Only show for standard cases (exposure < $200K) */}
+          {caseData.approvalType === 'standard' && caseData.businessDescription && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
