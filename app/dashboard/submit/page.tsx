@@ -55,7 +55,9 @@ export default function SubmitRequestPage() {
     annualProcessingVolume: '',
     advanceDeliveryDays: '',
     averageTicketSize: '',
-    cnpVolume: ''
+    cnpVolume: '',
+    brickAndMortar: '',
+    businessDescription: ''
   })
   const [exposure, setExposure] = useState<Exposure | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
@@ -75,7 +77,22 @@ export default function SubmitRequestPage() {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft)
-        setFormData(parsed.formData || {})
+        setFormData({
+          parentCompanyName: '',
+          subsidiaryName: '',
+          dba: '',
+          mcc: '',
+          salesforceAccountNumber: '',
+          salesforceLink: '',
+          aeName: '',
+          annualProcessingVolume: '',
+          advanceDeliveryDays: '',
+          averageTicketSize: '',
+          cnpVolume: '',
+          brickAndMortar: '',
+          businessDescription: '',
+          ...parsed.formData
+        })
         setInitialNotes(parsed.initialNotes || '')
         setLastSaved(parsed.savedAt ? new Date(parsed.savedAt) : null)
       } catch {
@@ -129,7 +146,7 @@ export default function SubmitRequestPage() {
       formData.averageTicketSize !== '' &&
       formData.cnpVolume !== '' &&
       formData.brickAndMortar !== '' &&
-      formData.businessDescription.trim() !== '' &&
+      (formData.businessDescription || '').trim() !== '' &&
       parseFloat(formData.annualProcessingVolume) > 0 &&
       parseFloat(formData.advanceDeliveryDays) >= 0 &&
       parseFloat(formData.averageTicketSize) > 0 &&
