@@ -122,11 +122,14 @@ export default function SubmitRequestPage() {
       formData.dba.trim() !== '' &&
       formData.mcc.trim() !== '' &&
       formData.salesforceAccountNumber.trim() !== '' &&
+      formData.salesforceLink.trim() !== '' &&
       formData.aeName.trim() !== '' &&
       formData.annualProcessingVolume !== '' &&
       formData.advanceDeliveryDays !== '' &&
       formData.averageTicketSize !== '' &&
       formData.cnpVolume !== '' &&
+      formData.brickAndMortar !== '' &&
+      formData.businessDescription.trim() !== '' &&
       parseFloat(formData.annualProcessingVolume) > 0 &&
       parseFloat(formData.advanceDeliveryDays) >= 0 &&
       parseFloat(formData.averageTicketSize) > 0 &&
@@ -515,7 +518,7 @@ export default function SubmitRequestPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="salesforceLink">Salesforce Link</Label>
+                  <Label htmlFor="salesforceLink">Salesforce Link *</Label>
                   <Input
                     id="salesforceLink"
                     type="url"
@@ -523,7 +526,7 @@ export default function SubmitRequestPage() {
                     onChange={handleChange('salesforceLink')}
                     placeholder="https://toast.lightning.force.com/..."
                   />
-                  <p className="text-xs text-muted-foreground">Optional: Direct link to Salesforce record</p>
+                  <p className="text-xs text-muted-foreground">Direct link to Salesforce record</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -626,7 +629,7 @@ export default function SubmitRequestPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="businessDescription">Description</Label>
+                <Label htmlFor="businessDescription">Description *</Label>
                 <Textarea
                   id="businessDescription"
                   value={formData.businessDescription}
