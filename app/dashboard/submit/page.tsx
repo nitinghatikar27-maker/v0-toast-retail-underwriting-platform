@@ -39,6 +39,8 @@ interface FormData {
   advanceDeliveryDays: string
   averageTicketSize: string
   cnpVolume: string
+  brickAndMortar: string
+  businessDescription: string
 }
 
 export default function SubmitRequestPage() {
@@ -134,24 +136,24 @@ export default function SubmitRequestPage() {
 
   const isFormComplete = useCallback(() => {
     return (
-      formData.parentCompanyName.trim() !== '' &&
-      formData.subsidiaryName.trim() !== '' &&
-      formData.dba.trim() !== '' &&
-      formData.mcc.trim() !== '' &&
-      formData.salesforceAccountNumber.trim() !== '' &&
-      formData.salesforceLink.trim() !== '' &&
-      formData.aeName.trim() !== '' &&
-      formData.annualProcessingVolume !== '' &&
-      formData.advanceDeliveryDays !== '' &&
-      formData.averageTicketSize !== '' &&
-      formData.cnpVolume !== '' &&
-      formData.brickAndMortar !== '' &&
+      (formData.parentCompanyName || '').trim() !== '' &&
+      (formData.subsidiaryName || '').trim() !== '' &&
+      (formData.dba || '').trim() !== '' &&
+      (formData.mcc || '').trim() !== '' &&
+      (formData.salesforceAccountNumber || '').trim() !== '' &&
+      (formData.salesforceLink || '').trim() !== '' &&
+      (formData.aeName || '').trim() !== '' &&
+      (formData.annualProcessingVolume || '') !== '' &&
+      (formData.advanceDeliveryDays || '') !== '' &&
+      (formData.averageTicketSize || '') !== '' &&
+      (formData.cnpVolume || '') !== '' &&
+      (formData.brickAndMortar || '') !== '' &&
       (formData.businessDescription || '').trim() !== '' &&
-      parseFloat(formData.annualProcessingVolume) > 0 &&
-      parseFloat(formData.advanceDeliveryDays) >= 0 &&
-      parseFloat(formData.averageTicketSize) > 0 &&
-      parseFloat(formData.cnpVolume) >= 0 &&
-      parseFloat(formData.cnpVolume) <= 100
+      parseFloat(formData.annualProcessingVolume || '0') > 0 &&
+      parseFloat(formData.advanceDeliveryDays || '0') >= 0 &&
+      parseFloat(formData.averageTicketSize || '0') > 0 &&
+      parseFloat(formData.cnpVolume || '0') >= 0 &&
+      parseFloat(formData.cnpVolume || '0') <= 100
     )
   }, [formData])
 

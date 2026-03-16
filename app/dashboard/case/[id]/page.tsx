@@ -770,6 +770,14 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">Years in Business</p>
                   <p className="font-medium">{caseData.yearsInBusiness || '-'}</p>
                 </div>
+                <div>
+                  <p className="text-muted-foreground">Brick & Mortar</p>
+                  <p className="font-medium">{caseData.brickAndMortar === 'yes' ? 'Yes' : caseData.brickAndMortar === 'no' ? 'No' : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">AE Name</p>
+                  <p className="font-medium">{caseData.aeName || '-'}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -811,6 +819,21 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
               </div>
             </CardContent>
           </Card>
+
+          {/* Business Description */}
+          {caseData.businessDescription && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Business Description
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">{caseData.businessDescription}</p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Reserves & Guarantees - Only show for manual (high exposure) cases */}
           {caseData.approvalType === 'manual' && (
