@@ -47,7 +47,8 @@ export interface Exposure {
   dailyVolume: number
   baseExposure: number
   chargebackExposure: number
-  refundReturnExposure: number
+  refundExposure: number
+  refundReturnExposure: number // Deprecated, kept for compatibility
   totalExposure: number
 }
 

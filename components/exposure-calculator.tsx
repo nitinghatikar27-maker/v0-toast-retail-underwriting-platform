@@ -40,12 +40,12 @@ export function ExposureCalculator({ exposure, showDecision = false }: ExposureC
             <span className="font-mono text-sm">{formatCurrencyFull(exposure.baseExposure)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Chargeback Exposure (5%)</span>
+            <span className="text-sm text-muted-foreground">Chargeback Exposure</span>
             <span className="font-mono text-sm">{formatCurrencyFull(exposure.chargebackExposure)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Refund/Return Exposure (1%)</span>
-            <span className="font-mono text-sm">{formatCurrencyFull(exposure.refundReturnExposure)}</span>
+            <span className="text-sm text-muted-foreground">Refund Exposure</span>
+            <span className="font-mono text-sm">{formatCurrencyFull(exposure.refundExposure || exposure.refundReturnExposure)}</span>
           </div>
         </div>
 

@@ -3,24 +3,32 @@ import { Exposure } from './types'
 export interface ExposureInput {
   annualProcessingVolume: number
   advanceDeliveryDays: number
+  cnpVolume?: number // CNP Volume percentage (0-100)
 }
 
 export function calculateExposure(input: ExposureInput): Exposure {
-  const { annualProcessingVolume, advanceDeliveryDays } = input
+  const { annualProcessingVolume, advanceDeliveryDays, cnpVolume = 0 } = input
   
   const dailyVolume = annualProcessingVolume / 365
-  const baseExposure = dailyVolume * advanceDeliveryDays
+  const cnpPercentage = cnpVolume / 100
   
-  // Only calculate chargeback and refund exposure if ADD > 0
-  const chargebackExposure = advanceDeliveryDays > 0 ? dailyVolume * 0.05 : 0 // 5%
-  const refundReturnExposure = advanceDeliveryDays > 0 ? dailyVolume * 0.01 : 0 // 1%
-  const totalExposure = baseExposure + chargebackExposure + refundReturnExposure
+  // Formula from submit request form:
+  // Refund Exposure = Daily Volume × ADD × (CNP% / 100)
+  // Chargeback Exposure = Daily Volume × 180 × (CNP% / 100)
+  // Total Exposure = Refund Exposure + Chargeback Exposure
+  const refundExposure = dailyVolume * advanceDeliveryDays * cnpPercentage
+  const chargebackExposure = dailyVolume * 180 * cnpPercentage
+  const totalExposure = refundExposure + chargebackExposure
+  
+  // Base exposure for compatibility
+  const baseExposure = dailyVolume * advanceDeliveryDays
 
   return {
     dailyVolume,
     baseExposure,
     chargebackExposure,
-    refundReturnExposure,
+    refundExposure,
+    refundReturnExposure: refundExposure, // For compatibility
     totalExposure
   }
 }

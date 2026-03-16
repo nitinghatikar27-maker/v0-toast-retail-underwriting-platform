@@ -104,10 +104,11 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     const updated = { ...caseData, [field]: value, lastModifiedAt: new Date().toISOString() }
     
     // Recalculate exposure if processing fields change
-    if (field === 'annualProcessingVolume' || field === 'advanceDeliveryDays') {
+    if (field === 'annualProcessingVolume' || field === 'advanceDeliveryDays' || field === 'cnpVolume') {
       const exposure = calculateExposure({
         annualProcessingVolume: field === 'annualProcessingVolume' ? value as number : caseData.annualProcessingVolume,
-        advanceDeliveryDays: field === 'advanceDeliveryDays' ? value as number : caseData.advanceDeliveryDays
+        advanceDeliveryDays: field === 'advanceDeliveryDays' ? value as number : caseData.advanceDeliveryDays,
+        cnpVolume: field === 'cnpVolume' ? value as number : caseData.cnpVolume
       })
       updated.exposure = exposure
     }
@@ -794,7 +795,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     </div>
                     <div className="p-4 rounded-lg bg-muted">
                       <p className="text-sm text-muted-foreground">Refund Exposure</p>
-                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.refundExposure)}</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.refundExposure || caseData.exposure.refundReturnExposure)}</p>
                     </div>
                     <div className="p-4 rounded-lg bg-muted">
                       <p className="text-sm text-muted-foreground">Chargeback Exposure</p>
