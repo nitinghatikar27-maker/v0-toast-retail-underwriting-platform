@@ -802,8 +802,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">CNP Volume</p>
                   <p className="font-medium">{caseData.cnpVolume}%</p>
                 </div>
-                {/* Refund Rate and Chargeback Rate - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
+                {/* Refund Rate and Chargeback Rate - Only for manual cases after PMF approval (when manual form is filled) */}
+                {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
                   <>
                     <div>
                       <p className="text-muted-foreground">Refund Rate</p>
@@ -819,8 +819,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Business Description - Only show for standard cases (exposure < $200K) */}
-          {caseData.approvalType === 'standard' && caseData.businessDescription && (
+          {/* Business Description - Show for standard cases OR manual cases pending PMF approval (original submit form) */}
+          {caseData.businessDescription && (caseData.approvalType === 'standard' || caseData.status === 'pending_pmf_approval') && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -834,8 +834,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Reserves & Guarantees - Only show for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Reserves & Guarantees - Only show for manual cases after PMF approval (when manual form is filled) */}
+          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -928,8 +928,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Description - Only show for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Case Description - Only show for manual cases after PMF approval (when manual form is filled) */}
+          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -947,8 +947,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Snapshot - Only show for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Snapshot - Only show for manual cases after PMF approval (when manual form is filled) */}
+          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
             <Card>
               <CardHeader>
                 <CardTitle>Snapshot</CardTitle>
