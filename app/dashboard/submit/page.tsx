@@ -62,7 +62,57 @@ export default function SubmitRequestPage() {
   const [initialNotes, setInitialNotes] = useState('')
   const [declineDialogOpen, setDeclineDialogOpen] = useState(false)
   const [declineReason, setDeclineReason] = useState('')
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const calculationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const AUTOSAVE_KEY = 'toast_submit_request_draft'
+
+  // Load saved draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(AUTOSAVE_KEY)
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft)
+        setFormData(parsed.formData || {})
+        setInitialNotes(parsed.initialNotes || '')
+        setLastSaved(parsed.savedAt ? new Date(parsed.savedAt) : null)
+      } catch {
+        // Invalid saved data, ignore
+      }
+    }
+  }, [])
+
+  // Auto-save form data when it changes
+  useEffect(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      const hasData = Object.values(formData).some(v => v.trim() !== '') || initialNotes.trim() !== ''
+      if (hasData) {
+        const draftData = {
+          formData,
+          initialNotes,
+          savedAt: new Date().toISOString()
+        }
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(draftData))
+        setLastSaved(new Date())
+      }
+    }, 1000) // Auto-save 1 second after typing stops
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [formData, initialNotes])
+
+  // Clear draft when form is submitted
+  const clearDraft = () => {
+    localStorage.removeItem(AUTOSAVE_KEY)
+  }
 
   const isFormComplete = useCallback(() => {
     return (
@@ -180,6 +230,7 @@ export default function SubmitRequestPage() {
     storage.addAuditEntry(auditEntry)
 
     toast.success('Case declined')
+    clearDraft()
     setDeclineDialogOpen(false)
     setIsSubmitting(false)
     router.push('/dashboard')
@@ -262,6 +313,7 @@ export default function SubmitRequestPage() {
     }
 
     toast.success('Case saved as draft')
+    clearDraft()
     router.push('/dashboard')
   }
 
@@ -329,6 +381,8 @@ export default function SubmitRequestPage() {
       storage.addChatMessage(chatMessage)
     }
 
+    clearDraft()
+    
     if (isAutoApproved) {
       toast.success('Case auto-approved successfully!')
       router.push('/dashboard')
@@ -352,13 +406,25 @@ export default function SubmitRequestPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Submit Request</h1>
-            <p className="text-muted-foreground">Enter merchant information to calculate exposure</p>
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground">Enter merchant information to calculate exposure</p>
+              {lastSaved && (
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                  Auto-saved {lastSaved.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-        <Button variant="outline" onClick={handleSaveAsDraft}>
-          <Save className="h-4 w-4 mr-2" />
-          Save as Draft
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleSaveAsDraft}>
+            <Save className="h-4 w-4 mr-2" />
+            Save as Draft
+          </Button>
+          <Button onClick={handleSubmit} disabled={!isFormComplete() || isSubmitting || !exposure}>
+            {isSubmitting ? 'Processing...' : 'Submit Request'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -581,12 +647,12 @@ export default function SubmitRequestPage() {
                     </DialogContent>
                   </Dialog>
                   
-                  <Button variant="secondary" onClick={handleSaveAsDraft}>
+                  <Button variant="outline" onClick={handleSaveAsDraft}>
                     <Save className="h-4 w-4 mr-2" />
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : decision === 'auto_approved' ? 'Submit & Auto-Approve' : 'Proceed to Manual Review'}
+                    {isSubmitting ? 'Processing...' : decision === 'auto_approved' ? 'Submit & Auto-Approve' : 'Submit Request'}
                   </Button>
                 </div>
               </CardContent>
