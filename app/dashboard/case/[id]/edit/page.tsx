@@ -830,7 +830,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Section D - Reserves & Guarantees */}
+          {/* Section D - Reserves & Guarantees - Only for manual (high exposure) cases */}
+          {caseData.approvalType === 'manual' && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1163,8 +1164,10 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </div>
             </CardContent>
           </Card>
+          )}
 
-          {/* Section E - Case Description & Review */}
+          {/* Section E - Case Description & Review - Only for manual (high exposure) cases */}
+          {caseData.approvalType === 'manual' && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1247,6 +1250,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </div>
             </CardContent>
           </Card>
+          )}
         </div>
       </div>
 
