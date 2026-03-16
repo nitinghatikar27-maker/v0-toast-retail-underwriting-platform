@@ -593,27 +593,32 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     disabled={!isEditable}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="businessType">Business Type / Industry</Label>
-                  <Input
-                    id="businessType"
-                    value={caseData.businessType || ''}
-                    onChange={(e) => updateField('businessType', e.target.value)}
-                    placeholder="e.g., Restaurant"
-                    disabled={!isEditable}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="yearsInBusiness">Years in Business</Label>
-                  <Input
-                    id="yearsInBusiness"
-                    type="number"
-                    min="0"
-                    value={caseData.yearsInBusiness || ''}
-                    onChange={(e) => updateField('yearsInBusiness', parseInt(e.target.value) || 0)}
-                    disabled={!isEditable}
-                  />
-                </div>
+                {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="businessType">Business Type / Industry</Label>
+                      <Input
+                        id="businessType"
+                        value={caseData.businessType || ''}
+                        onChange={(e) => updateField('businessType', e.target.value)}
+                        placeholder="e.g., Restaurant"
+                        disabled={!isEditable}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="yearsInBusiness">Years in Business</Label>
+                      <Input
+                        id="yearsInBusiness"
+                        type="number"
+                        min="0"
+                        value={caseData.yearsInBusiness || ''}
+                        onChange={(e) => updateField('yearsInBusiness', parseInt(e.target.value) || 0)}
+                        disabled={!isEditable}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="websiteUrl">Website URL</Label>
                   <Input
