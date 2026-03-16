@@ -735,7 +735,7 @@ export default function SubmitRequestPage() {
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : 'Submit for PMF Approval'}
+                    {isSubmitting ? 'Processing...' : 'Submit for Approval'}
                   </Button>
                 </div>
               </CardContent>
