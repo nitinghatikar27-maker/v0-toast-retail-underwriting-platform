@@ -195,7 +195,7 @@ export default function DashboardPage() {
           </div>
           <div class="row">
             <span class="label">Approval Type:</span>
-            <span class="value">${caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}</span>
+            <span class="value">${caseItem.approvalType === 'auto' ? 'Auto' : caseItem.approvalType === 'standard' ? 'Standard' : 'Manual'}</span>
           </div>
         </div>
 
@@ -486,8 +486,8 @@ export default function DashboardPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : 'default'}>
-                    {caseItem.approvalType === 'auto' ? 'Auto' : 'Manual'}
+                  <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : caseItem.approvalType === 'standard' ? 'outline' : 'default'}>
+                    {caseItem.approvalType === 'auto' ? 'Auto' : caseItem.approvalType === 'standard' ? 'Standard' : 'Manual'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

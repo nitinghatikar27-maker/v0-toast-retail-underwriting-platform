@@ -322,6 +322,10 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
+    // Determine approval type based on exposure threshold
+    const isHighExposure = exposure.totalExposure > 200000
+    const approvalTypeValue = isHighExposure ? 'manual' : 'standard'
+
     const caseId = generateId()
     const newCase: Case = {
       id: caseId,
@@ -339,7 +343,7 @@ export default function SubmitRequestPage() {
       advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
       exposure,
       status: 'pending_review',
-      approvalType: 'manual',
+      approvalType: approvalTypeValue,
       submittedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       createdBy: user.id,
@@ -357,7 +361,9 @@ export default function SubmitRequestPage() {
       userId: user.id,
       userName: user.name,
       action: 'submitted',
-      comment: 'Case submitted for dual approval (OD + Risk)',
+      comment: isHighExposure 
+        ? 'Case submitted for dual approval (OD + Risk) - High Exposure'
+        : 'Case submitted for dual approval (OD + Risk) - Standard',
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
