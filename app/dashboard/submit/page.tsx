@@ -549,7 +549,7 @@ export default function SubmitRequestPage() {
                 <div className="space-y-2">
                   <Label htmlFor="brickAndMortar">Brick & Mortar *</Label>
                   <Select
-                    value={formData.brickAndMortar}
+                    value={formData.brickAndMortar || undefined}
                     onValueChange={(value: string) => setFormData(prev => ({ ...prev, brickAndMortar: value }))}
                   >
                     <SelectTrigger id="brickAndMortar">

@@ -232,10 +232,10 @@ export default function DashboardPage() {
         ${caseItem.reserves ? `
         <h2>Section D - Reserves</h2>
         <div class="section">
-          <div class="row"><span class="label">Rolling Reserve %:</span><span class="value">${caseItem.reserves.rollingReservePercentage}%</span></div>
-          <div class="row"><span class="label">Rolling Reserve Days:</span><span class="value">${caseItem.reserves.rollingReserveDays}</span></div>
-          <div class="row"><span class="label">Minimum Reserve %:</span><span class="value">${caseItem.reserves.minimumReservePercentage}%</span></div>
-          <div class="row"><span class="label">Minimum Reserve Amount:</span><span class="value">$${caseItem.reserves.minimumReserveAmount.toLocaleString()}</span></div>
+          <div class="row"><span class="label">Rolling Reserve %:</span><span class="value">${caseItem.reserves.rollingReservePercentage || 0}%</span></div>
+          <div class="row"><span class="label">Rolling Reserve Days:</span><span class="value">${caseItem.reserves.rollingReserveDays || 0}</span></div>
+          <div class="row"><span class="label">Minimum Reserve %:</span><span class="value">${caseItem.reserves.minimumReservePercentage || 0}%</span></div>
+          <div class="row"><span class="label">Minimum Reserve Amount:</span><span class="value">$${(caseItem.reserves.minimumReserveAmount || 0).toLocaleString()}</span></div>
         </div>
         ` : ''}
 
