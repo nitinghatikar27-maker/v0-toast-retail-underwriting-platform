@@ -373,6 +373,8 @@ export default function SubmitRequestPage() {
       averageTicketSize: parseFloat(formData.averageTicketSize),
       cnpVolume: parseFloat(formData.cnpVolume),
       advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
+      brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
+      businessDescription: formData.businessDescription || undefined,
       exposure,
       status: initialStatus,
       approvalType: approvalTypeValue,
