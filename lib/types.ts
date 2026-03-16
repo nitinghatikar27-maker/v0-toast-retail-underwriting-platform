@@ -111,10 +111,10 @@ export interface Case {
   
   // Dual Approval
   approvals?: {
-    odApproverId?: string
-    odApproverName?: string
-    odApprovedAt?: string
-    odComment?: string
+    pmfApproverId?: string
+    pmfApproverName?: string
+    pmfApprovedAt?: string
+    pmfComment?: string
     riskApproverId?: string
     riskApproverName?: string
     riskApprovedAt?: string

@@ -65,7 +65,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const [nextReviewDate, setNextReviewDate] = useState('')
   const [declineReason, setDeclineReason] = useState('')
   const [revisionComment, setRevisionComment] = useState('')
-  const [approvalType, setApprovalType] = useState<'od' | 'risk'>('od')
+  const [approvalType, setApprovalType] = useState<'pmf' | 'risk'>('pmf')
   const [approvalComment, setApprovalComment] = useState('')
 
   const loadData = useCallback(() => {
@@ -108,10 +108,10 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const declinedAt = declineEntry?.timestamp
 
   // Check if user has already approved
-  const hasUserApproved = (type: 'od' | 'risk') => {
+  const hasUserApproved = (type: 'pmf' | 'risk') => {
     if (!caseData?.approvals || !user) return false
-    if (type === 'od') {
-      return caseData.approvals.odApproverId === user.id
+    if (type === 'pmf') {
+      return caseData.approvals.pmfApproverId === user.id
     }
     return caseData.approvals.riskApproverId === user.id
   }
@@ -120,10 +120,10 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const getApprovalStatus = () => {
     const approvals = caseData?.approvals || {}
     return {
-      odApproved: !!approvals.odApproverId,
+      pmfApproved: !!approvals.pmfApproverId,
       riskApproved: !!approvals.riskApproverId,
-      odApprover: approvals.odApproverName,
-      odApprovedAt: approvals.odApprovedAt,
+      pmfApprover: approvals.pmfApproverName,
+      pmfApprovedAt: approvals.pmfApprovedAt,
       riskApprover: approvals.riskApproverName,
       riskApprovedAt: approvals.riskApprovedAt
     }
@@ -140,11 +140,11 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     const newApprovals = { ...currentApprovals }
     
     // Add the current user's approval
-    if (approvalType === 'od') {
-      newApprovals.odApproverId = user.id
-      newApprovals.odApproverName = user.name
-      newApprovals.odApprovedAt = new Date().toISOString()
-      newApprovals.odComment = approvalComment || undefined
+    if (approvalType === 'pmf') {
+      newApprovals.pmfApproverId = user.id
+      newApprovals.pmfApproverName = user.name
+      newApprovals.pmfApprovedAt = new Date().toISOString()
+      newApprovals.pmfComment = approvalComment || undefined
     } else {
       newApprovals.riskApproverId = user.id
       newApprovals.riskApproverName = user.name
@@ -153,7 +153,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     }
     
     // Check if both approvals are now complete
-    const bothApproved = !!newApprovals.odApproverId && !!newApprovals.riskApproverId
+    const bothApproved = !!newApprovals.pmfApproverId && !!newApprovals.riskApproverId
     
     const updatedCase: Case = {
       ...caseData,
@@ -169,7 +169,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     storage.updateCase(updatedCase)
     
-    const approvalLabel = approvalType === 'od' ? 'OD' : 'Risk'
+    const approvalLabel = approvalType === 'pmf' ? 'PMF' : 'Risk'
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
@@ -178,7 +178,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
       action: 'approved',
       comment: bothApproved 
         ? `Final approval (${approvalLabel}). Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-        : `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'od' ? 'Risk' : 'OD'} approval.`,
+        : `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`,
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
@@ -186,7 +186,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     if (bothApproved) {
       toast.success('Case fully approved!')
     } else {
-      toast.success(`${approvalLabel} approval recorded. Awaiting ${approvalType === 'od' ? 'Risk' : 'OD'} approval.`)
+      toast.success(`${approvalLabel} approval recorded. Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`)
     }
     
     setApprovalDialogOpen(false)
@@ -315,8 +315,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
               <p className="text-muted-foreground">{caseData.parentCompanyName}</p>
               {caseData.status === 'pending_review' && (
                 <div className="flex items-center gap-1 ml-2">
-                  <Badge variant={approvalStatus.odApproved ? 'default' : 'secondary'} className="text-xs">
-                    OD: {approvalStatus.odApproved ? 'Approved' : 'Pending'}
+                  <Badge variant={approvalStatus.pmfApproved ? 'default' : 'secondary'} className="text-xs">
+                    PMF: {approvalStatus.pmfApproved ? 'Approved' : 'Pending'}
                   </Badge>
                   <Badge variant={approvalStatus.riskApproved ? 'default' : 'secondary'} className="text-xs">
                     Risk: {approvalStatus.riskApproved ? 'Approved' : 'Pending'}
@@ -436,19 +436,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">Approval Status</Label>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className={`p-3 rounded-lg border ${approvalStatus.odApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
+                        <div className={`p-3 rounded-lg border ${approvalStatus.pmfApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
                           <div className="flex items-center gap-2 mb-1">
-                            {approvalStatus.odApproved ? (
+                            {approvalStatus.pmfApproved ? (
                               <CheckCircle className="h-4 w-4 text-success" />
                             ) : (
                               <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
                             )}
-                            <span className="font-medium text-sm">OD Approval</span>
+                            <span className="font-medium text-sm">PMF Approval</span>
                           </div>
-                          {approvalStatus.odApproved ? (
+                          {approvalStatus.pmfApproved ? (
                             <p className="text-xs text-muted-foreground">
-                              {approvalStatus.odApprover}<br />
-                              {formatDate(approvalStatus.odApprovedAt)}
+                              {approvalStatus.pmfApprover}<br />
+                              {formatDate(approvalStatus.pmfApprovedAt)}
                             </p>
                           ) : (
                             <p className="text-xs text-muted-foreground">Pending</p>
@@ -481,14 +481,14 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                       <div className="flex gap-2">
                         <Button
                           type="button"
-                          variant={approvalType === 'od' ? 'default' : 'outline'}
+                          variant={approvalType === 'pmf' ? 'default' : 'outline'}
                           size="sm"
-                          onClick={() => setApprovalType('od')}
-                          disabled={approvalStatus.odApproved}
+                          onClick={() => setApprovalType('pmf')}
+                          disabled={approvalStatus.pmfApproved}
                           className="flex-1"
                         >
-                          OD Approval
-                          {approvalStatus.odApproved && ' (Done)'}
+                          PMF Approval
+                          {approvalStatus.pmfApproved && ' (Done)'}
                         </Button>
                         <Button
                           type="button"
@@ -516,8 +516,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     </div>
 
                     {/* Next Review Date - only show if this will be final approval */}
-                    {((approvalType === 'od' && approvalStatus.riskApproved) || 
-                      (approvalType === 'risk' && approvalStatus.odApproved)) && (
+                    {((approvalType === 'pmf' && approvalStatus.riskApproved) || 
+                      (approvalType === 'risk' && approvalStatus.pmfApproved)) && (
                       <div className="space-y-2">
                         <Label>Next Review Date (Optional)</Label>
                         <Input
@@ -535,9 +535,9 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     <Button 
                       className="bg-success hover:bg-success/90 text-success-foreground" 
                       onClick={handleApprove} 
-                      disabled={isProcessing || (approvalType === 'od' && approvalStatus.odApproved) || (approvalType === 'risk' && approvalStatus.riskApproved)}
+                      disabled={isProcessing || (approvalType === 'pmf' && approvalStatus.pmfApproved) || (approvalType === 'risk' && approvalStatus.riskApproved)}
                     >
-                      {isProcessing ? 'Processing...' : `Submit ${approvalType === 'od' ? 'OD' : 'Risk'} Approval`}
+                      {isProcessing ? 'Processing...' : `Submit ${approvalType === 'pmf' ? 'PMF' : 'Risk'} Approval`}
                     </Button>
                   </DialogFooter>
                 </DialogContent>

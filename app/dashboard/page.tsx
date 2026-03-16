@@ -452,8 +452,8 @@ export default function DashboardPage() {
                     {getStatusBadge(caseItem.status)}
                     {caseItem.status === 'pending_review' && caseItem.approvals && (
                       <div className="flex gap-1 mt-1">
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${caseItem.approvals.odApproverId ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
-                          OD: {caseItem.approvals.odApproverId ? 'Yes' : 'No'}
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${caseItem.approvals.pmfApproverId ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
+                          PMF: {caseItem.approvals.pmfApproverId ? 'Yes' : 'No'}
                         </span>
                         <span className={`text-xs px-1.5 py-0.5 rounded ${caseItem.approvals.riskApproverId ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
                           Risk: {caseItem.approvals.riskApproverId ? 'Yes' : 'No'}

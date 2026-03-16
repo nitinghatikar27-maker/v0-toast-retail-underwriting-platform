@@ -362,8 +362,8 @@ export default function SubmitRequestPage() {
       userName: user.name,
       action: 'submitted',
       comment: isHighExposure 
-        ? 'Case submitted for dual approval (OD + Risk) - High Exposure'
-        : 'Case submitted for dual approval (OD + Risk) - Standard',
+        ? 'Case submitted for dual approval (PMF + Risk) - High Exposure'
+        : 'Case submitted for dual approval (PMF + Risk) - Standard',
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
