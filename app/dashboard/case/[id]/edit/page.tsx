@@ -104,11 +104,10 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     const updated = { ...caseData, [field]: value, lastModifiedAt: new Date().toISOString() }
     
     // Recalculate exposure if processing fields change
-    if (field === 'annualProcessingVolume' || field === 'advanceDeliveryDays' || field === 'cnpVolume') {
+    if (field === 'annualProcessingVolume' || field === 'advanceDeliveryDays') {
       const exposure = calculateExposure({
         annualProcessingVolume: field === 'annualProcessingVolume' ? value as number : caseData.annualProcessingVolume,
-        advanceDeliveryDays: field === 'advanceDeliveryDays' ? value as number : caseData.advanceDeliveryDays,
-        cnpVolume: field === 'cnpVolume' ? value as number : caseData.cnpVolume
+        advanceDeliveryDays: field === 'advanceDeliveryDays' ? value as number : caseData.advanceDeliveryDays
       })
       updated.exposure = exposure
     }
@@ -788,20 +787,24 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
               </CardHeader>
               <CardContent className="space-y-4">
                 {caseData.exposure && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="p-4 rounded-lg bg-muted">
                       <p className="text-sm text-muted-foreground">Daily Volume</p>
                       <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.dailyVolume)}</p>
                     </div>
                     <div className="p-4 rounded-lg bg-muted">
-                      <p className="text-sm text-muted-foreground">Refund Exposure</p>
-                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.refundExposure || caseData.exposure.refundReturnExposure)}</p>
+                      <p className="text-sm text-muted-foreground">Base Exposure</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.baseExposure)}</p>
                     </div>
                     <div className="p-4 rounded-lg bg-muted">
-                      <p className="text-sm text-muted-foreground">Chargeback Exposure</p>
+                      <p className="text-sm text-muted-foreground">Chargeback Exposure (5%)</p>
                       <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.chargebackExposure)}</p>
                     </div>
-                    <div className="p-4 rounded-lg bg-primary/10 border border-primary">
+                    <div className="p-4 rounded-lg bg-muted">
+                      <p className="text-sm text-muted-foreground">Refund/Return Exposure (1%)</p>
+                      <p className="text-lg font-semibold">{formatCurrency(caseData.exposure.refundReturnExposure)}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-primary/10 border border-primary col-span-2">
                       <p className="text-sm text-primary">Total Exposure</p>
                       <p className="text-lg font-bold text-primary">{formatCurrency(caseData.exposure.totalExposure)}</p>
                     </div>
@@ -809,10 +812,11 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                 )}
                 <div className="text-sm text-muted-foreground">
                   <p className="font-medium mb-1">Calculation Formula:</p>
-                  <p>Daily Volume = Annual Volume / 365</p>
-                  <p>Refund Exposure = Daily Volume × ADD × (CNP% / 100)</p>
-                  <p>Chargeback Exposure = Daily Volume × 180 × (CNP% / 100)</p>
-                  <p>Total Exposure = Refund Exposure + Chargeback Exposure</p>
+                  <p>Daily Volume = Annual Processing Volume / 365</p>
+                  <p>Base Exposure = Daily Volume × ADD</p>
+                  <p>Chargeback Exposure = Daily Volume × 5%</p>
+                  <p>Refund/Return Exposure = Daily Volume × 1%</p>
+                  <p>Total Exposure = Base Exposure + Chargeback Exposure + Refund/Return Exposure</p>
                 </div>
               </CardContent>
             </Card>

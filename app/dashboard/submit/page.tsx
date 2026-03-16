@@ -167,8 +167,7 @@ export default function SubmitRequestPage() {
       calculationTimeoutRef.current = setTimeout(() => {
         const calculatedExposure = calculateExposure({
           annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
-          advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
-          cnpVolume: parseFloat(formData.cnpVolume)
+          advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays)
         })
         setExposure(calculatedExposure)
         setIsCalculating(false)
@@ -201,8 +200,7 @@ export default function SubmitRequestPage() {
     if (!caseExposure && formData.annualProcessingVolume && formData.advanceDeliveryDays) {
       caseExposure = calculateExposure({
         annualProcessingVolume: parseFloat(formData.annualProcessingVolume) || 0,
-        advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0,
-        cnpVolume: parseFloat(formData.cnpVolume) || 0
+        advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays) || 0
       })
     }
     

@@ -36,16 +36,20 @@ export function ExposureCalculator({ exposure, showDecision = false }: ExposureC
       <CardContent className="space-y-4">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Base Exposure</span>
+            <span className="text-sm text-muted-foreground">Daily Volume (Annual / 365)</span>
+            <span className="font-mono text-sm">{formatCurrencyFull(exposure.dailyVolume)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Base Exposure (Daily Volume x ADD)</span>
             <span className="font-mono text-sm">{formatCurrencyFull(exposure.baseExposure)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Chargeback Exposure</span>
+            <span className="text-sm text-muted-foreground">Chargeback Exposure (Daily Volume x 5%)</span>
             <span className="font-mono text-sm">{formatCurrencyFull(exposure.chargebackExposure)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Refund Exposure</span>
-            <span className="font-mono text-sm">{formatCurrencyFull(exposure.refundExposure || exposure.refundReturnExposure)}</span>
+            <span className="text-sm text-muted-foreground">Refund/Return Exposure (Daily Volume x 1%)</span>
+            <span className="font-mono text-sm">{formatCurrencyFull(exposure.refundReturnExposure)}</span>
           </div>
         </div>
 
