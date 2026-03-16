@@ -322,9 +322,25 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
-    // Determine approval type based on exposure threshold
-    const isHighExposure = exposure.totalExposure > 200000
-    const approvalTypeValue = isHighExposure ? 'manual' : 'standard'
+    // Determine approval flow based on exposure thresholds:
+    // <= $200K: Standard flow - Submit for dual approval (PMF + Risk)
+    // > $200K and <= $300K: Manual form required, then dual approval (PMF + Risk)
+    // > $300K: PMF approval first, then manual form, then Risk approval only
+    const isStandard = exposure.totalExposure <= 200000
+    const isHighExposure = exposure.totalExposure > 200000 && exposure.totalExposure <= 300000
+    const isVeryHighExposure = exposure.totalExposure > 300000
+    
+    const approvalTypeValue = isStandard ? 'standard' : 'manual'
+    
+    // Determine initial status based on exposure tier
+    let initialStatus: 'pending_review' | 'draft' | 'pending_pmf_approval'
+    if (isStandard) {
+      initialStatus = 'pending_review' // Goes directly for PMF + Risk dual approval
+    } else if (isHighExposure) {
+      initialStatus = 'draft' // Goes to manual form first
+    } else {
+      initialStatus = 'pending_pmf_approval' // Needs PMF approval before manual form
+    }
 
     const caseId = generateId()
     const newCase: Case = {
@@ -342,10 +358,9 @@ export default function SubmitRequestPage() {
       cnpVolume: parseFloat(formData.cnpVolume),
       advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
       exposure,
-      // High exposure cases go to draft for manual form completion, standard cases go directly to pending_review
-      status: isHighExposure ? 'draft' : 'pending_review',
+      status: initialStatus,
       approvalType: approvalTypeValue,
-      submittedAt: isHighExposure ? undefined : new Date().toISOString(),
+      submittedAt: isStandard ? new Date().toISOString() : undefined,
       createdAt: new Date().toISOString(),
       createdBy: user.id,
       lastModifiedBy: user.id,
@@ -356,15 +371,24 @@ export default function SubmitRequestPage() {
     storage.addCase(newCase)
 
     // Add audit entry
+    let auditComment: string
+    let auditAction: 'created' | 'submitted' = 'submitted'
+    if (isStandard) {
+      auditComment = 'Case submitted for dual approval (PMF + Risk) - Standard'
+    } else if (isHighExposure) {
+      auditComment = 'Case created - Manual review form required (Exposure $200K-$300K)'
+      auditAction = 'created'
+    } else {
+      auditComment = 'Case submitted for PMF approval (Exposure > $300K) - Manual form required after PMF approval'
+    }
+
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId,
       userId: user.id,
       userName: user.name,
-      action: isHighExposure ? 'created' : 'submitted',
-      comment: isHighExposure 
-        ? 'Case created - Manual review form required (High Exposure > $200K)'
-        : 'Case submitted for dual approval (PMF + Risk) - Standard',
+      action: auditAction,
+      comment: auditComment,
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
@@ -386,11 +410,14 @@ export default function SubmitRequestPage() {
 
     clearDraft()
     
-    if (isHighExposure) {
+    if (isStandard) {
+      toast.success('Case submitted for approval!')
+      router.push('/dashboard')
+    } else if (isHighExposure) {
       toast.success('Case created! Please complete the manual review form.')
       router.push(`/dashboard/case/${caseId}/edit`)
     } else {
-      toast.success('Case submitted for approval!')
+      toast.success('Case submitted for PMF approval!')
       router.push('/dashboard')
     }
   }
@@ -655,7 +682,10 @@ export default function SubmitRequestPage() {
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : decision === 'manual_review' ? 'Proceed to Manual Form' : 'Submit for Approval'}
+                    {isSubmitting ? 'Processing...' : 
+                      decision === 'manual_review_amber' ? 'Proceed to Manual Form' : 
+                      decision === 'manual_review_red' ? 'Submit for PMF Approval' : 
+                      'Submit for Approval'}
                   </Button>
                 </div>
               </CardContent>

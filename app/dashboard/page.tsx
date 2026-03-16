@@ -279,6 +279,10 @@ export default function DashboardPage() {
         return <Badge variant="outline" className="border-warning text-warning">Draft</Badge>
       case 'pending_review':
         return <Badge className="bg-warning text-warning-foreground">Pending Review</Badge>
+      case 'pending_pmf_approval':
+        return <Badge className="bg-primary text-primary-foreground">Pending PMF</Badge>
+      case 'pending_risk_approval':
+        return <Badge className="bg-warning text-warning-foreground">Pending Risk</Badge>
       case 'revision_requested':
         return <Badge variant="outline" className="border-destructive text-destructive">Revision Requested</Badge>
       case 'declined':

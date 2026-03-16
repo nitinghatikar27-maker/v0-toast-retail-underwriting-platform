@@ -99,7 +99,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     })
   }
 
-  const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && caseData?.status === 'pending_review'
+  const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && 
+    (caseData?.status === 'pending_review' || caseData?.status === 'pending_pmf_approval' || caseData?.status === 'pending_risk_approval')
 
   // Get decline reason from audit entries
   const declineEntry = auditEntries.find(entry => entry.action === 'declined')
@@ -138,6 +139,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     const currentApprovals = caseData.approvals || {}
     const newApprovals = { ...currentApprovals }
+    const isVeryHighExposure = caseData.exposure.totalExposure > 300000
+    const isPmfPreApproval = caseData.status === 'pending_pmf_approval'
     
     // Add the current user's approval
     if (approvalType === 'pmf') {
@@ -152,14 +155,43 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
       newApprovals.riskComment = approvalComment || undefined
     }
     
-    // Check if both approvals are now complete
-    const bothApproved = !!newApprovals.pmfApproverId && !!newApprovals.riskApproverId
+    // Determine next status based on approval flow
+    let newStatus: Case['status']
+    let auditComment: string
+    let toastMessage: string
+    let redirectToManualForm = false
+    
+    if (isPmfPreApproval && approvalType === 'pmf') {
+      // PMF pre-approval for very high exposure - redirect to manual form
+      newStatus = 'draft'
+      auditComment = `PMF pre-approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Case now requires manual form completion.`
+      toastMessage = 'PMF approval recorded. Redirecting to manual form...'
+      redirectToManualForm = true
+    } else if (caseData.status === 'pending_risk_approval' && approvalType === 'risk') {
+      // Final Risk approval for very high exposure cases
+      newStatus = 'approved'
+      auditComment = `Risk approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+      toastMessage = 'Case fully approved!'
+    } else {
+      // Standard dual approval flow (for standard and high exposure cases)
+      const bothApproved = !!newApprovals.pmfApproverId && !!newApprovals.riskApproverId
+      newStatus = bothApproved ? 'approved' : 'pending_review'
+      const approvalLabel = approvalType === 'pmf' ? 'PMF' : 'Risk'
+      
+      if (bothApproved) {
+        auditComment = `Final approval (${approvalLabel}). Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+        toastMessage = 'Case fully approved!'
+      } else {
+        auditComment = `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`
+        toastMessage = `${approvalLabel} approval recorded. Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`
+      }
+    }
     
     const updatedCase: Case = {
       ...caseData,
-      status: bothApproved ? 'approved' : 'pending_review',
+      status: newStatus,
       approvals: newApprovals,
-      ...(bothApproved && { 
+      ...(newStatus === 'approved' && { 
         approvedAt: new Date().toISOString(),
         nextReviewDate: nextReviewDate || undefined
       }),
@@ -169,30 +201,28 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     storage.updateCase(updatedCase)
     
-    const approvalLabel = approvalType === 'pmf' ? 'PMF' : 'Risk'
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
       userId: user.id,
       userName: user.name,
       action: 'approved',
-      comment: bothApproved 
-        ? `Final approval (${approvalLabel}). Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-        : `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`,
+      comment: auditComment,
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
     
-    if (bothApproved) {
-      toast.success('Case fully approved!')
-    } else {
-      toast.success(`${approvalLabel} approval recorded. Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`)
-    }
+    toast.success(toastMessage)
     
     setApprovalDialogOpen(false)
     setIsProcessing(false)
     setApprovalComment('')
-    loadData()
+    
+    if (redirectToManualForm) {
+      router.push(`/dashboard/case/${caseData.id}/edit`)
+    } else {
+      loadData()
+    }
   }
 
   const handleDecline = () => {
@@ -265,6 +295,10 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
         return <Badge className="bg-success text-success-foreground">Approved</Badge>
       case 'pending_review':
         return <Badge className="bg-warning text-warning-foreground">Pending Review</Badge>
+      case 'pending_pmf_approval':
+        return <Badge className="bg-primary text-primary-foreground">Pending PMF Approval</Badge>
+      case 'pending_risk_approval':
+        return <Badge className="bg-warning text-warning-foreground">Pending Risk Approval</Badge>
       case 'revision_requested':
         return <Badge variant="destructive">Revision Requested</Badge>
       case 'declined':
@@ -410,9 +444,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Dual Approval Required</DialogTitle>
+                    <DialogTitle>
+                      {caseData?.status === 'pending_pmf_approval' 
+                        ? 'PMF Pre-Approval Required' 
+                        : caseData?.status === 'pending_risk_approval'
+                        ? 'Risk Approval Required'
+                        : 'Dual Approval Required'}
+                    </DialogTitle>
                     <DialogDescription>
-                      This case requires approval from both OD and Risk teams
+                      {caseData?.status === 'pending_pmf_approval' 
+                        ? 'This high-exposure case requires PMF approval before the manual form can be completed'
+                        : caseData?.status === 'pending_risk_approval'
+                        ? 'This case has PMF approval and requires final Risk approval'
+                        : 'This case requires approval from both PMF and Risk teams'}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -479,28 +523,34 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     <div className="space-y-2">
                       <Label>Your Approval Type *</Label>
                       <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant={approvalType === 'pmf' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setApprovalType('pmf')}
-                          disabled={approvalStatus.pmfApproved}
-                          className="flex-1"
-                        >
-                          PMF Approval
-                          {approvalStatus.pmfApproved && ' (Done)'}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={approvalType === 'risk' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setApprovalType('risk')}
-                          disabled={approvalStatus.riskApproved}
-                          className="flex-1"
-                        >
-                          Risk Approval
-                          {approvalStatus.riskApproved && ' (Done)'}
-                        </Button>
+                        {/* Show PMF button unless it's pending_risk_approval status */}
+                        {caseData?.status !== 'pending_risk_approval' && (
+                          <Button
+                            type="button"
+                            variant={approvalType === 'pmf' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setApprovalType('pmf')}
+                            disabled={approvalStatus.pmfApproved}
+                            className="flex-1"
+                          >
+                            PMF Approval
+                            {approvalStatus.pmfApproved && ' (Done)'}
+                          </Button>
+                        )}
+                        {/* Show Risk button unless it's pending_pmf_approval status */}
+                        {caseData?.status !== 'pending_pmf_approval' && (
+                          <Button
+                            type="button"
+                            variant={approvalType === 'risk' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setApprovalType('risk')}
+                            disabled={approvalStatus.riskApproved}
+                            className="flex-1"
+                          >
+                            Risk Approval
+                            {approvalStatus.riskApproved && ' (Done)'}
+                          </Button>
+                        )}
                       </div>
                     </div>
 

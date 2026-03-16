@@ -162,12 +162,34 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     
     setIsSubmitting(true)
     
+    // Determine submission flow based on exposure and PMF approval status
+    const isVeryHighExposure = caseData.exposure.totalExposure > 300000
+    const hasPmfApproval = !!caseData.approvals?.pmfApproverId
+    
     // Find the appropriate approver based on exposure
     const approverId = storage.getApproverForExposure(caseData.exposure.totalExposure)
     
+    // For very high exposure with PMF pre-approval, go to Risk approval only
+    // For other manual cases, go to pending_review for dual approval
+    let newStatus: Case['status']
+    let auditComment: string
+    let toastMessage: string
+    
+    if (isVeryHighExposure && hasPmfApproval) {
+      // Very high exposure case with PMF already approved - go directly to Risk approval
+      newStatus = 'pending_risk_approval'
+      auditComment = 'Manual form completed. Case submitted for Risk approval.'
+      toastMessage = 'Case submitted for Risk approval!'
+    } else {
+      // Standard high exposure case - go for dual approval
+      newStatus = 'pending_review'
+      auditComment = 'Manual form completed. Case submitted for dual approval (PMF + Risk).'
+      toastMessage = 'Case submitted for approval!'
+    }
+    
     const updatedCase: Case = {
       ...caseData,
-      status: 'pending_review',
+      status: newStatus,
       assignedApproverId: approverId === 'auto' ? undefined : approverId,
       submittedAt: new Date().toISOString(),
       lastModifiedBy: user.id,
@@ -183,12 +205,12 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       userId: user.id,
       userName: user.name,
       action: 'submitted',
-      comment: 'Case submitted for approval',
+      comment: auditComment,
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
     
-    toast.success('Case submitted for approval')
+    toast.success(toastMessage)
     router.push('/dashboard')
     setIsSubmitting(false)
   }

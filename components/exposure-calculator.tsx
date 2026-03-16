@@ -76,7 +76,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     return (
       <div className="rounded-lg bg-success/10 border border-success/30 p-4">
         <p className="text-success font-medium">
-          Exposure is within auto-approval threshold (&le; $200K).
+          Exposure is within standard threshold (&le; $200K).
         </p>
         <p className="text-sm text-success/80 mt-1">
           Case will be submitted for dual approval (PMF + Risk). No manual form required.
@@ -90,10 +90,10 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
       <div className="space-y-3">
         <div className="rounded-lg bg-warning/10 border border-warning/30 p-4">
           <p className="text-warning-foreground font-medium">
-            Exposure exceeds $200K - Manual review form required.
+            Exposure $200K - $300K: Manual review form required.
           </p>
           <p className="text-sm text-warning-foreground/80 mt-1">
-            You will be redirected to complete the manual case form with reserves and additional details.
+            You will be redirected to complete the manual case form. After submission, case goes for dual approval (PMF + Risk).
           </p>
         </div>
         <DocumentRequirements type="amber" />
@@ -105,10 +105,10 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     <div className="space-y-3">
       <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4">
         <p className="text-destructive font-medium">
-          Exposure exceeds $200K - Manual review form required.
+          Exposure exceeds $300K: PMF pre-approval required.
         </p>
         <p className="text-sm text-destructive/80 mt-1">
-          You will be redirected to complete the manual case form with reserves and additional details.
+          Case will first go for PMF approval. After PMF approval, you will complete the manual form. Then case goes for Risk approval.
         </p>
       </div>
       <DocumentRequirements type="red" />

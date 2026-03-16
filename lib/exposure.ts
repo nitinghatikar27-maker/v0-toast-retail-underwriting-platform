@@ -29,11 +29,11 @@ export type ExposureDecision = 'auto_approved' | 'manual_review_amber' | 'manual
 
 export function getExposureDecision(totalExposure: number): ExposureDecision {
   if (totalExposure <= 200000) {
-    return 'auto_approved'
-  } else if (totalExposure <= 500000) {
-    return 'manual_review_amber'
+    return 'auto_approved' // Standard: Direct dual approval (PMF + Risk)
+  } else if (totalExposure <= 300000) {
+    return 'manual_review_amber' // High: Manual form required, then dual approval
   } else {
-    return 'manual_review_red'
+    return 'manual_review_red' // Very High: PMF approval first, then manual form, then Risk approval
   }
 }
 

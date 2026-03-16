@@ -40,7 +40,7 @@ export interface Document {
   dataUrl: string
 }
 
-export type CaseStatus = 'draft' | 'pending_review' | 'revision_requested' | 'approved' | 'declined' | 'auto_approved'
+export type CaseStatus = 'draft' | 'pending_review' | 'pending_pmf_approval' | 'pending_risk_approval' | 'revision_requested' | 'approved' | 'declined' | 'auto_approved'
 export type ApprovalType = 'auto' | 'manual' | 'standard'
 
 export interface Exposure {
