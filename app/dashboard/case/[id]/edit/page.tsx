@@ -652,25 +652,30 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     </div>
                   </>
                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="websiteUrl">Website URL</Label>
-                  <Input
-                    id="websiteUrl"
-                    value={caseData.websiteUrl || ''}
-                    onChange={(e) => updateField('websiteUrl', e.target.value)}
-                    placeholder="https://example.com"
-                    disabled={!isEditable}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="businessAddress">Business Address</Label>
-                  <Input
-                    id="businessAddress"
-                    value={caseData.businessAddress || ''}
-                    onChange={(e) => updateField('businessAddress', e.target.value)}
-                    disabled={!isEditable}
-                  />
-                </div>
+                {/* Website URL and Business Address - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="websiteUrl">Website URL</Label>
+                      <Input
+                        id="websiteUrl"
+                        value={caseData.websiteUrl || ''}
+                        onChange={(e) => updateField('websiteUrl', e.target.value)}
+                        placeholder="https://example.com"
+                        disabled={!isEditable}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="businessAddress">Business Address</Label>
+                      <Input
+                        id="businessAddress"
+                        value={caseData.businessAddress || ''}
+                        onChange={(e) => updateField('businessAddress', e.target.value)}
+                        disabled={!isEditable}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -709,18 +714,21 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     disabled={!isEditable}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="highestTicketSize">Highest Ticket Size (USD)</Label>
-                  <Input
-                    id="highestTicketSize"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={caseData.highestTicketSize || ''}
-                    onChange={(e) => updateField('highestTicketSize', parseFloat(e.target.value) || 0)}
-                    disabled={!isEditable}
-                  />
-                </div>
+                {/* Highest Ticket Size - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="highestTicketSize">Highest Ticket Size (USD)</Label>
+                    <Input
+                      id="highestTicketSize"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={caseData.highestTicketSize || ''}
+                      onChange={(e) => updateField('highestTicketSize', parseFloat(e.target.value) || 0)}
+                      disabled={!isEditable}
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="cnpVolume">CNP Volume (%)</Label>
                   <Input
@@ -744,126 +752,37 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     disabled={!isEditable}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="refundReturnRate">Refund/Return Rate (%)</Label>
-                  <Input
-                    id="refundReturnRate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={caseData.refundReturnRate || ''}
-                    onChange={(e) => updateField('refundReturnRate', parseFloat(e.target.value) || 0)}
-                    disabled={!isEditable}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="chargebackRate">Chargeback Rate (%)</Label>
-                  <Input
-                    id="chargebackRate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={caseData.chargebackRate || ''}
-                    onChange={(e) => updateField('chargebackRate', parseFloat(e.target.value) || 0)}
-                    disabled={!isEditable}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Section C - Exposure Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Section C - Exposure Summary
-              </CardTitle>
-              <CardDescription>Auto-calculated exposure values (read-only)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Exposure Calculator - Calculation Breakdown */}
-              <div className="bg-muted/30 rounded-lg p-4 space-y-3 mb-6 border">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Exposure Calculator</p>
-                
-                {/* Daily Volume */}
-                <div className="flex items-center justify-between py-2 border-b border-dashed">
-                  <div>
-                    <p className="text-sm font-medium">Daily Volume</p>
-                    <p className="text-xs text-muted-foreground">Annual Processing Volume / 365</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground font-mono">
-                      {formatCurrency(caseData.annualProcessingVolume)} / 365
-                    </p>
-                    <p className="font-mono font-semibold text-foreground">
-                      {formatCurrency(caseData.exposure.dailyVolume)}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Base Exposure */}
-                <div className="flex items-center justify-between py-2 border-b border-dashed">
-                  <div>
-                    <p className="text-sm font-medium">Base Exposure</p>
-                    <p className="text-xs text-muted-foreground">Daily Volume x ADD</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground font-mono">
-                      {formatCurrency(caseData.exposure.dailyVolume)} x {caseData.advanceDeliveryDays} days
-                    </p>
-                    <p className="font-mono font-semibold text-foreground">
-                      {formatCurrency(caseData.exposure.baseExposure)}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Chargeback Exposure */}
-                <div className="flex items-center justify-between py-2 border-b border-dashed">
-                  <div>
-                    <p className="text-sm font-medium">Chargeback Exposure</p>
-                    <p className="text-xs text-muted-foreground">Daily Volume x 5%</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground font-mono">
-                      {formatCurrency(caseData.exposure.dailyVolume)} x 5%
-                    </p>
-                    <p className="font-mono font-semibold text-foreground">
-                      {formatCurrency(caseData.exposure.chargebackExposure)}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Refund/Return Exposure */}
-                <div className="flex items-center justify-between py-2 border-b border-dashed">
-                  <div>
-                    <p className="text-sm font-medium">Refund/Return Exposure</p>
-                    <p className="text-xs text-muted-foreground">Daily Volume x 1%</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground font-mono">
-                      {formatCurrency(caseData.exposure.dailyVolume)} x 1%
-                    </p>
-                    <p className="font-mono font-semibold text-foreground">
-                      {formatCurrency(caseData.exposure.refundReturnExposure)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Total Exposure */}
-              <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">TOTAL EXPOSURE</p>
-                    <p className="text-xs text-muted-foreground">Base + Chargeback + Refund/Return</p>
-                  </div>
-                  <span className="text-2xl font-mono font-bold text-primary">
-                    {formatCurrency(caseData.exposure.totalExposure)}
-                  </span>
-                </div>
+{/* Refund/Return Rate and Chargeback Rate - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="refundReturnRate">Refund/Return Rate (%)</Label>
+                      <Input
+                        id="refundReturnRate"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={caseData.refundReturnRate || ''}
+                        onChange={(e) => updateField('refundReturnRate', parseFloat(e.target.value) || 0)}
+                        disabled={!isEditable}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chargebackRate">Chargeback Rate (%)</Label>
+                      <Input
+                        id="chargebackRate"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={caseData.chargebackRate || ''}
+                        onChange={(e) => updateField('chargebackRate', parseFloat(e.target.value) || 0)}
+                        disabled={!isEditable}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
