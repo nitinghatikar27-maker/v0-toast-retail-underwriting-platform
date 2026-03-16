@@ -83,7 +83,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
           Exposure is within standard threshold (&le; $200K).
         </p>
         <p className="text-sm text-success/80 mt-1">
-          Case will be submitted for PMF approval. No manual form required.
+          Case will be submitted for dual approval (PMF + Risk). No manual form required.
         </p>
       </div>
     )

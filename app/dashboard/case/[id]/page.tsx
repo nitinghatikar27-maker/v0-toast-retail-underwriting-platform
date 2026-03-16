@@ -164,10 +164,10 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     if (isPmfPreApproval && approvalType === 'pmf') {
       if (isStandardCase) {
-        // Standard case: PMF approval completes the case
-        newStatus = 'approved'
-        auditComment = `PMF approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-        toastMessage = 'Case fully approved!'
+        // Standard case: PMF approval -> now needs Risk approval
+        newStatus = 'pending_review'
+        auditComment = `PMF approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting Risk approval.`
+        toastMessage = 'PMF approval recorded. Awaiting Risk approval.'
       } else {
         // Manual case: PMF approval allows manual form creation
         newStatus = 'draft'
@@ -175,6 +175,11 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
         toastMessage = 'PMF approval recorded. Redirecting to manual form...'
         redirectToManualForm = true
       }
+    } else if (caseData.status === 'pending_review' && isStandardCase && approvalType === 'risk') {
+      // Standard case: Risk approval after PMF approval completes the case
+      newStatus = 'approved'
+      auditComment = `Risk approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+      toastMessage = 'Case fully approved!'
     } else if (caseData.status === 'pending_risk_approval' && approvalType === 'risk') {
       // Final Risk approval for manual cases
       newStatus = 'approved'
