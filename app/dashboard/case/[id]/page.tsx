@@ -763,14 +763,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   )}
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Business Type</p>
-                  <p className="font-medium">{caseData.businessType || '-'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Years in Business</p>
-                  <p className="font-medium">{caseData.yearsInBusiness || '-'}</p>
-                </div>
-                <div>
                   <p className="text-muted-foreground">Brick & Mortar</p>
                   <p className="font-medium">{caseData.brickAndMortar === 'yes' ? 'Yes' : caseData.brickAndMortar === 'no' ? 'No' : '-'}</p>
                 </div>
@@ -778,6 +770,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">AE Name</p>
                   <p className="font-medium">{caseData.aeName || '-'}</p>
                 </div>
+                {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <>
+                    <div>
+                      <p className="text-muted-foreground">Business Type</p>
+                      <p className="font-medium">{caseData.businessType || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Years in Business</p>
+                      <p className="font-medium">{caseData.yearsInBusiness || '-'}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -808,14 +813,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">CNP Volume</p>
                   <p className="font-medium">{caseData.cnpVolume}%</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Refund Rate</p>
-                  <p className="font-medium">{caseData.refundReturnRate || 0}%</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Chargeback Rate</p>
-                  <p className="font-medium">{caseData.chargebackRate || 0}%</p>
-                </div>
+                {/* Refund Rate and Chargeback Rate - Only for manual (high exposure) cases */}
+                {caseData.approvalType === 'manual' && (
+                  <>
+                    <div>
+                      <p className="text-muted-foreground">Refund Rate</p>
+                      <p className="font-medium">{caseData.refundReturnRate || 0}%</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Chargeback Rate</p>
+                      <p className="font-medium">{caseData.chargebackRate || 0}%</p>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
