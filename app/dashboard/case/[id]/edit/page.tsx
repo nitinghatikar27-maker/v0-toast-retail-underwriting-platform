@@ -591,7 +591,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="salesforceLink">Salesforce Link</Label>
+                  <Label htmlFor="salesforceLink">Salesforce Link *</Label>
                   <Input
                     id="salesforceLink"
                     type="url"
@@ -600,6 +600,31 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     placeholder="https://toast.lightning.force.com/..."
                     disabled={!isEditable}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="aeName">AE Name *</Label>
+                  <Input
+                    id="aeName"
+                    value={caseData.aeName || ''}
+                    onChange={(e) => updateField('aeName', e.target.value)}
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brickAndMortar">Brick & Mortar *</Label>
+                  <Select
+                    value={caseData.brickAndMortar || ''}
+                    onValueChange={(value: string) => updateField('brickAndMortar', value)}
+                    disabled={!isEditable}
+                  >
+                    <SelectTrigger id="brickAndMortar">
+                      <SelectValue placeholder="Select Yes or No" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
                 {caseData.approvalType === 'manual' && (
@@ -839,6 +864,41 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     {formatCurrency(caseData.exposure.totalExposure)}
                   </span>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Business Description Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Business Description
+              </CardTitle>
+              <CardDescription>
+                Provide a brief description of the business
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="businessDescription">Description *</Label>
+                <Textarea
+                  id="businessDescription"
+                  value={caseData.businessDescription || ''}
+                  onChange={(e) => {
+                    updateField('businessDescription', e.target.value)
+                    // Auto-resize the textarea
+                    e.target.style.height = 'auto'
+                    e.target.style.height = e.target.scrollHeight + 'px'
+                  }}
+                  placeholder="Describe the nature of the business, products/services offered, target customers, etc."
+                  className="min-h-[100px] resize-none overflow-hidden"
+                  style={{ height: 'auto' }}
+                  disabled={!isEditable}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This helps approvers understand the business context
+                </p>
               </div>
             </CardContent>
           </Card>
