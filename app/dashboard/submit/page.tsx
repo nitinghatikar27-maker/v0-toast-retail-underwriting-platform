@@ -346,17 +346,15 @@ export default function SubmitRequestPage() {
     setIsSubmitting(true)
 
     // Determine approval flow based on exposure thresholds:
-    // <= $200K: Standard flow - Submit for dual approval (PMF + Risk)
-    // > $200K: PMF approval first, then manual form, then Risk approval
+    // All cases require PMF approval first
+    // <= $200K: PMF approval -> Case approved
+    // > $200K: PMF approval -> Manual form created -> User fills form -> Risk approval -> Case approved
     const isStandard = exposure.totalExposure <= 200000
-    const isHighExposure = exposure.totalExposure > 200000
     
     const approvalTypeValue = isStandard ? 'standard' : 'manual'
     
-    // Determine initial status based on exposure tier
-    const initialStatus: 'pending_review' | 'pending_pmf_approval' = isStandard 
-      ? 'pending_review'  // Goes directly for PMF + Risk dual approval
-      : 'pending_pmf_approval' // Needs PMF approval first, then manual form, then Risk
+    // All cases start with PMF approval
+    const initialStatus: 'pending_pmf_approval' = 'pending_pmf_approval'
 
     const caseId = generateId()
     const newCase: Case = {
@@ -390,7 +388,7 @@ export default function SubmitRequestPage() {
 
     // Add audit entry
     const auditComment = isStandard 
-      ? 'Case submitted for dual approval (PMF + Risk) - Standard'
+      ? 'Case submitted for PMF approval - Standard'
       : 'Case submitted for PMF approval (Exposure > $200K) - Manual form required after PMF approval'
 
     const auditEntry: AuditEntry = {
@@ -421,11 +419,7 @@ export default function SubmitRequestPage() {
 
     clearDraft()
     
-    if (isStandard) {
-      toast.success('Case submitted for approval!')
-    } else {
-      toast.success('Case submitted for PMF approval!')
-    }
+    toast.success('Case submitted for PMF approval!')
     router.push('/dashboard')
   }
 
@@ -741,9 +735,7 @@ export default function SubmitRequestPage() {
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : 
-                      decision === 'auto_approved' ? 'Submit for Approval' : 
-                      'Submit for PMF Approval'}
+                    {isSubmitting ? 'Processing...' : 'Submit for PMF Approval'}
                   </Button>
                 </div>
               </CardContent>

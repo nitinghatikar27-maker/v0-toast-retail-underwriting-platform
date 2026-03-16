@@ -79,7 +79,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
           Exposure is within standard threshold (&le; $200K).
         </p>
         <p className="text-sm text-success/80 mt-1">
-          Case will be submitted for dual approval (PMF + Risk). No manual form required.
+          Case will be submitted for PMF approval. No manual form required.
         </p>
       </div>
     )
@@ -90,7 +90,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     <div className="space-y-3">
       <div className="rounded-lg bg-warning/10 border border-warning/30 p-4">
         <p className="text-warning-foreground font-medium">
-          Exposure exceeds $200K: PMF pre-approval required.
+          Exposure exceeds $200K: PMF approval required.
         </p>
         <p className="text-sm text-warning-foreground/80 mt-1">
           Case will first go for PMF approval. After PMF approval, you will complete the manual form. Then case goes for Risk approval.

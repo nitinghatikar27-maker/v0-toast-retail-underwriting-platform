@@ -626,7 +626,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
                 {/* Website URL - Only for manual (high exposure) cases */}
                 {caseData.approvalType === 'manual' && (
                   <div className="space-y-2">

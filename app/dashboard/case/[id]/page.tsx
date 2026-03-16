@@ -139,7 +139,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     const currentApprovals = caseData.approvals || {}
     const newApprovals = { ...currentApprovals }
-    const isVeryHighExposure = caseData.exposure.totalExposure > 300000
+    const isStandardCase = caseData.approvalType === 'standard'
+    const isManualCase = caseData.approvalType === 'manual'
     const isPmfPreApproval = caseData.status === 'pending_pmf_approval'
     
     // Add the current user's approval
@@ -162,29 +163,28 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     let redirectToManualForm = false
     
     if (isPmfPreApproval && approvalType === 'pmf') {
-      // PMF pre-approval for very high exposure - redirect to manual form
-      newStatus = 'draft'
-      auditComment = `PMF pre-approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Case now requires manual form completion.`
-      toastMessage = 'PMF approval recorded. Redirecting to manual form...'
-      redirectToManualForm = true
+      if (isStandardCase) {
+        // Standard case: PMF approval completes the case
+        newStatus = 'approved'
+        auditComment = `PMF approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+        toastMessage = 'Case fully approved!'
+      } else {
+        // Manual case: PMF approval allows manual form creation
+        newStatus = 'draft'
+        auditComment = `PMF approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Case now requires manual form completion.`
+        toastMessage = 'PMF approval recorded. Redirecting to manual form...'
+        redirectToManualForm = true
+      }
     } else if (caseData.status === 'pending_risk_approval' && approvalType === 'risk') {
-      // Final Risk approval for very high exposure cases
+      // Final Risk approval for manual cases
       newStatus = 'approved'
       auditComment = `Risk approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
       toastMessage = 'Case fully approved!'
     } else {
-      // Standard dual approval flow (for standard and high exposure cases)
-      const bothApproved = !!newApprovals.pmfApproverId && !!newApprovals.riskApproverId
-      newStatus = bothApproved ? 'approved' : 'pending_review'
-      const approvalLabel = approvalType === 'pmf' ? 'PMF' : 'Risk'
-      
-      if (bothApproved) {
-        auditComment = `Final approval (${approvalLabel}). Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-        toastMessage = 'Case fully approved!'
-      } else {
-        auditComment = `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`
-        toastMessage = `${approvalLabel} approval recorded. Awaiting ${approvalType === 'pmf' ? 'Risk' : 'PMF'} approval.`
-      }
+      // Fallback for other cases
+      newStatus = 'approved'
+      auditComment = `Approval granted. Case approved.`
+      toastMessage = 'Case approved!'
     }
     
     const updatedCase: Case = {
@@ -446,17 +446,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <DialogHeader>
                     <DialogTitle>
                       {caseData?.status === 'pending_pmf_approval' 
-                        ? 'PMF Pre-Approval Required' 
+                        ? 'PMF Approval Required' 
                         : caseData?.status === 'pending_risk_approval'
                         ? 'Risk Approval Required'
-                        : 'Dual Approval Required'}
+                        : 'Approval Required'}
                     </DialogTitle>
                     <DialogDescription>
                       {caseData?.status === 'pending_pmf_approval' 
-                        ? 'This high-exposure case requires PMF approval before the manual form can be completed'
+                        ? (caseData?.approvalType === 'standard' 
+                          ? 'This case requires PMF approval to be completed'
+                          : 'This case requires PMF approval before the manual form can be completed')
                         : caseData?.status === 'pending_risk_approval'
                         ? 'This case has PMF approval and requires final Risk approval'
-                        : 'This case requires approval from both PMF and Risk teams'}
+                        : 'This case requires approval'}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -770,19 +772,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">AE Name</p>
                   <p className="font-medium">{caseData.aeName || '-'}</p>
                 </div>
-                {/* Business Type and Years in Business - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
-                  <>
-                    <div>
-                      <p className="text-muted-foreground">Business Type</p>
-                      <p className="font-medium">{caseData.businessType || '-'}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Years in Business</p>
-                      <p className="font-medium">{caseData.yearsInBusiness || '-'}</p>
-                    </div>
-                  </>
-                )}
               </div>
             </CardContent>
           </Card>
