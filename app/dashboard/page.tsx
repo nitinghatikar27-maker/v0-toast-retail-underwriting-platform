@@ -447,7 +447,21 @@ export default function DashboardPage() {
             {cases.map(caseItem => (
               <TableRow key={caseItem.id}>
                 <TableCell className="font-mono text-sm">{caseItem.caseNumber}</TableCell>
-                <TableCell>{getStatusBadge(caseItem.status)}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    {getStatusBadge(caseItem.status)}
+                    {caseItem.status === 'pending_review' && caseItem.approvals && (
+                      <div className="flex gap-1 mt-1">
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${caseItem.approvals.odApproverId ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
+                          OD: {caseItem.approvals.odApproverId ? 'Yes' : 'No'}
+                        </span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${caseItem.approvals.riskApproverId ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
+                          Risk: {caseItem.approvals.riskApproverId ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>{caseItem.mcc || '-'}</TableCell>
                 <TableCell className="font-mono text-sm">{caseItem.salesforceAccountNumber}</TableCell>
                 <TableCell className="font-medium">{caseItem.parentCompanyName}</TableCell>

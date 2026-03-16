@@ -322,9 +322,6 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
-    const decision = getExposureDecision(exposure.totalExposure)
-    const isAutoApproved = decision === 'auto_approved'
-
     const caseId = generateId()
     const newCase: Case = {
       id: caseId,
@@ -341,13 +338,14 @@ export default function SubmitRequestPage() {
       cnpVolume: parseFloat(formData.cnpVolume),
       advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
       exposure,
-      status: isAutoApproved ? 'auto_approved' : 'draft',
-      approvalType: isAutoApproved ? 'auto' : 'manual',
+      status: 'pending_review',
+      approvalType: 'manual',
+      submittedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       createdBy: user.id,
       lastModifiedBy: user.id,
       lastModifiedAt: new Date().toISOString(),
-      ...(isAutoApproved && { approvedAt: new Date().toISOString() })
+      approvals: {}
     }
 
     storage.addCase(newCase)
@@ -358,10 +356,8 @@ export default function SubmitRequestPage() {
       caseId,
       userId: user.id,
       userName: user.name,
-      action: isAutoApproved ? 'approved' : 'created',
-      comment: isAutoApproved 
-        ? 'Auto-approved: Exposure within threshold' 
-        : 'Case created and ready for manual review',
+      action: 'submitted',
+      comment: 'Case submitted for dual approval (OD + Risk)',
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
@@ -383,13 +379,8 @@ export default function SubmitRequestPage() {
 
     clearDraft()
     
-    if (isAutoApproved) {
-      toast.success('Case auto-approved successfully!')
-      router.push('/dashboard')
-    } else {
-      toast.success('Case created! Redirecting to manual review form...')
-      router.push(`/dashboard/case/${caseId}/edit`)
-    }
+    toast.success('Case submitted for approval!')
+    router.push('/dashboard')
   }
 
   const decision = exposure ? getExposureDecision(exposure.totalExposure) : null
@@ -422,7 +413,7 @@ export default function SubmitRequestPage() {
             Save as Draft
           </Button>
           <Button onClick={handleSubmit} disabled={!isFormComplete() || isSubmitting || !exposure}>
-            {isSubmitting ? 'Processing...' : 'Submit Request'}
+            {isSubmitting ? 'Processing...' : 'Submit for Approval'}
           </Button>
         </div>
       </div>
@@ -652,7 +643,7 @@ export default function SubmitRequestPage() {
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : decision === 'auto_approved' ? 'Submit & Auto-Approve' : 'Submit Request'}
+                    {isSubmitting ? 'Processing...' : 'Submit for Approval'}
                   </Button>
                 </div>
               </CardContent>

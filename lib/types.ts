@@ -109,6 +109,18 @@ export interface Case {
   assignedApproverId?: string
   lockedFields?: string[]
   
+  // Dual Approval
+  approvals?: {
+    odApproverId?: string
+    odApproverName?: string
+    odApprovedAt?: string
+    odComment?: string
+    riskApproverId?: string
+    riskApproverName?: string
+    riskApprovedAt?: string
+    riskComment?: string
+  }
+  
   // Dates
   createdAt: string
   submittedAt?: string

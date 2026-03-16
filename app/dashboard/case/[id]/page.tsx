@@ -65,6 +65,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const [nextReviewDate, setNextReviewDate] = useState('')
   const [declineReason, setDeclineReason] = useState('')
   const [revisionComment, setRevisionComment] = useState('')
+  const [approvalType, setApprovalType] = useState<'od' | 'risk'>('od')
+  const [approvalComment, setApprovalComment] = useState('')
 
   const loadData = useCallback(() => {
     const foundCase = storage.getCaseById(resolvedParams.id)
@@ -105,37 +107,92 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const declinedBy = declineEntry?.userName
   const declinedAt = declineEntry?.timestamp
 
+  // Check if user has already approved
+  const hasUserApproved = (type: 'od' | 'risk') => {
+    if (!caseData?.approvals || !user) return false
+    if (type === 'od') {
+      return caseData.approvals.odApproverId === user.id
+    }
+    return caseData.approvals.riskApproverId === user.id
+  }
+
+  // Check what approvals are still needed
+  const getApprovalStatus = () => {
+    const approvals = caseData?.approvals || {}
+    return {
+      odApproved: !!approvals.odApproverId,
+      riskApproved: !!approvals.riskApproverId,
+      odApprover: approvals.odApproverName,
+      odApprovedAt: approvals.odApprovedAt,
+      riskApprover: approvals.riskApproverName,
+      riskApprovedAt: approvals.riskApprovedAt
+    }
+  }
+
+  const approvalStatus = getApprovalStatus()
+
   const handleApprove = () => {
     if (!caseData || !user) return
     
     setIsProcessing(true)
     
+    const currentApprovals = caseData.approvals || {}
+    const newApprovals = { ...currentApprovals }
+    
+    // Add the current user's approval
+    if (approvalType === 'od') {
+      newApprovals.odApproverId = user.id
+      newApprovals.odApproverName = user.name
+      newApprovals.odApprovedAt = new Date().toISOString()
+      newApprovals.odComment = approvalComment || undefined
+    } else {
+      newApprovals.riskApproverId = user.id
+      newApprovals.riskApproverName = user.name
+      newApprovals.riskApprovedAt = new Date().toISOString()
+      newApprovals.riskComment = approvalComment || undefined
+    }
+    
+    // Check if both approvals are now complete
+    const bothApproved = !!newApprovals.odApproverId && !!newApprovals.riskApproverId
+    
     const updatedCase: Case = {
       ...caseData,
-      status: 'approved',
-      approvedAt: new Date().toISOString(),
-      nextReviewDate: nextReviewDate || undefined,
+      status: bothApproved ? 'approved' : 'pending_review',
+      approvals: newApprovals,
+      ...(bothApproved && { 
+        approvedAt: new Date().toISOString(),
+        nextReviewDate: nextReviewDate || undefined
+      }),
       lastModifiedBy: user.id,
       lastModifiedAt: new Date().toISOString()
     }
     
     storage.updateCase(updatedCase)
     
+    const approvalLabel = approvalType === 'od' ? 'OD' : 'Risk'
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
       userId: user.id,
       userName: user.name,
       action: 'approved',
-      comment: nextReviewDate ? `Case approved. Next review: ${nextReviewDate}` : 'Case approved',
+      comment: bothApproved 
+        ? `Final approval (${approvalLabel}). Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+        : `${approvalLabel} approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting ${approvalType === 'od' ? 'Risk' : 'OD'} approval.`,
       timestamp: new Date().toISOString()
     }
     storage.addAuditEntry(auditEntry)
     
-    toast.success('Case approved successfully')
+    if (bothApproved) {
+      toast.success('Case fully approved!')
+    } else {
+      toast.success(`${approvalLabel} approval recorded. Awaiting ${approvalType === 'od' ? 'Risk' : 'OD'} approval.`)
+    }
+    
     setApprovalDialogOpen(false)
     setIsProcessing(false)
-    router.push('/dashboard')
+    setApprovalComment('')
+    loadData()
   }
 
   const handleDecline = () => {
@@ -254,7 +311,19 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                 {caseData.approvalType === 'auto' ? 'Auto' : 'Manual'}
               </Badge>
             </div>
-            <p className="text-muted-foreground">{caseData.parentCompanyName}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-muted-foreground">{caseData.parentCompanyName}</p>
+              {caseData.status === 'pending_review' && (
+                <div className="flex items-center gap-1 ml-2">
+                  <Badge variant={approvalStatus.odApproved ? 'default' : 'secondary'} className="text-xs">
+                    OD: {approvalStatus.odApproved ? 'Approved' : 'Pending'}
+                  </Badge>
+                  <Badge variant={approvalStatus.riskApproved ? 'default' : 'secondary'} className="text-xs">
+                    Risk: {approvalStatus.riskApproved ? 'Approved' : 'Pending'}
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -339,14 +408,15 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     Approve
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Approve Case</DialogTitle>
+                    <DialogTitle>Dual Approval Required</DialogTitle>
                     <DialogDescription>
-                      Review the case details and set a next review date
+                      This case requires approval from both OD and Risk teams
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Case Summary */}
                     <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Case:</span>
@@ -361,20 +431,113 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                         <span className="font-mono font-bold">{formatCurrency(caseData?.exposure.totalExposure || 0)}</span>
                       </div>
                     </div>
+
+                    {/* Approval Status */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Approval Status</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className={`p-3 rounded-lg border ${approvalStatus.odApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            {approvalStatus.odApproved ? (
+                              <CheckCircle className="h-4 w-4 text-success" />
+                            ) : (
+                              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
+                            )}
+                            <span className="font-medium text-sm">OD Approval</span>
+                          </div>
+                          {approvalStatus.odApproved ? (
+                            <p className="text-xs text-muted-foreground">
+                              {approvalStatus.odApprover}<br />
+                              {formatDate(approvalStatus.odApprovedAt)}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">Pending</p>
+                          )}
+                        </div>
+                        <div className={`p-3 rounded-lg border ${approvalStatus.riskApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            {approvalStatus.riskApproved ? (
+                              <CheckCircle className="h-4 w-4 text-success" />
+                            ) : (
+                              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
+                            )}
+                            <span className="font-medium text-sm">Risk Approval</span>
+                          </div>
+                          {approvalStatus.riskApproved ? (
+                            <p className="text-xs text-muted-foreground">
+                              {approvalStatus.riskApprover}<br />
+                              {formatDate(approvalStatus.riskApprovedAt)}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">Pending</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Approval Type Selection */}
                     <div className="space-y-2">
-                      <Label>Next Review Date (Optional)</Label>
-                      <Input
-                        type="date"
-                        value={nextReviewDate}
-                        onChange={(e) => setNextReviewDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
+                      <Label>Your Approval Type *</Label>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={approvalType === 'od' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setApprovalType('od')}
+                          disabled={approvalStatus.odApproved}
+                          className="flex-1"
+                        >
+                          OD Approval
+                          {approvalStatus.odApproved && ' (Done)'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={approvalType === 'risk' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setApprovalType('risk')}
+                          disabled={approvalStatus.riskApproved}
+                          className="flex-1"
+                        >
+                          Risk Approval
+                          {approvalStatus.riskApproved && ' (Done)'}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Comment */}
+                    <div className="space-y-2">
+                      <Label>Approval Comment (Optional)</Label>
+                      <Textarea
+                        value={approvalComment}
+                        onChange={(e) => setApprovalComment(e.target.value)}
+                        placeholder="Add any comments for your approval..."
+                        rows={2}
                       />
                     </div>
+
+                    {/* Next Review Date - only show if this will be final approval */}
+                    {((approvalType === 'od' && approvalStatus.riskApproved) || 
+                      (approvalType === 'risk' && approvalStatus.odApproved)) && (
+                      <div className="space-y-2">
+                        <Label>Next Review Date (Optional)</Label>
+                        <Input
+                          type="date"
+                          value={nextReviewDate}
+                          onChange={(e) => setNextReviewDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                        <p className="text-xs text-muted-foreground">This will be the final approval</p>
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setApprovalDialogOpen(false)}>Cancel</Button>
-                    <Button className="bg-success hover:bg-success/90 text-success-foreground" onClick={handleApprove} disabled={isProcessing}>
-                      {isProcessing ? 'Processing...' : 'Approve Case'}
+                    <Button 
+                      className="bg-success hover:bg-success/90 text-success-foreground" 
+                      onClick={handleApprove} 
+                      disabled={isProcessing || (approvalType === 'od' && approvalStatus.odApproved) || (approvalType === 'risk' && approvalStatus.riskApproved)}
+                    >
+                      {isProcessing ? 'Processing...' : `Submit ${approvalType === 'od' ? 'OD' : 'Risk'} Approval`}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
