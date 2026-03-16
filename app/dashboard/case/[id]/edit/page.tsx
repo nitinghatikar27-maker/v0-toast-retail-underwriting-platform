@@ -613,7 +613,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                 <div className="space-y-2">
                   <Label htmlFor="brickAndMortar">Brick & Mortar *</Label>
                   <Select
-                    value={caseData.brickAndMortar || ''}
+                    value={caseData.brickAndMortar || undefined}
                     onValueChange={(value: string) => updateField('brickAndMortar', value)}
                     disabled={!isEditable}
                   >
