@@ -76,10 +76,10 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     return (
       <div className="rounded-lg bg-success/10 border border-success/30 p-4">
         <p className="text-success font-medium">
-          Risk has approved this prospect. Please move forward with TMA.
+          Exposure is within auto-approval threshold (&le; $200K).
         </p>
         <p className="text-sm text-success/80 mt-1">
-          Case will be saved as AUTO APPROVED. No further review required.
+          Case will be submitted for dual approval (PMF + Risk). No manual form required.
         </p>
       </div>
     )
@@ -90,7 +90,10 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
       <div className="space-y-3">
         <div className="rounded-lg bg-warning/10 border border-warning/30 p-4">
           <p className="text-warning-foreground font-medium">
-            The exposure for this merchant is above the auto-approval limit.
+            Exposure exceeds $200K - Manual review form required.
+          </p>
+          <p className="text-sm text-warning-foreground/80 mt-1">
+            You will be redirected to complete the manual case form with reserves and additional details.
           </p>
         </div>
         <DocumentRequirements type="amber" />
@@ -102,7 +105,10 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     <div className="space-y-3">
       <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4">
         <p className="text-destructive font-medium">
-          The exposure for this merchant is above the auto-approval limit.
+          Exposure exceeds $200K - Manual review form required.
+        </p>
+        <p className="text-sm text-destructive/80 mt-1">
+          You will be redirected to complete the manual case form with reserves and additional details.
         </p>
       </div>
       <DocumentRequirements type="red" />

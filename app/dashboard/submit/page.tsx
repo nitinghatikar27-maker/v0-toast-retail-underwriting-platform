@@ -342,9 +342,10 @@ export default function SubmitRequestPage() {
       cnpVolume: parseFloat(formData.cnpVolume),
       advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
       exposure,
-      status: 'pending_review',
+      // High exposure cases go to draft for manual form completion, standard cases go directly to pending_review
+      status: isHighExposure ? 'draft' : 'pending_review',
       approvalType: approvalTypeValue,
-      submittedAt: new Date().toISOString(),
+      submittedAt: isHighExposure ? undefined : new Date().toISOString(),
       createdAt: new Date().toISOString(),
       createdBy: user.id,
       lastModifiedBy: user.id,
@@ -360,9 +361,9 @@ export default function SubmitRequestPage() {
       caseId,
       userId: user.id,
       userName: user.name,
-      action: 'submitted',
+      action: isHighExposure ? 'created' : 'submitted',
       comment: isHighExposure 
-        ? 'Case submitted for dual approval (PMF + Risk) - High Exposure'
+        ? 'Case created - Manual review form required (High Exposure > $200K)'
         : 'Case submitted for dual approval (PMF + Risk) - Standard',
       timestamp: new Date().toISOString()
     }
@@ -385,8 +386,13 @@ export default function SubmitRequestPage() {
 
     clearDraft()
     
-    toast.success('Case submitted for approval!')
-    router.push('/dashboard')
+    if (isHighExposure) {
+      toast.success('Case created! Please complete the manual review form.')
+      router.push(`/dashboard/case/${caseId}/edit`)
+    } else {
+      toast.success('Case submitted for approval!')
+      router.push('/dashboard')
+    }
   }
 
   const decision = exposure ? getExposureDecision(exposure.totalExposure) : null
@@ -649,7 +655,7 @@ export default function SubmitRequestPage() {
                     Save as Draft
                   </Button>
                   <Button onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Processing...' : 'Submit for Approval'}
+                    {isSubmitting ? 'Processing...' : decision === 'manual_review' ? 'Proceed to Manual Form' : 'Submit for Approval'}
                   </Button>
                 </div>
               </CardContent>
