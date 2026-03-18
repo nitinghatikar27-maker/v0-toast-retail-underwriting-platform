@@ -68,13 +68,13 @@ export default function SettingsPage() {
 
   const loadData = () => {
     setApprovalMatrix(storage.getApprovalMatrix())
-    const users = storage.getUsers()
+    const users = storage.getUsers() || []
     setAllUsers(users)
     setApprovers(users.filter(u => u.roles.includes('approver')))
   }
 
-  const pendingUsers = allUsers.filter(u => u.status === 'pending')
-  const activeUsers = allUsers.filter(u => u.status !== 'pending')
+  const pendingUsers = (allUsers || []).filter(u => u.status === 'pending')
+  const activeUsers = (allUsers || []).filter(u => u.status !== 'pending')
 
   const handleApproveUser = (userId: string) => {
     const users = storage.getUsers()
@@ -247,17 +247,19 @@ export default function SettingsPage() {
 
         <TabsContent value="user-management" className="space-y-6">
           {/* Pending Access Requests */}
-          {pendingUsers.length > 0 && (
-            <Card className="border-warning">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-warning">
-                  <UserPlus className="h-5 w-5" />
-                  Pending Access Requests ({pendingUsers.length})
-                </CardTitle>
-                <CardDescription>
-                  Users waiting for approval to access the system
-                </CardDescription>
-              </CardHeader>
+          <Card className={pendingUsers.length > 0 ? 'border-warning' : 'border-border/50'}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className={pendingUsers.length > 0 ? "h-5 w-5 text-warning" : "h-5 w-5"} />
+                Pending Access Requests {pendingUsers.length > 0 && `(${pendingUsers.length})`}
+              </CardTitle>
+              <CardDescription>
+                {pendingUsers.length > 0 
+                  ? 'Users waiting for approval to access the system'
+                  : 'No pending access requests at this time'}
+              </CardDescription>
+            </CardHeader>
+            {pendingUsers.length > 0 && (
               <CardContent>
                 <Table>
                   <TableHeader>
@@ -299,8 +301,7 @@ export default function SettingsPage() {
                   </TableBody>
                 </Table>
               </CardContent>
-            </Card>
-          )}
+            )}
 
           {/* All Users */}
           <Card>
