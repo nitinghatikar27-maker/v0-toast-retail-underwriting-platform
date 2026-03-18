@@ -1,5 +1,7 @@
 export type UserRole = 'admin' | 'user' | 'approver'
 
+export type UserStatus = 'pending' | 'active' | 'inactive'
+
 export interface User {
   id: string
   name: string
@@ -7,6 +9,7 @@ export interface User {
   password: string
   roles: UserRole[]
   approvalLimit?: number
+  status?: UserStatus
   createdAt: string
 }
 

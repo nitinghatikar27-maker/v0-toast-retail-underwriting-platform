@@ -11,6 +11,7 @@ const DEFAULT_ADMIN: User = {
   password: 'Apple@123',
   roles: ['admin', 'user', 'approver'],
   approvalLimit: 10000000,
+  status: 'active',
   createdAt: new Date().toISOString()
 }
 
@@ -116,10 +117,20 @@ export const storage = {
   login(email: string, password: string): User | null {
     const user = this.getUserByEmail(email)
     if (user && user.password === password) {
+      // Don't allow login for pending or inactive users
+      if (user.status === 'pending' || user.status === 'inactive') {
+        return null
+      }
       this.setCurrentUser(user.id)
       return user
     }
     return null
+  },
+
+  setUsers(users: User[]): void {
+    const state = this.getState()
+    state.users = users
+    this.setState(state)
   },
 
   logout(): void {

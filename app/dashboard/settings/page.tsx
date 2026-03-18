@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { storage, generateId } from '@/lib/storage'
-import { User, ApprovalMatrixEntry } from '@/lib/types'
+import { User, ApprovalMatrixEntry, UserRole, UserStatus } from '@/lib/types'
 import { formatCurrency } from '@/lib/exposure'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -42,13 +42,18 @@ import {
   Trash2, 
   Edit, 
   Save,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  Check,
+  X,
+  UserPlus
 } from 'lucide-react'
 
 export default function SettingsPage() {
   const { user: currentUser, isAdmin } = useAuth()
   const [approvalMatrix, setApprovalMatrix] = useState<ApprovalMatrixEntry[]>([])
   const [approvers, setApprovers] = useState<User[]>([])
+  const [allUsers, setAllUsers] = useState<User[]>([])
   const [editingEntry, setEditingEntry] = useState<ApprovalMatrixEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newEntry, setNewEntry] = useState({
@@ -64,7 +69,87 @@ export default function SettingsPage() {
   const loadData = () => {
     setApprovalMatrix(storage.getApprovalMatrix())
     const users = storage.getUsers()
+    setAllUsers(users)
     setApprovers(users.filter(u => u.roles.includes('approver')))
+  }
+
+  const pendingUsers = allUsers.filter(u => u.status === 'pending')
+  const activeUsers = allUsers.filter(u => u.status !== 'pending')
+
+  const handleApproveUser = (userId: string) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        return { ...u, status: 'active' as UserStatus }
+      }
+      return u
+    })
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('User approved successfully')
+  }
+
+  const handleRejectUser = (userId: string) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.filter(u => u.id !== userId)
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('User rejected and removed')
+  }
+
+  const handleUpdateUserRole = (userId: string, role: UserRole, add: boolean) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        const newRoles = add 
+          ? [...new Set([...u.roles, role])]
+          : u.roles.filter(r => r !== role)
+        return { ...u, roles: newRoles }
+      }
+      return u
+    })
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('User roles updated')
+  }
+
+  const handleUpdateApprovalLimit = (userId: string, limit: number) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        return { ...u, approvalLimit: limit }
+      }
+      return u
+    })
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('Approval limit updated')
+  }
+
+  const handleDeactivateUser = (userId: string) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        return { ...u, status: 'inactive' as UserStatus }
+      }
+      return u
+    })
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('User deactivated')
+  }
+
+  const handleActivateUser = (userId: string) => {
+    const users = storage.getUsers()
+    const updatedUsers = users.map(u => {
+      if (u.id === userId) {
+        return { ...u, status: 'active' as UserStatus }
+      }
+      return u
+    })
+    storage.setUsers(updatedUsers)
+    loadData()
+    toast.success('User activated')
   }
 
   const handleSaveMatrix = () => {
@@ -147,11 +232,169 @@ export default function SettingsPage() {
 
       <Tabs defaultValue="approval-matrix">
         <TabsList>
+          <TabsTrigger value="user-management">
+            <Users className="h-4 w-4 mr-2" />
+            User Management
+            {pendingUsers.length > 0 && (
+              <Badge variant="destructive" className="ml-2">{pendingUsers.length}</Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="approval-matrix">
             <Shield className="h-4 w-4 mr-2" />
             Approval Matrix
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="user-management" className="space-y-6">
+          {/* Pending Access Requests */}
+          {pendingUsers.length > 0 && (
+            <Card className="border-warning">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-warning">
+                  <UserPlus className="h-5 w-5" />
+                  Pending Access Requests ({pendingUsers.length})
+                </CardTitle>
+                <CardDescription>
+                  Users waiting for approval to access the system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Requested</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingUsers.map(user => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveUser(user.id)}
+                              className="bg-success hover:bg-success/90"
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleRejectUser(user.id)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* All Users */}
+          <Card>
+            <CardHeader>
+              <CardTitle>All Users</CardTitle>
+              <CardDescription>
+                Manage user roles and permissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Roles</TableHead>
+                    <TableHead>Approval Limit</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {activeUsers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        No active users found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    activeUsers.map(user => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
+                            {user.status || 'active'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {(['admin', 'user', 'approver'] as UserRole[]).map(role => (
+                              <Badge 
+                                key={role}
+                                variant={user.roles.includes(role) ? 'default' : 'outline'}
+                                className="cursor-pointer"
+                                onClick={() => handleUpdateUserRole(user.id, role, !user.roles.includes(role))}
+                              >
+                                {role}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {user.roles.includes('approver') && (
+                            <Input
+                              type="number"
+                              min="0"
+                              className="w-32"
+                              placeholder="No limit"
+                              value={user.approvalLimit || ''}
+                              onChange={(e) => handleUpdateApprovalLimit(user.id, parseFloat(e.target.value) || 0)}
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {user.id !== currentUser?.id && (
+                            user.status === 'inactive' ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleActivateUser(user.id)}
+                              >
+                                Activate
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => handleDeactivateUser(user.id)}
+                              >
+                                Deactivate
+                              </Button>
+                            )
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="approval-matrix" className="space-y-6">
           <Card>
