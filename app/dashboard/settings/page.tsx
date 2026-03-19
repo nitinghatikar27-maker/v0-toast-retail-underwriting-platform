@@ -302,6 +302,7 @@ export default function SettingsPage() {
                 </Table>
               </CardContent>
             )}
+          </Card>
 
           {/* All Users */}
           <Card>
