@@ -69,6 +69,8 @@ export default function SettingsPage() {
   const loadData = () => {
     setApprovalMatrix(storage.getApprovalMatrix())
     const users = storage.getUsers() || []
+    console.log('[v0] Settings - Loading users:', users)
+    console.log('[v0] Settings - Pending users:', users.filter(u => u.status === 'pending'))
     setAllUsers(users)
     setApprovers(users.filter(u => u.roles.includes('approver')))
   }
