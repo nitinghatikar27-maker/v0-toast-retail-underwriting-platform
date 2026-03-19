@@ -340,42 +340,42 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const canEdit = caseData.status === 'draft' || caseData.status === 'revision_requested'
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+            <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3">
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
           </Link>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
                 {caseData.caseNumber}
               </h1>
               {getStatusBadge(caseData.status)}
-              <Badge variant="outline">
+              <Badge variant="outline" className="text-xs">
                 {caseData.approvalType === 'auto' ? 'Auto' : caseData.approvalType === 'standard' ? 'Standard' : 'Manual'}
               </Badge>
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-muted-foreground">{caseData.parentCompanyName}</p>
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground">{caseData.parentCompanyName}</p>
               {caseData.status === 'pending_review' && (
-                <div className="flex items-center gap-1 ml-2">
-                  <Badge variant={approvalStatus.pmfApproved ? 'default' : 'secondary'} className="text-xs">
-                    PMF: {approvalStatus.pmfApproved ? 'Approved' : 'Pending'}
+                <div className="flex items-center gap-1 sm:ml-2">
+                  <Badge variant={approvalStatus.pmfApproved ? 'default' : 'secondary'} className="text-[10px] sm:text-xs">
+                    PMF: {approvalStatus.pmfApproved ? 'Done' : 'Pending'}
                   </Badge>
-                  <Badge variant={approvalStatus.riskApproved ? 'default' : 'secondary'} className="text-xs">
-                    Risk: {approvalStatus.riskApproved ? 'Approved' : 'Pending'}
+                  <Badge variant={approvalStatus.riskApproved ? 'default' : 'secondary'} className="text-[10px] sm:text-xs">
+                    Risk: {approvalStatus.riskApproved ? 'Done' : 'Pending'}
                   </Badge>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Approval Actions for Approvers */}
           {canApprove && (
             <>
@@ -751,8 +751,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Merchant Information */}
           <Card>
             <CardHeader>

@@ -293,91 +293,93 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of approved cases and portfolio metrics</p>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Overview of approved cases and portfolio metrics</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={exportToExcel} disabled={approvedCases.length === 0}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" />
-            Export Approved (CSV)
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={exportToExcel} disabled={approvedCases.length === 0}>
+            <FileSpreadsheet className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Export Approved (CSV)</span>
+            <span className="sm:hidden">Export</span>
           </Button>
           <Link href="/dashboard/submit">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Submit New Request
+            <Button size="sm" className="text-xs sm:text-sm h-8 sm:h-9">
+              <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Submit New Request</span>
+              <span className="sm:hidden">New</span>
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Cases</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Total Cases</CardTitle>
+            <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalCases}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{metrics.totalCases}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Approval</CardTitle>
-            <Clock className="h-4 w-4 text-warning" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Pending</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{metrics.pendingApproval}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold text-warning">{metrics.pendingApproval}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Approved</CardTitle>
-            <CheckCircle className="h-4 w-4 text-success" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Approved</CardTitle>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{metrics.totalApproved}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold text-success">{metrics.totalApproved}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Portfolio Exposure</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Exposure</CardTitle>
+            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(metrics.totalExposure)}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{formatCurrency(metrics.totalExposure)}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Reserves</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+        <Card className="col-span-2 sm:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Reserves</CardTitle>
+            <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(metrics.totalReserves)}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{formatCurrency(metrics.totalReserves)}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Cases Table with Tabs */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Cases</CardTitle>
-          <CardDescription>View and manage all underwriting cases</CardDescription>
+        <CardHeader className="p-3 sm:p-4 md:p-6">
+          <CardTitle className="text-base sm:text-lg">All Cases</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">View and manage all underwriting cases</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="all">All Cases ({allCases.length})</TabsTrigger>
-              <TabsTrigger value="pending">Pending ({pendingCases.length})</TabsTrigger>
-              <TabsTrigger value="approved">Approved ({approvedCases.length})</TabsTrigger>
+            <TabsList className="mb-3 sm:mb-4 h-auto flex-wrap">
+              <TabsTrigger value="all" className="text-xs sm:text-sm px-2 sm:px-3">All ({allCases.length})</TabsTrigger>
+              <TabsTrigger value="pending" className="text-xs sm:text-sm px-2 sm:px-3">Pending ({pendingCases.length})</TabsTrigger>
+              <TabsTrigger value="approved" className="text-xs sm:text-sm px-2 sm:px-3">Approved ({approvedCases.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="all">

@@ -64,7 +64,11 @@ const navItems = [
   }
 ]
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  onNavigate?: () => void
+}
+
+export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout, isAdmin, isApprover } = useAuth()
@@ -134,6 +138,7 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 isActive

@@ -107,29 +107,29 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+    <main className="min-h-screen flex items-center justify-center bg-muted/30 p-3 sm:p-4">
       <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <ToastLogo className="h-12 w-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground text-balance text-center">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <ToastLogo className="h-10 sm:h-12 w-auto mb-3 sm:mb-4" />
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground text-balance text-center">
             Retail Underwriting Platform
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Enterprise Risk Management
           </p>
         </div>
 
         <Card className="border-border/50 shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-xl">Sign In</CardTitle>
-            <CardDescription>
+          <CardHeader className="space-y-1 p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Sign In</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
               Enter your credentials to access the platform
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="email" className="text-sm">Email</Label>
                 <Input
                   id="email"
                   type="email"

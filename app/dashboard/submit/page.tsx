@@ -427,52 +427,53 @@ export default function SubmitRequestPage() {
   const decision = exposure ? getExposureDecision(exposure.totalExposure) : null
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+            <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3">
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Submit Request</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-muted-foreground">Enter merchant information to calculate exposure</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">Submit Request</h1>
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">Enter merchant information</p>
               {lastSaved && (
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                  Auto-saved {lastSaved.toLocaleTimeString()}
+                <span className="text-[10px] sm:text-xs text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 rounded">
+                  Saved {lastSaved.toLocaleTimeString()}
                 </span>
               )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSaveAsDraft}>
-            <Save className="h-4 w-4 mr-2" />
-            Save as Draft
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={handleSaveAsDraft}>
+            <Save className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Save as Draft</span>
+            <span className="sm:hidden ml-1">Save</span>
           </Button>
-          <Button onClick={handleSubmit} disabled={!isFormComplete() || isSubmitting || !exposure}>
-            {isSubmitting ? 'Processing...' : 'Submit for Approval'}
+          <Button size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={handleSubmit} disabled={!isFormComplete() || isSubmitting || !exposure}>
+            {isSubmitting ? 'Processing...' : 'Submit'}
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Form Section */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                 Merchant Information
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Enter the basic merchant details
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="aeName">AE Name *</Label>
                 <Input
