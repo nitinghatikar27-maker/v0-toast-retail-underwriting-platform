@@ -87,9 +87,7 @@ export default function LoginPage() {
       createdAt: new Date().toISOString()
     }
     
-    console.log('[v0] Creating new user:', newUser)
     storage.addUser(newUser)
-    console.log('[v0] User added, all users now:', storage.getUsers())
     toast.success('Access request submitted! An administrator will review your request.')
     setShowRequestAccess(false)
     setRequestForm({ name: '', email: '', password: '' })

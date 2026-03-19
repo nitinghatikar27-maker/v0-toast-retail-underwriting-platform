@@ -135,6 +135,16 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const handleApprove = () => {
     if (!caseData || !user) return
     
+    // Check if user's approval limit is sufficient for this case's exposure
+    const caseExposure = caseData.exposure?.totalExposure || 0
+    const userApprovalLimit = user.approvalLimit || 0
+    
+    if (userApprovalLimit > 0 && caseExposure > userApprovalLimit) {
+      toast.error(`Your approval limit ($${userApprovalLimit.toLocaleString()}) is insufficient for this case's exposure ($${caseExposure.toLocaleString()}). Please escalate to an approver with a higher limit.`)
+      setShowApprovalDialog(false)
+      return
+    }
+    
     setIsProcessing(true)
     
     const currentApprovals = caseData.approvals || {}
@@ -572,6 +582,20 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                       />
                     </div>
 
+                    {/* Approval Limit Warning */}
+                    {user && user.approvalLimit && caseData?.exposure?.totalExposure && 
+                     caseData.exposure.totalExposure > user.approvalLimit && (
+                      <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+                        <p className="text-destructive text-sm font-medium">
+                          Insufficient Approval Limit
+                        </p>
+                        <p className="text-destructive/80 text-xs mt-1">
+                          Your approval limit (${user.approvalLimit.toLocaleString()}) is less than the case exposure (${caseData.exposure.totalExposure.toLocaleString()}). 
+                          Please escalate to an approver with a higher limit.
+                        </p>
+                      </div>
+                    )}
+
                     {/* Next Review Date - only show if this will be final approval */}
                     {((approvalType === 'pmf' && approvalStatus.riskApproved) || 
                       (approvalType === 'risk' && approvalStatus.pmfApproved)) && (
@@ -592,7 +616,12 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                     <Button 
                       className="bg-success hover:bg-success/90 text-success-foreground" 
                       onClick={handleApprove} 
-                      disabled={isProcessing || (approvalType === 'pmf' && approvalStatus.pmfApproved) || (approvalType === 'risk' && approvalStatus.riskApproved)}
+                      disabled={
+                        isProcessing || 
+                        (approvalType === 'pmf' && approvalStatus.pmfApproved) || 
+                        (approvalType === 'risk' && approvalStatus.riskApproved) ||
+                        (user?.approvalLimit && caseData?.exposure?.totalExposure && caseData.exposure.totalExposure > user.approvalLimit)
+                      }
                     >
                       {isProcessing ? 'Processing...' : `Submit ${approvalType === 'pmf' ? 'PMF' : 'Risk'} Approval`}
                     </Button>
