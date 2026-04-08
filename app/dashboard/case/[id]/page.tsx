@@ -65,7 +65,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const [nextReviewDate, setNextReviewDate] = useState('')
   const [declineReason, setDeclineReason] = useState('')
   const [revisionComment, setRevisionComment] = useState('')
-  const [approvalType, setApprovalType] = useState<'pmf' | 'risk'>('pmf')
   const [approvalComment, setApprovalComment] = useState('')
 
   const loadData = useCallback(() => {
@@ -100,7 +99,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   }
 
   const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && 
-    (caseData?.status === 'pending_review' || caseData?.status === 'pending_pmf_approval' || caseData?.status === 'pending_risk_approval')
+    (caseData?.status === 'pending_review' || caseData?.status === 'pending_risk_approval')
 
   // Get decline reason from audit entries
   const declineEntry = auditEntries.find(entry => entry.action === 'declined')
@@ -109,28 +108,16 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
   const declinedAt = declineEntry?.timestamp
 
   // Check if user has already approved
-  const hasUserApproved = (type: 'pmf' | 'risk') => {
+  const hasUserApproved = () => {
     if (!caseData?.approvals || !user) return false
-    if (type === 'pmf') {
-      return caseData.approvals.pmfApproverId === user.id
-    }
     return caseData.approvals.riskApproverId === user.id
   }
 
-  // Check what approvals are still needed
-  const getApprovalStatus = () => {
-    const approvals = caseData?.approvals || {}
-    return {
-      pmfApproved: !!approvals.pmfApproverId,
-      riskApproved: !!approvals.riskApproverId,
-      pmfApprover: approvals.pmfApproverName,
-      pmfApprovedAt: approvals.pmfApprovedAt,
-      riskApprover: approvals.riskApproverName,
-      riskApprovedAt: approvals.riskApprovedAt
-    }
+  const approvalStatus = {
+    riskApproved: !!caseData?.approvals?.riskApproverId,
+    riskApprover: caseData?.approvals?.riskApproverName,
+    riskApprovedAt: caseData?.approvals?.riskApprovedAt
   }
-
-  const approvalStatus = getApprovalStatus()
 
   const handleApprove = () => {
     if (!caseData || !user) return
@@ -149,58 +136,18 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     const currentApprovals = caseData.approvals || {}
     const newApprovals = { ...currentApprovals }
-    const isStandardCase = caseData.approvalType === 'standard' || caseData.approvalType === 'abbreviated'
     const isManualCase = caseData.approvalType === 'manual' || caseData.approvalType === 'full_review'
-    const isPmfPreApproval = caseData.status === 'pending_pmf_approval'
     
-    // Add the current user's approval
-    if (approvalType === 'pmf') {
-      newApprovals.pmfApproverId = user.id
-      newApprovals.pmfApproverName = user.name
-      newApprovals.pmfApprovedAt = new Date().toISOString()
-      newApprovals.pmfComment = approvalComment || undefined
-    } else {
-      newApprovals.riskApproverId = user.id
-      newApprovals.riskApproverName = user.name
-      newApprovals.riskApprovedAt = new Date().toISOString()
-      newApprovals.riskComment = approvalComment || undefined
-    }
+    // Add Risk approval
+    newApprovals.riskApproverId = user.id
+    newApprovals.riskApproverName = user.name
+    newApprovals.riskApprovedAt = new Date().toISOString()
+    newApprovals.riskComment = approvalComment || undefined
     
-    // Determine next status based on approval flow
-    let newStatus: Case['status']
-    let auditComment: string
-    let toastMessage: string
-    let redirectToManualForm = false
-    
-    if (isPmfPreApproval && approvalType === 'pmf') {
-      if (isStandardCase) {
-        // Standard case: PMF approval -> now needs Risk approval
-        newStatus = 'pending_review'
-        auditComment = `PMF approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Awaiting Risk approval.`
-        toastMessage = 'PMF approval recorded. Awaiting Risk approval.'
-      } else {
-        // Manual case: PMF approval allows manual form creation
-        newStatus = 'draft'
-        auditComment = `PMF approval granted.${approvalComment ? ` Comment: ${approvalComment}` : ''} Case now requires manual form completion.`
-        toastMessage = 'PMF approval recorded. Redirecting to manual form...'
-        redirectToManualForm = true
-      }
-    } else if (caseData.status === 'pending_review' && isStandardCase && approvalType === 'risk') {
-      // Standard case: Risk approval after PMF approval completes the case
-      newStatus = 'approved'
-      auditComment = `Risk approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-      toastMessage = 'Case fully approved!'
-    } else if (caseData.status === 'pending_risk_approval' && approvalType === 'risk') {
-      // Final Risk approval for manual cases
-      newStatus = 'approved'
-      auditComment = `Risk approval granted. Case fully approved.${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
-      toastMessage = 'Case fully approved!'
-    } else {
-      // Fallback for other cases
-      newStatus = 'approved'
-      auditComment = `Approval granted. Case approved.`
-      toastMessage = 'Case approved!'
-    }
+    // All risk approvals complete the case
+    const newStatus: Case['status'] = 'approved'
+    const auditComment = `Risk approval granted. Case fully approved.${approvalComment ? ` Comment: ${approvalComment}` : ''}${nextReviewDate ? ` Next review: ${nextReviewDate}` : ''}`
+    const toastMessage = 'Case approved!'
     
     const updatedCase: Case = {
       ...caseData,
@@ -232,12 +179,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     setApprovalDialogOpen(false)
     setIsProcessing(false)
     setApprovalComment('')
-    
-    if (redirectToManualForm) {
-      router.push(`/dashboard/case/${caseData.id}/edit`)
-    } else {
-      loadData()
-    }
+    loadData()
   }
 
   const handleDecline = () => {
@@ -310,10 +252,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
         return <Badge className="bg-success text-success-foreground">Approved</Badge>
       case 'pending_review':
         return <Badge className="bg-warning text-warning-foreground">Pending Review</Badge>
-      case 'pending_pmf_approval':
-        return <Badge className="bg-primary text-primary-foreground">Pending PMF Approval</Badge>
       case 'pending_risk_approval':
-        return <Badge className="bg-warning text-warning-foreground">Pending Risk Approval</Badge>
+        return <Badge className="bg-warning text-warning-foreground">Pending Approval</Badge>
       case 'revision_requested':
         return <Badge variant="destructive">Revision Requested</Badge>
       case 'declined':
@@ -373,16 +313,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </div>
             <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
               <p className="text-xs sm:text-sm text-muted-foreground">{caseData.parentCompanyName}</p>
-              {caseData.status === 'pending_review' && (
-                <div className="flex items-center gap-1 sm:ml-2">
-                  <Badge variant={approvalStatus.pmfApproved ? 'default' : 'secondary'} className="text-[10px] sm:text-xs">
-                    PMF: {approvalStatus.pmfApproved ? 'Done' : 'Pending'}
-                  </Badge>
-                  <Badge variant={approvalStatus.riskApproved ? 'default' : 'secondary'} className="text-[10px] sm:text-xs">
-                    Risk: {approvalStatus.riskApproved ? 'Done' : 'Pending'}
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -470,21 +400,9 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>
-                      {caseData?.status === 'pending_pmf_approval' 
-                        ? 'PMF Approval Required' 
-                        : caseData?.status === 'pending_risk_approval'
-                        ? 'Risk Approval Required'
-                        : 'Approval Required'}
-                    </DialogTitle>
+                    <DialogTitle>Risk Approval Required</DialogTitle>
                     <DialogDescription>
-                      {caseData?.status === 'pending_pmf_approval' 
-                        ? (caseData?.approvalType === 'standard' 
-                          ? 'This case requires PMF approval to be completed'
-                          : 'This case requires PMF approval before the manual form can be completed')
-                        : caseData?.status === 'pending_risk_approval'
-                        ? 'This case has PMF approval and requires final Risk approval'
-                        : 'This case requires approval'}
+                      Review the case details and provide your approval decision.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -501,84 +419,6 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Exposure:</span>
                         <span className="font-mono font-bold">{formatCurrency(caseData?.exposure.totalExposure || 0)}</span>
-                      </div>
-                    </div>
-
-                    {/* Approval Status */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">Approval Status</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className={`p-3 rounded-lg border ${approvalStatus.pmfApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            {approvalStatus.pmfApproved ? (
-                              <CheckCircle className="h-4 w-4 text-success" />
-                            ) : (
-                              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
-                            )}
-                            <span className="font-medium text-sm">PMF Approval</span>
-                          </div>
-                          {approvalStatus.pmfApproved ? (
-                            <p className="text-xs text-muted-foreground">
-                              {approvalStatus.pmfApprover}<br />
-                              {formatDate(approvalStatus.pmfApprovedAt)}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-muted-foreground">Pending</p>
-                          )}
-                        </div>
-                        <div className={`p-3 rounded-lg border ${approvalStatus.riskApproved ? 'bg-success/10 border-success' : 'bg-muted/50 border-border'}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            {approvalStatus.riskApproved ? (
-                              <CheckCircle className="h-4 w-4 text-success" />
-                            ) : (
-                              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
-                            )}
-                            <span className="font-medium text-sm">Risk Approval</span>
-                          </div>
-                          {approvalStatus.riskApproved ? (
-                            <p className="text-xs text-muted-foreground">
-                              {approvalStatus.riskApprover}<br />
-                              {formatDate(approvalStatus.riskApprovedAt)}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-muted-foreground">Pending</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Approval Type Selection */}
-                    <div className="space-y-2">
-                      <Label>Your Approval Type *</Label>
-                      <div className="flex gap-2">
-                        {/* Show PMF button unless it's pending_risk_approval status */}
-                        {caseData?.status !== 'pending_risk_approval' && (
-                          <Button
-                            type="button"
-                            variant={approvalType === 'pmf' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setApprovalType('pmf')}
-                            disabled={approvalStatus.pmfApproved}
-                            className="flex-1"
-                          >
-                            PMF Approval
-                            {approvalStatus.pmfApproved && ' (Done)'}
-                          </Button>
-                        )}
-                        {/* Show Risk button unless it's pending_pmf_approval status */}
-                        {caseData?.status !== 'pending_pmf_approval' && (
-                          <Button
-                            type="button"
-                            variant={approvalType === 'risk' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setApprovalType('risk')}
-                            disabled={approvalStatus.riskApproved}
-                            className="flex-1"
-                          >
-                            Risk Approval
-                            {approvalStatus.riskApproved && ' (Done)'}
-                          </Button>
-                        )}
                       </div>
                     </div>
 
@@ -607,20 +447,16 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                       </div>
                     )}
 
-                    {/* Next Review Date - only show if this will be final approval */}
-                    {((approvalType === 'pmf' && approvalStatus.riskApproved) || 
-                      (approvalType === 'risk' && approvalStatus.pmfApproved)) && (
-                      <div className="space-y-2">
-                        <Label>Next Review Date (Optional)</Label>
-                        <Input
-                          type="date"
-                          value={nextReviewDate}
-                          onChange={(e) => setNextReviewDate(e.target.value)}
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                        <p className="text-xs text-muted-foreground">This will be the final approval</p>
-                      </div>
-                    )}
+                    {/* Next Review Date */}
+                    <div className="space-y-2">
+                      <Label>Next Review Date (Optional)</Label>
+                      <Input
+                        type="date"
+                        value={nextReviewDate}
+                        onChange={(e) => setNextReviewDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setApprovalDialogOpen(false)}>Cancel</Button>
@@ -629,12 +465,10 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                       onClick={handleApprove} 
                       disabled={
                         isProcessing || 
-                        (approvalType === 'pmf' && approvalStatus.pmfApproved) || 
-                        (approvalType === 'risk' && approvalStatus.riskApproved) ||
                         (user?.approvalLimit && caseData?.exposure?.totalExposure && caseData.exposure.totalExposure > user.approvalLimit)
                       }
                     >
-                      {isProcessing ? 'Processing...' : `Submit ${approvalType === 'pmf' ? 'PMF' : 'Risk'} Approval`}
+                      {isProcessing ? 'Processing...' : 'Submit Approval'}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -847,8 +681,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">CNP Volume</p>
                   <p className="font-medium">{caseData.cnpVolume}%</p>
                 </div>
-                {/* Refund Rate and Chargeback Rate - Only for manual cases after PMF approval (when manual form is filled) */}
-                {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
+                {/* Refund Rate and Chargeback Rate - Only for manual cases (when manual form is filled) */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.refundReturnRate !== undefined && (
                   <>
                     <div>
                       <p className="text-muted-foreground">Refund Rate</p>
@@ -864,8 +698,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </CardContent>
           </Card>
 
-          {/* Business Description - Show for standard cases OR manual cases pending PMF approval (original submit form) */}
-          {caseData.businessDescription && (caseData.approvalType === 'standard' || caseData.status === 'pending_pmf_approval') && (
+                {/* Business Description - Show for all cases except manual/full_review cases that have additional data */}
+                {caseData.businessDescription && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -879,8 +713,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Reserves & Guarantees - Only show for manual cases after PMF approval (when manual form is filled) */}
-          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
+                {/* Reserves & Guarantees - Only show for manual/full_review cases when filled */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.reserves && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -973,8 +807,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Case Description - Only show for manual cases after PMF approval (when manual form is filled) */}
-          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
+                {/* Case Description - Only show for manual/full_review cases when filled */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.description && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -992,8 +826,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Snapshot - Only show for manual cases after PMF approval (when manual form is filled) */}
-          {caseData.approvalType === 'manual' && caseData.status !== 'pending_pmf_approval' && (
+                {/* Snapshot - Only show for manual/full_review cases when filled */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.snapshotImage && (
             <Card>
               <CardHeader>
                 <CardTitle>Snapshot</CardTitle>

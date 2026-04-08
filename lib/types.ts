@@ -43,7 +43,7 @@ export interface Document {
   dataUrl: string
 }
 
-export type CaseStatus = 'draft' | 'pending_review' | 'pending_pmf_approval' | 'pending_risk_approval' | 'revision_requested' | 'approved' | 'declined' | 'auto_approved'
+export type CaseStatus = 'draft' | 'pending_review' | 'pending_risk_approval' | 'revision_requested' | 'approved' | 'declined' | 'auto_approved'
 export type ApprovalType = 'auto' | 'manual' | 'standard' | 'abbreviated' | 'full_review'
 
 export interface Exposure {
@@ -113,12 +113,8 @@ export interface Case {
   assignedApproverId?: string
   lockedFields?: string[]
   
-  // Dual Approval
+  // Risk Approval
   approvals?: {
-    pmfApproverId?: string
-    pmfApproverName?: string
-    pmfApprovedAt?: string
-    pmfComment?: string
     riskApproverId?: string
     riskApproverName?: string
     riskApprovedAt?: string

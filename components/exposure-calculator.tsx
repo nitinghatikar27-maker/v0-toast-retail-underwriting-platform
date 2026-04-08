@@ -97,7 +97,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
           Abbreviated Review
         </p>
         <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
-          Criteria: Exposure &gt; $200K AND &lt; $500K AND ADD between 4 to 45 days. Case requires PMF + Risk approval.
+          Criteria: Exposure &gt; $200K AND &lt; $500K AND ADD between 4 to 45 days. Case requires Risk approval.
         </p>
       </div>
     )
@@ -111,7 +111,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
             Full Credit Review
           </p>
           <p className="text-sm text-warning-foreground/80 mt-1">
-            Criteria: Exposure &ge; $500K AND ADD &gt; 45 days. After PMF approval, please submit the below information to get Risk approval.
+            Criteria: Exposure &ge; $500K AND ADD &gt; 45 days. Case requires Risk approval with additional documentation.
           </p>
         </div>
         <DocumentRequirements type="red" />
@@ -126,7 +126,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
         Manual Review Required
       </p>
       <p className="text-sm text-muted-foreground mt-1">
-        Case doesn't match standard approval criteria. PMF approval required for further review.
+        Case doesn't match standard approval criteria. Risk approval required for further review.
       </p>
     </div>
   )

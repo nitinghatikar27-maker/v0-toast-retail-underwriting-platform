@@ -348,8 +348,8 @@ export default function SubmitRequestPage() {
 
     // Determine approval flow based on exposure AND ADD criteria:
     // Auto Approved: exposure <= $200K AND ADD <= 3 days
-    // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days
-    // Full credit review: exposure >= $500K AND ADD > 45 days
+    // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days (requires Risk approval)
+    // Full credit review: exposure >= $500K AND ADD > 45 days (requires Risk approval with manual form)
     
     const totalExposure = exposure.totalExposure
     const add = parseFloat(formData.advanceDeliveryDays)
@@ -362,17 +362,17 @@ export default function SubmitRequestPage() {
       approvalTypeValue = 'auto'
       initialStatus = 'auto_approved'
     } else if (totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45) {
-      // Abbreviated review - requires PMF + Risk approval
+      // Abbreviated review - requires Risk approval
       approvalTypeValue = 'abbreviated'
-      initialStatus = 'pending_pmf_approval'
+      initialStatus = 'pending_risk_approval'
     } else if (totalExposure >= 500000 && add > 45) {
-      // Full credit review - requires PMF + manual form + Risk approval
+      // Full credit review - requires Risk approval with manual form
       approvalTypeValue = 'full_review'
-      initialStatus = 'pending_pmf_approval'
+      initialStatus = 'pending_risk_approval'
     } else {
       // Default to manual if criteria don't match exactly
       approvalTypeValue = 'manual'
-      initialStatus = 'pending_pmf_approval'
+      initialStatus = 'pending_risk_approval'
     }
 
     const caseId = generateId()
