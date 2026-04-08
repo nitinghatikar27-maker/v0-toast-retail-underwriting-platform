@@ -89,6 +89,13 @@ export const storage = {
     cachedState = null
     cacheTimestamp = 0
   },
+  
+  // Batch update to avoid multiple localStorage writes
+  batchUpdate(updateFn: (state: AppState) => void): void {
+    const state = this.getState()
+    updateFn(state)
+    this.setState(state)
+  },
 
   // User operations
   getUsers(): User[] {

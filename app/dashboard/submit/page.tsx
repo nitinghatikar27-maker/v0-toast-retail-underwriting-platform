@@ -346,100 +346,106 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
-    // Determine approval flow based on exposure AND ADD criteria:
-    // Auto Approved: exposure <= $200K AND ADD <= 3 days
-    // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days (requires Risk approval)
-    // Full credit review: exposure >= $500K AND ADD > 45 days (requires Risk approval with manual form)
-    
-    const totalExposure = exposure.totalExposure
-    const add = parseFloat(formData.advanceDeliveryDays)
-    
-    let approvalTypeValue: ApprovalType
-    let initialStatus: CaseStatus
-    
-    if (totalExposure <= 200000 && add <= 3) {
-      // Auto Approved
-      approvalTypeValue = 'auto'
-      initialStatus = 'auto_approved'
-    } else if (totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45) {
-      // Abbreviated review - requires Risk approval
-      approvalTypeValue = 'abbreviated'
-      initialStatus = 'pending_risk_approval'
-    } else if (totalExposure >= 500000 && add > 45) {
-      // Full credit review - requires Risk approval with manual form
-      approvalTypeValue = 'full_review'
-      initialStatus = 'pending_risk_approval'
-    } else {
-      // Default to manual if criteria don't match exactly
-      approvalTypeValue = 'manual'
-      initialStatus = 'pending_risk_approval'
-    }
+    // Use setTimeout to defer navigation and make UI feel more responsive
+    setTimeout(() => {
+      // Determine approval flow based on exposure AND ADD criteria:
+      // Auto Approved: exposure <= $200K AND ADD <= 3 days
+      // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days (requires Risk approval)
+      // Full credit review: exposure >= $500K AND ADD > 45 days (requires Risk approval with manual form)
+      
+      const totalExposure = exposure.totalExposure
+      const add = parseFloat(formData.advanceDeliveryDays)
+      
+      let approvalTypeValue: ApprovalType
+      let initialStatus: CaseStatus
+      
+      if (totalExposure <= 200000 && add <= 3) {
+        // Auto Approved
+        approvalTypeValue = 'auto'
+        initialStatus = 'auto_approved'
+      } else if (totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45) {
+        // Abbreviated review - requires Risk approval
+        approvalTypeValue = 'abbreviated'
+        initialStatus = 'pending_risk_approval'
+      } else if (totalExposure >= 500000 && add > 45) {
+        // Full credit review - requires Risk approval with manual form
+        approvalTypeValue = 'full_review'
+        initialStatus = 'pending_risk_approval'
+      } else {
+        // Default to manual if criteria don't match exactly
+        approvalTypeValue = 'manual'
+        initialStatus = 'pending_risk_approval'
+      }
 
-    const caseId = generateId()
-    const newCase: Case = {
-      id: caseId,
-      caseNumber: storage.generateCaseNumber(),
-      parentCompanyName: formData.parentCompanyName,
-      subsidiaryName: formData.subsidiaryName,
-      dba: formData.dba,
-      mcc: formData.mcc,
-      salesforceAccountNumber: formData.salesforceAccountNumber,
-      salesforceLink: formData.salesforceLink || undefined,
-      aeName: formData.aeName,
-      annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
-      averageTicketSize: parseFloat(formData.averageTicketSize),
-      cnpVolume: parseFloat(formData.cnpVolume),
-      advanceDeliveryDays: add,
-      brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
-      businessDescription: formData.businessDescription || undefined,
-      exposure,
-      status: initialStatus,
-      approvalType: approvalTypeValue,
-      submittedAt: isStandard ? new Date().toISOString() : undefined,
-      createdAt: new Date().toISOString(),
-      createdBy: user.id,
-      lastModifiedBy: user.id,
-      lastModifiedAt: new Date().toISOString(),
-      approvals: {}
-    }
+      const caseId = generateId()
+      const newCase: Case = {
+        id: caseId,
+        caseNumber: storage.generateCaseNumber(),
+        parentCompanyName: formData.parentCompanyName,
+        subsidiaryName: formData.subsidiaryName,
+        dba: formData.dba,
+        mcc: formData.mcc,
+        salesforceAccountNumber: formData.salesforceAccountNumber,
+        salesforceLink: formData.salesforceLink || undefined,
+        aeName: formData.aeName,
+        annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
+        averageTicketSize: parseFloat(formData.averageTicketSize),
+        cnpVolume: parseFloat(formData.cnpVolume),
+        advanceDeliveryDays: add,
+        brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
+        businessDescription: formData.businessDescription || undefined,
+        exposure,
+        status: initialStatus,
+        approvalType: approvalTypeValue,
+        submittedAt: isStandard ? new Date().toISOString() : undefined,
+        createdAt: new Date().toISOString(),
+        createdBy: user.id,
+        lastModifiedBy: user.id,
+        lastModifiedAt: new Date().toISOString(),
+        approvals: {}
+      }
 
-    storage.addCase(newCase)
+      // Batch all storage operations into a single update
+      const auditComment = `Case submitted for Risk approval - ${approvalTypeValue === 'auto' ? 'Auto Approved' : approvalTypeValue === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'}`
 
-    // Add audit entry
-    const auditComment = isStandard 
-      ? 'Case submitted for PMF approval - Standard'
-      : 'Case submitted for PMF approval (Exposure > $200K) - Manual form required after PMF approval'
-
-    const auditEntry: AuditEntry = {
-      id: generateId(),
-      caseId,
-      userId: user.id,
-      userName: user.name,
-      action: 'submitted',
-      comment: auditComment,
-      timestamp: new Date().toISOString()
-    }
-    storage.addAuditEntry(auditEntry)
-
-    // Add initial notes as a chat message if provided
-    if (initialNotes.trim()) {
-      const chatMessage: ChatMessage = {
+      const auditEntry: AuditEntry = {
         id: generateId(),
         caseId,
-        senderId: user.id,
-        senderName: user.name,
-        message: initialNotes.trim(),
-        timestamp: new Date().toISOString(),
-        isRead: true,
-        readBy: [user.id]
+        userId: user.id,
+        userName: user.name,
+        action: 'submitted',
+        comment: auditComment,
+        timestamp: new Date().toISOString()
       }
-      storage.addChatMessage(chatMessage)
-    }
 
-    clearDraft()
-    
-    toast.success('Case submitted for PMF approval!')
-    router.push('/dashboard')
+      storage.batchUpdate((state) => {
+        // Add case
+        state.cases.push(newCase)
+        
+        // Add audit entry
+        state.auditEntries.push(auditEntry)
+        
+        // Add initial notes as a chat message if provided
+        if (initialNotes.trim()) {
+          const chatMessage: ChatMessage = {
+            id: generateId(),
+            caseId,
+            senderId: user.id,
+            senderName: user.name,
+            message: initialNotes.trim(),
+            timestamp: new Date().toISOString(),
+            isRead: true,
+            readBy: [user.id]
+          }
+          state.chatMessages.push(chatMessage)
+        }
+      })
+
+      clearDraft()
+      
+      toast.success('Case submitted successfully!')
+      router.push('/dashboard')
+    }, 0)
   }
 
   const decision = exposure && formData.advanceDeliveryDays 
