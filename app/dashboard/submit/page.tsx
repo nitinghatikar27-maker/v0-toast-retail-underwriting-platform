@@ -883,7 +883,7 @@ export default function SubmitRequestPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="sticky top-6">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <MessageCircle className="h-4 w-4" />
