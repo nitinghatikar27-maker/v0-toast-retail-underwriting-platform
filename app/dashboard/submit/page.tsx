@@ -169,11 +169,6 @@ export default function SubmitRequestPage() {
           annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
           advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays)
         })
-        console.log('[v0] Exposure Calculated:', {
-          annualVolume: parseFloat(formData.annualProcessingVolume),
-          advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
-          calculatedExposure
-        })
         setExposure(calculatedExposure)
         setIsCalculating(false)
       }, 1500) // 1.5 second delay after all fields complete
@@ -359,14 +354,6 @@ export default function SubmitRequestPage() {
     const totalExposure = exposure.totalExposure
     const add = parseFloat(formData.advanceDeliveryDays)
     
-    console.log('[v0] Approval Criteria Check:', {
-      totalExposure,
-      advanceDeliveryDays: add,
-      autoApprovedCheck: totalExposure <= 200000 && add <= 3,
-      abbreviatedCheck: totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45,
-      fullReviewCheck: totalExposure >= 500000 && add > 45
-    })
-    
     let approvalTypeValue: ApprovalType
     let initialStatus: CaseStatus
     
@@ -374,22 +361,18 @@ export default function SubmitRequestPage() {
       // Auto Approved
       approvalTypeValue = 'auto'
       initialStatus = 'auto_approved'
-      console.log('[v0] Case will be Auto Approved')
     } else if (totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45) {
       // Abbreviated review - requires PMF + Risk approval
       approvalTypeValue = 'abbreviated'
       initialStatus = 'pending_pmf_approval'
-      console.log('[v0] Case requires Abbreviated Review')
     } else if (totalExposure >= 500000 && add > 45) {
       // Full credit review - requires PMF + manual form + Risk approval
       approvalTypeValue = 'full_review'
       initialStatus = 'pending_pmf_approval'
-      console.log('[v0] Case requires Full Credit Review')
     } else {
       // Default to manual if criteria don't match exactly
       approvalTypeValue = 'manual'
       initialStatus = 'pending_pmf_approval'
-      console.log('[v0] Case does not match standard criteria - Manual Review')
     }
 
     const caseId = generateId()
@@ -921,29 +904,6 @@ export default function SubmitRequestPage() {
               <p className="text-xs text-muted-foreground mt-2">
                 These notes will be added to the case chatter when created
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Approval Thresholds</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-success" />
-                <span className="text-muted-foreground">Auto-Approved:</span>
-                <span className="font-mono">{'<='} $200,000</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-warning" />
-                <span className="text-muted-foreground">Manual Review:</span>
-                <span className="font-mono">$200K - $500K</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-destructive" />
-                <span className="text-muted-foreground">Enhanced Review:</span>
-                <span className="font-mono">{'>'} $500,000</span>
-              </div>
             </CardContent>
           </Card>
         </div>
