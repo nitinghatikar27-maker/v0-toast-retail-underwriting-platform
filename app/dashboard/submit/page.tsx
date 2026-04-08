@@ -765,7 +765,37 @@ export default function SubmitRequestPage() {
         </div>
 
         {/* Sidebar - Exposure Calculator */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
+          {/* Approval Thresholds Guide */}
+          <Card>
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="text-base sm:text-lg">Approval Thresholds</CardTitle>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="h-3 w-3 rounded-full bg-success mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Auto-Approved</p>
+                  <p className="text-xs text-muted-foreground">&le; $200,000</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="h-3 w-3 rounded-full bg-warning mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Manual Review</p>
+                  <p className="text-xs text-muted-foreground">$200K - $500K</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="h-3 w-3 rounded-full bg-destructive mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Enhanced Review</p>
+                  <p className="text-xs text-muted-foreground">&gt; $500,000</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="sticky top-6">
             <CardHeader>
               <CardTitle className="text-lg">Exposure Calculator</CardTitle>
