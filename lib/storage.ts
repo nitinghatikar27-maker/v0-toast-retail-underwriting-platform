@@ -3,6 +3,11 @@ import { AppState, User, Case, AuditEntry, Document, ApprovalMatrixEntry, ChatMe
 // Storage key for localStorage persistence - v2 with chat support
 const STORAGE_KEY = 'toast_underwriting_data'
 
+// In-memory cache to avoid repeated localStorage reads
+let cachedState: AppState | null = null
+let cacheTimestamp = 0
+const CACHE_TTL = 100 // Cache for 100ms to batch rapid reads
+
 // Default admin user as specified
 const DEFAULT_ADMIN: User = {
   id: 'admin-1',
@@ -49,6 +54,13 @@ export const storage = {
     if (typeof window === 'undefined') {
       return getInitialState()
     }
+    
+    // Use cache if valid
+    const now = Date.now()
+    if (cachedState && (now - cacheTimestamp) < CACHE_TTL) {
+      return cachedState
+    }
+    
     try {
       const data = localStorage.getItem(STORAGE_KEY)
       if (!data) {
@@ -56,7 +68,9 @@ export const storage = {
         this.setState(initial)
         return initial
       }
-      return JSON.parse(data)
+      cachedState = JSON.parse(data)
+      cacheTimestamp = now
+      return cachedState
     } catch {
       return getInitialState()
     }
@@ -65,6 +79,15 @@ export const storage = {
   setState(state: AppState): void {
     if (typeof window === 'undefined') return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    // Update cache immediately
+    cachedState = state
+    cacheTimestamp = Date.now()
+  },
+  
+  // Invalidate cache when needed
+  invalidateCache(): void {
+    cachedState = null
+    cacheTimestamp = 0
   },
 
   // User operations

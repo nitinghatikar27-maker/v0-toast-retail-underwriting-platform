@@ -171,7 +171,7 @@ export default function SubmitRequestPage() {
         })
         setExposure(calculatedExposure)
         setIsCalculating(false)
-      }, 1500) // 1.5 second delay after all fields complete
+      }, 300) // 300ms debounce for calculation
     } else {
       setExposure(null)
     }

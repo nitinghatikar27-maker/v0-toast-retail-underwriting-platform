@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
@@ -68,7 +68,7 @@ interface AppSidebarProps {
   onNavigate?: () => void
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps) {
+export const AppSidebar = memo(function AppSidebar({ onNavigate }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout, isAdmin, isApprover } = useAuth()
@@ -87,8 +87,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         }
       }
       checkNotifications()
-      // Poll for new notifications every 5 seconds
-      const interval = setInterval(checkNotifications, 5000)
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(checkNotifications, 30000)
       return () => clearInterval(interval)
     }
   }, [user])
@@ -214,4 +214,4 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       </div>
     </aside>
   )
-}
+})
