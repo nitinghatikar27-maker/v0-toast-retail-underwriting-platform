@@ -345,9 +345,13 @@ export default function SubmitRequestPage() {
     if (!user || !exposure) return
 
     setIsSubmitting(true)
+    console.log('[v0] Submit button clicked - setIsSubmitting(true)')
 
     // Use setTimeout to defer navigation and make UI feel more responsive
     setTimeout(() => {
+      console.log('[v0] Processing submit in setTimeout(0)')
+      const startTime = performance.now()
+      
       // Determine approval flow based on exposure AND ADD criteria:
       // Auto Approved: exposure <= $200K AND ADD <= 3 days
       // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days (requires Risk approval)
@@ -397,7 +401,7 @@ export default function SubmitRequestPage() {
         exposure,
         status: initialStatus,
         approvalType: approvalTypeValue,
-        submittedAt: isStandard ? new Date().toISOString() : undefined,
+        submittedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         createdBy: user.id,
         lastModifiedBy: user.id,
@@ -418,6 +422,9 @@ export default function SubmitRequestPage() {
         timestamp: new Date().toISOString()
       }
 
+      console.log('[v0] Starting batch update')
+      const batchStart = performance.now()
+      
       storage.batchUpdate((state) => {
         // Add case
         state.cases.push(newCase)
@@ -440,11 +447,20 @@ export default function SubmitRequestPage() {
           state.chatMessages.push(chatMessage)
         }
       })
+      
+      const batchTime = performance.now() - batchStart
+      console.log(`[v0] Batch update completed in ${batchTime}ms`)
 
       clearDraft()
+      console.log('[v0] Draft cleared, about to show toast')
       
       toast.success('Case submitted successfully!')
+      console.log('[v0] Toast shown, about to navigate')
+      const navStart = performance.now()
+      
       router.push('/dashboard')
+      console.log(`[v0] Navigation started (router.push took ${performance.now() - navStart}ms)`)
+      console.log(`[v0] Total submit time: ${performance.now() - startTime}ms`)
     }, 0)
   }
 
