@@ -798,16 +798,18 @@ export default function SubmitRequestPage() {
             </CardContent>
           </Card>
 
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Exposure Calculator</CardTitle>
-              {isCalculating && (
-                <CardDescription className="text-primary">
-                  Calculating...
-                </CardDescription>
-              )}
-            </CardHeader>
-            <CardContent>
+          {/* Sticky container for Exposure Calculator and Initial Notes */}
+          <div className="sticky top-6 space-y-4 sm:space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Exposure Calculator</CardTitle>
+                {isCalculating && (
+                  <CardDescription className="text-primary">
+                    Calculating...
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
               {!isFormComplete() ? (
                 <div className="text-center py-8">
                   <Calculator className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
@@ -883,29 +885,30 @@ export default function SubmitRequestPage() {
             </CardContent>
           </Card>
 
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Initial Notes
-              </CardTitle>
-              <CardDescription>
-                Add notes that will appear in the case chatter
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                placeholder="Add any initial notes or context for this case..."
-                value={initialNotes}
-                onChange={(e) => setInitialNotes(e.target.value)}
-                rows={4}
-                className="resize-none"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                These notes will be added to the case chatter when created
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Initial Notes
+                </CardTitle>
+                <CardDescription>
+                  Add notes that will appear in the case chatter
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  placeholder="Add any initial notes or context for this case..."
+                  value={initialNotes}
+                  onChange={(e) => setInitialNotes(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  These notes will be added to the case chatter when created
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
