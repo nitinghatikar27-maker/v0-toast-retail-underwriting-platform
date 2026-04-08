@@ -195,7 +195,7 @@ export default function DashboardPage() {
           </div>
           <div class="row">
             <span class="label">Approval Type:</span>
-            <span class="value">${caseItem.approvalType === 'auto' ? 'Auto' : caseItem.approvalType === 'standard' ? 'Standard' : 'Manual'}</span>
+            <span class="value">${getApprovalTypeLabel(caseItem.approvalType)}</span>
           </div>
         </div>
 
@@ -289,6 +289,17 @@ export default function DashboardPage() {
         return <Badge variant="destructive">Declined</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
+    }
+  }
+
+  const getApprovalTypeLabel = (approvalType: string) => {
+    switch (approvalType) {
+      case 'auto': return 'Auto'
+      case 'standard': return 'Standard'
+      case 'abbreviated': return 'Abbreviated'
+      case 'full_review': return 'Full Review'
+      case 'manual': return 'Manual'
+      default: return approvalType
     }
   }
 
@@ -492,8 +503,12 @@ export default function DashboardPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={caseItem.approvalType === 'auto' ? 'secondary' : caseItem.approvalType === 'standard' ? 'outline' : 'default'}>
-                    {caseItem.approvalType === 'auto' ? 'Auto' : caseItem.approvalType === 'standard' ? 'Standard' : 'Manual'}
+                  <Badge variant={
+                    caseItem.approvalType === 'auto' ? 'secondary' : 
+                    caseItem.approvalType === 'abbreviated' || caseItem.approvalType === 'standard' ? 'outline' : 
+                    'default'
+                  }>
+                    {getApprovalTypeLabel(caseItem.approvalType)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

@@ -149,8 +149,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     const currentApprovals = caseData.approvals || {}
     const newApprovals = { ...currentApprovals }
-    const isStandardCase = caseData.approvalType === 'standard'
-    const isManualCase = caseData.approvalType === 'manual'
+    const isStandardCase = caseData.approvalType === 'standard' || caseData.approvalType === 'abbreviated'
+    const isManualCase = caseData.approvalType === 'manual' || caseData.approvalType === 'full_review'
     const isPmfPreApproval = caseData.status === 'pending_pmf_approval'
     
     // Add the current user's approval
@@ -337,6 +337,17 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     )
   }
 
+  const getApprovalTypeLabel = (approvalType: string) => {
+    switch (approvalType) {
+      case 'auto': return 'Auto'
+      case 'standard': return 'Standard'
+      case 'abbreviated': return 'Abbreviated Review'
+      case 'full_review': return 'Full Credit Review'
+      case 'manual': return 'Manual'
+      default: return approvalType
+    }
+  }
+
   const canEdit = caseData.status === 'draft' || caseData.status === 'revision_requested'
 
   return (
@@ -357,7 +368,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
               </h1>
               {getStatusBadge(caseData.status)}
               <Badge variant="outline" className="text-xs">
-                {caseData.approvalType === 'auto' ? 'Auto' : caseData.approvalType === 'standard' ? 'Standard' : 'Manual'}
+                {getApprovalTypeLabel(caseData.approvalType)}
               </Badge>
             </div>
             <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">

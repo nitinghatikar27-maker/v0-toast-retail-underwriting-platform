@@ -33,15 +33,26 @@ export function calculateExposure(input: ExposureInput): Exposure {
   }
 }
 
-export type ExposureDecision = 'auto_approved' | 'manual_review_amber' | 'manual_review_red'
+export type ExposureDecision = 'auto_approved' | 'abbreviated_review' | 'full_credit_review' | 'manual'
 
-export function getExposureDecision(totalExposure: number): ExposureDecision {
-  if (totalExposure <= 200000) {
-    return 'auto_approved' // Standard: Direct dual approval (PMF + Risk)
-  } else {
-    // > $200K: PMF approval first, then manual form, then Risk approval
-    return 'manual_review_red'
+export function getExposureDecision(totalExposure: number, advanceDeliveryDays: number): ExposureDecision {
+  // Auto Approved: exposure <= $200K AND ADD <= 3 days
+  if (totalExposure <= 200000 && advanceDeliveryDays <= 3) {
+    return 'auto_approved'
   }
+  
+  // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days
+  if (totalExposure > 200000 && totalExposure < 500000 && advanceDeliveryDays >= 4 && advanceDeliveryDays <= 45) {
+    return 'abbreviated_review'
+  }
+  
+  // Full credit review: exposure >= $500K AND ADD > 45 days
+  if (totalExposure >= 500000 && advanceDeliveryDays > 45) {
+    return 'full_credit_review'
+  }
+  
+  // Default to manual if criteria don't match
+  return 'manual'
 }
 
 export function formatCurrency(amount: number): string {

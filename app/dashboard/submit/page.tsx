@@ -346,16 +346,34 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
-    // Determine approval flow based on exposure thresholds:
-    // All cases require PMF approval first
-    // <= $200K: PMF approval -> Case approved
-    // > $200K: PMF approval -> Manual form created -> User fills form -> Risk approval -> Case approved
-    const isStandard = exposure.totalExposure <= 200000
+    // Determine approval flow based on exposure AND ADD criteria:
+    // Auto Approved: exposure <= $200K AND ADD <= 3 days
+    // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days
+    // Full credit review: exposure >= $500K AND ADD > 45 days
     
-    const approvalTypeValue = isStandard ? 'standard' : 'manual'
+    const totalExposure = exposure.totalExposure
+    const add = parseFloat(formData.advanceDeliveryDays)
     
-    // All cases start with PMF approval
-    const initialStatus: 'pending_pmf_approval' = 'pending_pmf_approval'
+    let approvalTypeValue: ApprovalType
+    let initialStatus: CaseStatus
+    
+    if (totalExposure <= 200000 && add <= 3) {
+      // Auto Approved
+      approvalTypeValue = 'auto'
+      initialStatus = 'auto_approved'
+    } else if (totalExposure > 200000 && totalExposure < 500000 && add >= 4 && add <= 45) {
+      // Abbreviated review - requires PMF + Risk approval
+      approvalTypeValue = 'abbreviated'
+      initialStatus = 'pending_pmf_approval'
+    } else if (totalExposure >= 500000 && add > 45) {
+      // Full credit review - requires PMF + manual form + Risk approval
+      approvalTypeValue = 'full_review'
+      initialStatus = 'pending_pmf_approval'
+    } else {
+      // Default to manual if criteria don't match exactly
+      approvalTypeValue = 'manual'
+      initialStatus = 'pending_pmf_approval'
+    }
 
     const caseId = generateId()
     const newCase: Case = {
@@ -371,7 +389,7 @@ export default function SubmitRequestPage() {
       annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
       averageTicketSize: parseFloat(formData.averageTicketSize),
       cnpVolume: parseFloat(formData.cnpVolume),
-      advanceDeliveryDays: parseFloat(formData.advanceDeliveryDays),
+      advanceDeliveryDays: add,
       brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
       businessDescription: formData.businessDescription || undefined,
       exposure,
@@ -825,6 +843,9 @@ export default function SubmitRequestPage() {
                     <p className="font-medium text-foreground">Daily Volume: {formatCurrency(exposure.dailyVolume)}</p>
                     <p>Annual Volume / 365 = {formatCurrency(parseFloat(formData.annualProcessingVolume))} / 365</p>
                   </div>
+                  
+                  {/* Approval Criteria Decision */}
+                  <DecisionBanner decision={getExposureDecision(exposure.totalExposure, parseFloat(formData.advanceDeliveryDays))} />
                 </div>
               ) : null}
             </CardContent>

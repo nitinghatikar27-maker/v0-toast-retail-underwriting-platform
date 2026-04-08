@@ -7,10 +7,11 @@ import { Separator } from '@/components/ui/separator'
 
 interface ExposureCalculatorProps {
   exposure: Exposure | null
+  advanceDeliveryDays?: number
   showDecision?: boolean
 }
 
-export function ExposureCalculator({ exposure, showDecision = false }: ExposureCalculatorProps) {
+export function ExposureCalculator({ exposure, advanceDeliveryDays = 0, showDecision = false }: ExposureCalculatorProps) {
   if (!exposure) {
     return (
       <Card>
@@ -26,7 +27,7 @@ export function ExposureCalculator({ exposure, showDecision = false }: ExposureC
     )
   }
 
-  const decision = getExposureDecision(exposure.totalExposure)
+  const decision = getExposureDecision(exposure.totalExposure, advanceDeliveryDays)
 
   return (
     <Card>
@@ -80,27 +81,53 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
     return (
       <div className="rounded-lg bg-success/10 border border-success/30 p-4">
         <p className="text-success font-medium">
-          Exposure is within standard threshold (&le; $200K).
+          Auto Approved
         </p>
         <p className="text-sm text-success/80 mt-1">
-          Case will be submitted for dual approval (PMF + Risk). No manual form required.
+          Criteria: Exposure &le; $200K AND ADD &le; 3 days. Case will be automatically approved.
         </p>
       </div>
     )
   }
 
-  // For exposure > $200K (manual_review_amber or manual_review_red)
-  return (
-    <div className="space-y-3">
-      <div className="rounded-lg bg-warning/10 border border-warning/30 p-4">
-        <p className="text-warning-foreground font-medium">
-          Exposure exceeds $200K: PMF approval required.
+  if (decision === 'abbreviated_review') {
+    return (
+      <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-4">
+        <p className="text-blue-700 dark:text-blue-300 font-medium">
+          Abbreviated Review
         </p>
-        <p className="text-sm text-warning-foreground/80 mt-1">
-          After PMF approval, please submit the below information to get Risk approval.
+        <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
+          Criteria: Exposure &gt; $200K AND &lt; $500K AND ADD between 4 to 45 days. Case requires PMF + Risk approval.
         </p>
       </div>
-      <DocumentRequirements type="red" />
+    )
+  }
+
+  if (decision === 'full_credit_review') {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg bg-warning/10 border border-warning/30 p-4">
+          <p className="text-warning-foreground font-medium">
+            Full Credit Review
+          </p>
+          <p className="text-sm text-warning-foreground/80 mt-1">
+            Criteria: Exposure &ge; $500K AND ADD &gt; 45 days. After PMF approval, please submit the below information to get Risk approval.
+          </p>
+        </div>
+        <DocumentRequirements type="red" />
+      </div>
+    )
+  }
+
+  // Manual - doesn't fit the criteria
+  return (
+    <div className="rounded-lg bg-muted border border-border p-4">
+      <p className="font-medium">
+        Manual Review Required
+      </p>
+      <p className="text-sm text-muted-foreground mt-1">
+        Case doesn't match standard approval criteria. PMF approval required for further review.
+      </p>
     </div>
   )
 }

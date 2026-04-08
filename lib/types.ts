@@ -44,7 +44,7 @@ export interface Document {
 }
 
 export type CaseStatus = 'draft' | 'pending_review' | 'pending_pmf_approval' | 'pending_risk_approval' | 'revision_requested' | 'approved' | 'declined' | 'auto_approved'
-export type ApprovalType = 'auto' | 'manual' | 'standard'
+export type ApprovalType = 'auto' | 'manual' | 'standard' | 'abbreviated' | 'full_review'
 
 export interface Exposure {
   dailyVolume: number
