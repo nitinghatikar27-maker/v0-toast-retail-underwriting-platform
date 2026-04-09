@@ -808,6 +808,10 @@ export default function SubmitRequestPage() {
                 <div className="flex-1">
                   <p className="font-medium text-sm">Abbreviated Review</p>
                   <p className="text-xs text-muted-foreground">Exposure &gt; $200K - &lt; $500K AND ADD 4-45 days</p>
+                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                    <p className="font-semibold text-yellow-900">Financial Docs Required:</p>
+                    <p className="text-yellow-800 mt-1">Codat data for latest 2 years. If unavailable: 3-year financials with YTD statements</p>
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -815,6 +819,10 @@ export default function SubmitRequestPage() {
                 <div className="flex-1">
                   <p className="font-medium text-sm">Full Credit Review</p>
                   <p className="text-xs text-muted-foreground">Exposure &ge; $500K AND ADD &gt; 45 days</p>
+                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                    <p className="font-semibold text-yellow-900">Financial Docs Required:</p>
+                    <p className="text-yellow-800 mt-1">3-year financials with YTD and comparable YTD statements</p>
+                  </div>
                 </div>
               </div>
             </CardContent>

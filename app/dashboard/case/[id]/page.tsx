@@ -880,6 +880,22 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                 <span>Total Exposure</span>
                 <span className="font-mono">{formatCurrency(caseData.exposure.totalExposure)}</span>
               </div>
+              
+              {/* Financial Documentation Requirements */}
+              {caseData.approvalType === 'abbreviated' && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-xs font-semibold text-yellow-900 mb-1">Financial Documentation Required:</p>
+                  <p className="text-xs text-yellow-800">Provide Codat data for latest two years.</p>
+                  <p className="text-xs text-yellow-800 mt-1"><strong>Note:</strong> If CODAT is not available, request the Latest 3-year financial statement, along with the YTD statement and comparable YTD, the financial statement includes income statement, balance sheet and cash flow statement.</p>
+                </div>
+              )}
+              
+              {caseData.approvalType === 'full_review' && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-xs font-semibold text-yellow-900 mb-1">Financial Documentation Required:</p>
+                  <p className="text-xs text-yellow-800">The latest 3-year financial statement, along with the YTD statement and comparable YTD, the financial statement includes income statement, balance sheet and cash flow statement.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
