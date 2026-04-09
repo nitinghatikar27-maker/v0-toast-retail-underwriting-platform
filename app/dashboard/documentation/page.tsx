@@ -5,21 +5,12 @@ import { Button } from '@/components/ui/button'
 import { FileText, Download, ExternalLink, BookOpen } from 'lucide-react'
 
 export default function DocumentationPage() {
+  const handleOpenSalesGuide = () => {
+    window.open('/Toast_Sales_Team_Guide.html', '_blank')
+  }
+
   const handleOpenTechnicalGuide = () => {
     window.open('/Toast_Platform_Technical_Guide.html', '_blank')
-  }
-
-  const handleDownloadHTML = () => {
-    window.open('/Toast_Retail_Underwriting_Platform_Documentation.html', '_blank')
-  }
-
-  const handleDownloadMD = () => {
-    const link = document.createElement('a')
-    link.href = '/Toast_Retail_Underwriting_Platform_Documentation.md'
-    link.download = 'Toast_Retail_Underwriting_Platform_Documentation.md'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
   }
 
   return (
@@ -29,68 +20,87 @@ export default function DocumentationPage() {
           <BookOpen className="h-6 w-6" />
           Platform Documentation
         </h1>
-        <p className="text-muted-foreground">Guides and resources for your tech team</p>
+        <p className="text-muted-foreground">Guides and resources for your team</p>
       </div>
 
+      {/* Sales Team Guide - PRIMARY */}
+      <Card className="border-2 border-red-200 bg-red-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-red-600" />
+            Sales Team User Guide
+          </CardTitle>
+          <CardDescription>
+            For the sales team - How to use the platform to submit merchant requests
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-white p-4 rounded border border-red-200 text-sm">
+            <p className="font-semibold text-red-800 mb-3">This guide covers:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-red-700">
+              <div>
+                <p>1. What is This Platform?</p>
+                <p>2. How to Log In</p>
+                <p>3. Understanding the Dashboard</p>
+                <p>4. How to Submit a New Request</p>
+                <p>5. The Request Form - Field by Field</p>
+              </div>
+              <div>
+                <p>6. How Exposure is Calculated (Exact Formula)</p>
+                <p>7. The Three Approval Tiers</p>
+                <p>8. After You Submit - What Happens</p>
+                <p>9. Tracking Your Cases</p>
+                <p>10. Common Questions</p>
+              </div>
+            </div>
+          </div>
+          <Button onClick={handleOpenSalesGuide} className="w-full bg-red-600 hover:bg-red-700">
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Open Sales Team Guide
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Use browser Print (Ctrl+P) and select "Save as PDF" to download as Word/PDF
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Technical Guide - NEW */}
-        <Card className="border-2 border-green-200 bg-green-50/50">
+        {/* Technical Guide */}
+        <Card className="border border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-green-600" />
-              Technical Guide (Plain English)
+              Technical Guide
             </CardTitle>
             <CardDescription>
-              Written in plain English for technical teams - No jargon!
+              For tech teams - Platform architecture and logic
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-white p-3 rounded border border-green-200 text-sm">
-              <p className="font-semibold text-green-800 mb-2">Includes:</p>
-              <ul className="text-sm space-y-1 text-green-700">
-                <li>✓ How the platform works (step by step)</li>
-                <li>✓ User roles and what they can do</li>
-                <li>✓ Case submission process</li>
-                <li>✓ Exposure calculation explained</li>
-                <li>✓ Approval workflow and tiers</li>
-                <li>✓ Dashboard and monitoring</li>
-                <li>✓ Data management and storage</li>
-                <li>✓ Audit trail and compliance</li>
-              </ul>
-            </div>
-            <Button onClick={handleOpenTechnicalGuide} className="w-full bg-green-600 hover:bg-green-700">
+            <Button onClick={handleOpenTechnicalGuide} variant="outline" className="w-full">
               <ExternalLink className="h-4 w-4 mr-2" />
               Open Technical Guide
             </Button>
-            <p className="text-xs text-muted-foreground">
-              💡 Tip: Use browser "Print" (Ctrl+P) and select "Save as PDF" to download
-            </p>
           </CardContent>
         </Card>
 
-        {/* Original Documentation */}
-        <Card>
+        {/* Exposure Formula Quick Reference */}
+        <Card className="border border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              Full Platform Documentation
+              <FileText className="h-5 w-5 text-blue-600" />
+              Exposure Formula
             </CardTitle>
             <CardDescription>
-              Complete reference with all details
+              Quick reference for the calculation
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm">Download full documentation in multiple formats:</p>
-            <div className="space-y-2">
-              <Button onClick={handleDownloadHTML} variant="outline" className="w-full">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                HTML Format
-              </Button>
-              <Button onClick={handleDownloadMD} variant="outline" className="w-full">
-                <Download className="h-4 w-4 mr-2" />
-                Markdown Format
-              </Button>
-            </div>
+          <CardContent className="space-y-2 text-sm font-mono bg-gray-50 p-3 rounded">
+            <p>Daily Volume = APV / 365</p>
+            <p>Base Exposure = Daily Volume x ADD</p>
+            <p>Chargeback = Daily Volume x 5%</p>
+            <p>Refund = Daily Volume x 1%</p>
+            <p className="font-bold pt-2 border-t">TOTAL = Base + Chargeback + Refund</p>
           </CardContent>
         </Card>
       </div>

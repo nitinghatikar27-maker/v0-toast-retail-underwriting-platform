@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Platform - Sales Team User Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            color: #333;
+            background-color: #fff;
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 15px;
+            font-size: 28px;
+        }
+        h2 {
+            color: #e74c3c;
+            margin-top: 40px;
+            font-size: 22px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #333;
+            margin-top: 25px;
+            font-size: 18px;
+        }
+        .box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .green-box {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+        .blue-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+        .orange-box {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+        .red-box {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+        .formula-box {
+            background-color: #f5f5f5;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+        }
+        .step-num {
+            background-color: #e74c3c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .highlight {
+            background-color: #ffff00;
+            padding: 2px 5px;
+        }
+        .toc {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .toc a {
+            display: block;
+            color: #e74c3c;
+            text-decoration: none;
+            padding: 5px 0;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        @media print {
+            body { padding: 0; }
+            .box, .green-box, .blue-box, .orange-box, .red-box {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Toast Underwriting Platform<br>Sales Team User Guide</h1>
+    <p><em>This guide explains how to use the Toast platform to submit merchant underwriting requests.</em></p>
+    
+    <div class="toc">
+        <strong>Table of Contents</strong>
+        <a href="#section1">1. What is This Platform?</a>
+        <a href="#section2">2. How to Log In</a>
+        <a href="#section3">3. Understanding the Dashboard</a>
+        <a href="#section4">4. How to Submit a New Request</a>
+        <a href="#section5">5. The Request Form - Field by Field</a>
+        <a href="#section6">6. How Exposure is Calculated (The Exact Formula)</a>
+        <a href="#section7">7. The Three Approval Tiers</a>
+        <a href="#section8">8. After You Submit - What Happens Next</a>
+        <a href="#section9">9. Tracking Your Cases</a>
+        <a href="#section10">10. Common Questions</a>
+    </div>
+
+    <!-- Section 1 -->
+    <h2 id="section1">1. What is This Platform?</h2>
+    <p>The Toast Underwriting Platform is where you (the sales team) submit merchant applications for approval. When you sign up a new merchant who wants to process card payments, you enter their information here.</p>
+    
+    <p>The platform does three things:</p>
+    <ul>
+        <li><strong>Collects merchant information</strong> - You fill out a form with the merchant's business details</li>
+        <li><strong>Calculates risk exposure</strong> - The system automatically calculates how much financial risk this merchant represents</li>
+        <li><strong>Routes for approval</strong> - Based on the risk level, the case either gets auto-approved or goes to the Risk team for review</li>
+    </ul>
+
+    <!-- Section 2 -->
+    <h2 id="section2">2. How to Log In</h2>
+    <div class="step">
+        <div class="step-num">1</div>
+        <div>Go to the Toast platform URL (provided by your administrator)</div>
+    </div>
+    <div class="step">
+        <div class="step-num">2</div>
+        <div>Enter your email address</div>
+    </div>
+    <div class="step">
+        <div class="step-num">3</div>
+        <div>Enter your password</div>
+    </div>
+    <div class="step">
+        <div class="step-num">4</div>
+        <div>Click "Sign In"</div>
+    </div>
+    
+    <div class="blue-box">
+        <strong>Don't have an account?</strong> Click "Request Access" on the login page and fill out the form. An administrator will create your account.
+    </div>
+
+    <!-- Section 3 -->
+    <h2 id="section3">3. Understanding the Dashboard</h2>
+    <p>After logging in, you see the Dashboard. Here's what each part shows:</p>
+
+    <h3>The Metrics Cards (Top Row)</h3>
+    <table>
+        <tr>
+            <th>Card</th>
+            <th>What It Shows</th>
+        </tr>
+        <tr>
+            <td>Total Cases</td>
+            <td>How many cases you have submitted (all time)</td>
+        </tr>
+        <tr>
+            <td>Pending</td>
+            <td>Cases waiting for approval</td>
+        </tr>
+        <tr>
+            <td>Approved</td>
+            <td>Cases that have been approved</td>
+        </tr>
+        <tr>
+            <td>Declined</td>
+            <td>Cases that were rejected</td>
+        </tr>
+    </table>
+
+    <h3>The Cases Table (Main Area)</h3>
+    <p>This table shows all your submitted cases. You can:</p>
+    <ul>
+        <li><strong>Search</strong> - Type in the search box to find a specific case by name or case number</li>
+        <li><strong>Filter by Status</strong> - Click the status dropdown to see only Pending, Approved, or Declined cases</li>
+        <li><strong>Sort</strong> - Click column headers to sort by that column</li>
+        <li><strong>Click a Row</strong> - Click any case to see its full details</li>
+    </ul>
+
+    <h3>The Sidebar (Left Side)</h3>
+    <ul>
+        <li><strong>Dashboard</strong> - Returns to main dashboard</li>
+        <li><strong>Submit Request</strong> - Opens the form to submit a new merchant</li>
+        <li><strong>My Cases</strong> - Shows only your submitted cases</li>
+        <li><strong>Documentation</strong> - This guide and other help documents</li>
+    </ul>
+
+    <!-- Section 4 -->
+    <h2 id="section4">4. How to Submit a New Request</h2>
+    <div class="step">
+        <div class="step-num">1</div>
+        <div>Click <strong>"Submit Request"</strong> in the left sidebar</div>
+    </div>
+    <div class="step">
+        <div class="step-num">2</div>
+        <div>Fill out all the required fields (marked with *)</div>
+    </div>
+    <div class="step">
+        <div class="step-num">3</div>
+        <div>Watch the <strong>Exposure Calculator</strong> on the right side - it updates as you enter data</div>
+    </div>
+    <div class="step">
+        <div class="step-num">4</div>
+        <div>Review the approval tier shown (Auto-Approved, Abbreviated Review, or Full Credit Review)</div>
+    </div>
+    <div class="step">
+        <div class="step-num">5</div>
+        <div>Add any notes in the "Initial Notes" section</div>
+    </div>
+    <div class="step">
+        <div class="step-num">6</div>
+        <div>Click the <strong>"Submit Request"</strong> button at the bottom</div>
+    </div>
+
+    <div class="green-box">
+        <strong>Tip:</strong> The form auto-saves as you type. If you leave and come back, your data will still be there.
+    </div>
+
+    <!-- Section 5 -->
+    <h2 id="section5">5. The Request Form - Field by Field</h2>
+    
+    <h3>Company Information Section</h3>
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>What to Enter</th>
+            <th>Required?</th>
+        </tr>
+        <tr>
+            <td>Parent Company Name</td>
+            <td>The legal name of the company</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td>Subsidiary Name</td>
+            <td>If this is a division or subsidiary, enter that name. Otherwise leave blank.</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>DBA (Doing Business As)</td>
+            <td>The name customers see (store name, brand name)</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>MCC Code</td>
+            <td>The 4-digit Merchant Category Code for their industry (e.g., 5411 = Grocery)</td>
+            <td>Yes</td>
+        </tr>
+    </table>
+
+    <h3>Business Metrics Section (These Calculate the Exposure)</h3>
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>What to Enter</th>
+            <th>Required?</th>
+        </tr>
+        <tr>
+            <td><strong>Annual Processing Volume</strong></td>
+            <td>Total dollars the merchant will process per year. Enter as a number (e.g., 5000000 for $5 million)</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td>Average Ticket Size</td>
+            <td>The average dollar amount per transaction</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td>CNP Volume %</td>
+            <td>What percentage of transactions are "Card Not Present" (online, phone orders). Enter as a number 0-100.</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td><strong>Advance Delivery Days (ADD)</strong></td>
+            <td>Number of days between when customer pays and when they receive goods/services</td>
+            <td>Yes</td>
+        </tr>
+    </table>
+
+    <div class="orange-box">
+        <strong>Important:</strong> The two most important fields for exposure calculation are:
+        <ul>
+            <li><strong>Annual Processing Volume</strong> - How much money flows through</li>
+            <li><strong>Advance Delivery Days</strong> - How long until delivery</li>
+        </ul>
+    </div>
+
+    <h3>Account Information Section</h3>
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>What to Enter</th>
+            <th>Required?</th>
+        </tr>
+        <tr>
+            <td>Salesforce Account Number</td>
+            <td>The account number from Salesforce CRM</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Salesforce Link</td>
+            <td>URL to the Salesforce account page</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Account Executive Name</td>
+            <td>Your name (the person submitting)</td>
+            <td>Yes</td>
+        </tr>
+    </table>
+
+    <h3>Additional Information Section</h3>
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>What to Enter</th>
+            <th>Required?</th>
+        </tr>
+        <tr>
+            <td>Brick & Mortar</td>
+            <td>Does the merchant have physical store locations? Select Yes or No.</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Business Description</td>
+            <td>Brief description of what the business does</td>
+            <td>No</td>
+        </tr>
+    </table>
+
+    <h3>Initial Notes (Right Side Panel)</h3>
+    <p>Use this to add any context or notes for the Risk team. These notes will appear in the case activity log.</p>
+
+    <!-- Section 6 -->
+    <h2 id="section6">6. How Exposure is Calculated (The Exact Formula)</h2>
+    
+    <div class="red-box">
+        <strong>This is the exact formula the system uses:</strong>
+    </div>
+
+    <div class="formula-box">
+<strong>Step 1: Calculate Daily Volume</strong>
+Daily Volume = Annual Processing Volume ÷ 365
+
+<strong>Step 2: Calculate Base Exposure</strong>
+Base Exposure = Daily Volume × Advance Delivery Days (ADD)
+
+<strong>Step 3: Calculate Chargeback Exposure</strong>
+Chargeback Exposure = Daily Volume × 5%
+
+<strong>Step 4: Calculate Refund/Return Exposure</strong>
+Refund/Return Exposure = Daily Volume × 1%
+
+<strong>Step 5: Calculate Total Exposure</strong>
+<span class="highlight">TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure</span>
+    </div>
+
+    <h3>Example Calculation</h3>
+    <div class="box">
+        <p><strong>Merchant Info:</strong></p>
+        <ul>
+            <li>Annual Processing Volume: $10,000,000 (ten million dollars)</li>
+            <li>Advance Delivery Days: 7 days</li>
+        </ul>
+        
+        <p><strong>Calculation:</strong></p>
+        <ol>
+            <li>Daily Volume = $10,000,000 ÷ 365 = <strong>$27,397.26</strong></li>
+            <li>Base Exposure = $27,397.26 × 7 = <strong>$191,780.82</strong></li>
+            <li>Chargeback Exposure = $27,397.26 × 0.05 = <strong>$1,369.86</strong></li>
+            <li>Refund/Return Exposure = $27,397.26 × 0.01 = <strong>$273.97</strong></li>
+            <li><strong>TOTAL EXPOSURE = $191,780.82 + $1,369.86 + $273.97 = $193,424.65</strong></li>
+        </ol>
+        
+        <p><strong>Result:</strong> This case has an exposure of about $193K, which is under $200K, so if ADD is 3 days or less, it would be auto-approved.</p>
+    </div>
+
+    <h3>Another Example</h3>
+    <div class="box">
+        <p><strong>Merchant Info:</strong></p>
+        <ul>
+            <li>Annual Processing Volume: $50,000,000 (fifty million dollars)</li>
+            <li>Advance Delivery Days: 30 days</li>
+        </ul>
+        
+        <p><strong>Calculation:</strong></p>
+        <ol>
+            <li>Daily Volume = $50,000,000 ÷ 365 = <strong>$136,986.30</strong></li>
+            <li>Base Exposure = $136,986.30 × 30 = <strong>$4,109,589.00</strong></li>
+            <li>Chargeback Exposure = $136,986.30 × 0.05 = <strong>$6,849.32</strong></li>
+            <li>Refund/Return Exposure = $136,986.30 × 0.01 = <strong>$1,369.86</strong></li>
+            <li><strong>TOTAL EXPOSURE = $4,109,589 + $6,849.32 + $1,369.86 = $4,117,808.18</strong></li>
+        </ol>
+        
+        <p><strong>Result:</strong> This case has an exposure of about $4.1 million, which is way above $500K, so it requires Full Credit Review.</p>
+    </div>
+
+    <div class="blue-box">
+        <strong>Key Insight:</strong> The main driver of exposure is <strong>Annual Processing Volume × Advance Delivery Days</strong>. Higher volume or more days = higher exposure.
+    </div>
+
+    <!-- Section 7 -->
+    <h2 id="section7">7. The Three Approval Tiers</h2>
+    <p>Based on the calculated exposure AND the Advance Delivery Days, the case falls into one of three approval tiers:</p>
+
+    <h3>Tier 1: Auto-Approved (Green)</h3>
+    <div class="green-box">
+        <strong>Criteria:</strong>
+        <ul>
+            <li>Total Exposure is $200,000 or less, AND</li>
+            <li>Advance Delivery Days is 3 days or less</li>
+        </ul>
+        <strong>What Happens:</strong> Case is approved instantly. No human review needed.
+    </div>
+
+    <h3>Tier 2: Abbreviated Review (Blue)</h3>
+    <div class="blue-box">
+        <strong>Criteria:</strong>
+        <ul>
+            <li>Total Exposure is more than $200,000 but less than $500,000, AND</li>
+            <li>Advance Delivery Days is between 4 and 45 days</li>
+        </ul>
+        <strong>What Happens:</strong> Case goes to the Risk team for a quick review. They check the basic information and approve or decline.
+    </div>
+
+    <h3>Tier 3: Full Credit Review (Red)</h3>
+    <div class="red-box">
+        <strong>Criteria:</strong>
+        <ul>
+            <li>Total Exposure is $500,000 or more, AND</li>
+            <li>Advance Delivery Days is more than 45 days</li>
+        </ul>
+        <strong>What Happens:</strong> Case requires detailed Risk team analysis. Additional documentation may be required.
+    </div>
+
+    <div class="orange-box">
+        <strong>Manual Review:</strong> If a case doesn't fit neatly into the above categories (e.g., high exposure but low ADD, or low exposure but high ADD), it goes to Manual Review where the Risk team decides how to handle it.
+    </div>
+
+    <!-- Section 8 -->
+    <h2 id="section8">8. After You Submit - What Happens Next</h2>
+    
+    <h3>If Auto-Approved</h3>
+    <ul>
+        <li>You'll see a success message immediately</li>
+        <li>The case status shows "Auto Approved"</li>
+        <li>No further action needed from you</li>
+    </ul>
+
+    <h3>If Sent for Risk Review</h3>
+    <ul>
+        <li>The case status shows "Pending Approval"</li>
+        <li>The Risk team will review your submission</li>
+        <li>They may:
+            <ul>
+                <li><strong>Approve</strong> - Case is approved</li>
+                <li><strong>Decline</strong> - Case is rejected (you'll see the reason)</li>
+                <li><strong>Request Revision</strong> - They need more information from you</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>If Revision is Requested</h3>
+    <ul>
+        <li>You'll see the case status change to "Revision Requested"</li>
+        <li>Check the case details to see what information is needed</li>
+        <li>Edit the case with the requested changes</li>
+        <li>Resubmit for review</li>
+    </ul>
+
+    <!-- Section 9 -->
+    <h2 id="section9">9. Tracking Your Cases</h2>
+    
+    <h3>Case Statuses Explained</h3>
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>What It Means</th>
+        </tr>
+        <tr>
+            <td>Draft</td>
+            <td>You started a case but haven't submitted it yet</td>
+        </tr>
+        <tr>
+            <td>Pending Approval</td>
+            <td>Submitted and waiting for Risk team review</td>
+        </tr>
+        <tr>
+            <td>Auto Approved</td>
+            <td>Automatically approved (low risk)</td>
+        </tr>
+        <tr>
+            <td>Approved</td>
+            <td>Approved by the Risk team</td>
+        </tr>
+        <tr>
+            <td>Declined</td>
+            <td>Rejected by the Risk team</td>
+        </tr>
+        <tr>
+            <td>Revision Requested</td>
+            <td>Risk team needs more information - check the case for details</td>
+        </tr>
+    </table>
+
+    <h3>Viewing Case Details</h3>
+    <p>Click on any case in the dashboard to see:</p>
+    <ul>
+        <li>All the information you submitted</li>
+        <li>The calculated exposure breakdown</li>
+        <li>Activity log (who did what and when)</li>
+        <li>Comments and notes from Risk team</li>
+        <li>Approval/decline reason</li>
+    </ul>
+
+    <h3>Adding Comments to a Case</h3>
+    <p>On the case detail page, you can add comments in the Activity section. Use this to:</p>
+    <ul>
+        <li>Provide additional context</li>
+        <li>Answer questions from the Risk team</li>
+        <li>Add updates about the merchant</li>
+    </ul>
+
+    <!-- Section 10 -->
+    <h2 id="section10">10. Common Questions</h2>
+
+    <h3>Q: Can I edit a case after submitting?</h3>
+    <p>Only if the Risk team requests a revision. Otherwise, submitted cases cannot be edited.</p>
+
+    <h3>Q: How long does approval take?</h3>
+    <ul>
+        <li>Auto-approved: Instant</li>
+        <li>Abbreviated Review: Usually 1-2 business days</li>
+        <li>Full Credit Review: 3-5 business days or more</li>
+    </ul>
+
+    <h3>Q: What if I made a mistake on the form?</h3>
+    <p>Contact your administrator or the Risk team. They can request a revision which will allow you to edit the case.</p>
+
+    <h3>Q: Why was my case declined?</h3>
+    <p>Click on the case to see the decline reason. Common reasons include:</p>
+    <ul>
+        <li>Risk exposure too high for the merchant's profile</li>
+        <li>Insufficient documentation</li>
+        <li>High-risk industry without proper safeguards</li>
+        <li>Previous issues with the merchant</li>
+    </ul>
+
+    <h3>Q: Can I see cases submitted by other sales team members?</h3>
+    <p>By default, you only see your own cases. Administrators can see all cases.</p>
+
+    <h3>Q: How do I export my cases?</h3>
+    <p>On the dashboard, look for the "Export" button. You can export to CSV (for Excel) or PDF.</p>
+
+    <hr style="margin-top: 40px;">
+    <p style="text-align: center; color: #666; font-size: 14px;">
+        <strong>Toast Underwriting Platform - Sales Team User Guide</strong><br>
+        For questions, contact your administrator.
+    </p>
+</body>
+</html>
