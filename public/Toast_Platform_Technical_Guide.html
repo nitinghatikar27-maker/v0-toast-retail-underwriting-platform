@@ -361,62 +361,74 @@
             <h3>What is Exposure?</h3>
             <p>Exposure is a dollar amount that represents the company's maximum monthly risk to the platform.</p>
             
-            <h3>The Calculation Formula</h3>
+            <h3>The Exact Calculation Formula</h3>
+            <p>This is the precise formula used by the system to calculate total exposure:</p>
+            
             <div class="formula">
-Monthly Exposure = (Annual Processing Volume / 12) × Risk Multiplier
+<strong>Step 1: Calculate Daily Volume</strong>
+Daily Volume = Annual Processing Volume / 365
 
-Where Risk Multiplier is based on:
-- Average Ticket Size
-- CNP Volume %
-- Advance Delivery Days
-- Industry (MCC Code)
+<strong>Step 2: Calculate Base Exposure</strong>
+Base Exposure = Daily Volume × Advance Delivery Days (ADD)
+
+<strong>Step 3: Calculate Chargeback Exposure</strong>
+Chargeback Exposure = Daily Volume × 5%
+
+<strong>Step 4: Calculate Refund/Return Exposure</strong>
+Refund/Return Exposure = Daily Volume × 1%
+
+<strong>Step 5: Calculate Total Exposure</strong>
+TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure
             </div>
 
-            <h3>Simple Example</h3>
+            <h3>Worked Example</h3>
             <div class="info">
-                <strong>Company A:</strong>
+                <strong>Company Example:</strong>
                 <ul>
-                    <li>Annual Processing: $12 million</li>
-                    <li>Monthly Average: $1 million</li>
-                    <li>Risk Multiplier: 0.2 (low risk business)</li>
-                    <li><strong>Monthly Exposure = $1,000,000 × 0.2 = $200,000</strong></li>
+                    <li>Annual Processing Volume (APV): $10,000,000</li>
+                    <li>Advance Delivery Days (ADD): 5 days</li>
                 </ul>
+                
+                <p style="margin-top: 15px;"><strong>Calculation:</strong></p>
+                <ul>
+                    <li>Step 1: Daily Volume = $10,000,000 / 365 = $27,397.26 per day</li>
+                    <li>Step 2: Base Exposure = $27,397.26 × 5 = $136,986.30</li>
+                    <li>Step 3: Chargeback Exposure = $27,397.26 × 5% = $1,369.86</li>
+                    <li>Step 4: Refund Exposure = $27,397.26 × 1% = $273.97</li>
+                    <li><strong>Step 5: TOTAL EXPOSURE = $136,986.30 + $1,369.86 + $273.97 = $138,630.13</strong></li>
+                </ul>
+                
+                <p style="margin-top: 15px;"><strong>This exposure of $138,630 would trigger: Abbreviated Review Tier (between $200K-$500K is abbreviated, but this is under $200K so it's AUTO-APPROVED)</strong></p>
             </div>
 
+            <h3>Another Example (High Risk)</h3>
             <div class="info">
                 <strong>Company B:</strong>
                 <ul>
-                    <li>Annual Processing: $12 million</li>
-                    <li>Monthly Average: $1 million</li>
-                    <li>Risk Multiplier: 0.5 (higher risk business)</li>
-                    <li><strong>Monthly Exposure = $1,000,000 × 0.5 = $500,000</strong></li>
+                    <li>Annual Processing Volume (APV): $50,000,000</li>
+                    <li>Advance Delivery Days (ADD): 50 days</li>
                 </ul>
+                
+                <p style="margin-top: 15px;"><strong>Calculation:</strong></p>
+                <ul>
+                    <li>Step 1: Daily Volume = $50,000,000 / 365 = $136,986.30 per day</li>
+                    <li>Step 2: Base Exposure = $136,986.30 × 50 = $6,849,315</li>
+                    <li>Step 3: Chargeback Exposure = $136,986.30 × 5% = $6,849.32</li>
+                    <li>Step 4: Refund Exposure = $136,986.30 × 1% = $1,369.86</li>
+                    <li><strong>Step 5: TOTAL EXPOSURE = $6,849,315 + $6,849.32 + $1,369.86 = $6,857,534.18</strong></li>
+                </ul>
+                
+                <p style="margin-top: 15px;"><strong>This exposure of $6.8M would trigger: Full Credit Review Tier (≥$500K AND ADD >45 days)</strong></p>
             </div>
 
-            <h3>Risk Multiplier Factors</h3>
-            <p>The system adjusts the risk multiplier based on:</p>
-            <table>
-                <tr>
-                    <th>Factor</th>
-                    <th>Effect on Risk</th>
-                </tr>
-                <tr>
-                    <td>High Average Ticket Size (>$500)</td>
-                    <td>Increases multiplier (fewer, larger transactions = higher variance)</td>
-                </tr>
-                <tr>
-                    <td>High CNP Volume (>50%)</td>
-                    <td>Increases multiplier (online = more fraud risk)</td>
-                </tr>
-                <tr>
-                    <td>Long Advance Delivery Days (>30)</td>
-                    <td>Increases multiplier (they need money urgently)</td>
-                </tr>
-                <tr>
-                    <td>High-Risk MCC Codes</td>
-                    <td>Increases multiplier (some industries are inherently risky)</td>
-                </tr>
-            </table>
+            <h3>Key Points About the Formula</h3>
+            <ul>
+                <li><strong>Daily Volume is the base:</strong> Everything starts from how much they process per day</li>
+                <li><strong>ADD multiplies base exposure:</strong> More days they wait for money = more risk</li>
+                <li><strong>Chargeback & Refund are fixed percentages:</strong> Always 5% and 1% of daily volume</li>
+                <li><strong>Total Exposure determines approval tier:</strong> Not just APV alone, but the combined exposure</li>
+                <li><strong>Used with ADD for tier decision:</strong> Tier is based on both exposure amount AND advance delivery days</li>
+            </ul>
         </div>
 
         <div id="approval-workflow" class="section">
