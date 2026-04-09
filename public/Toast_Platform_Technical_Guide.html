@@ -454,14 +454,19 @@ TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure
                     <li>Exposure > $200,000 AND < $500,000 AND</li>
                     <li>Advance Delivery Days between 4-45</li>
                 </ul>
-                <p><strong>Process:</strong></p>
+                <p><strong>What Happens:</strong></p>
                 <ol>
-                    <li>Case stays in "Pending Approval" status</li>
-                    <li>Risk team reviews basic information</li>
-                    <li>Quick assessment without extensive documentation</li>
-                    <li>Risk approver approves or declines</li>
+                    <li>Sales team submits the request form (same as auto-approved cases)</li>
+                    <li>System calculates exposure and sees it exceeds $200K threshold</li>
+                    <li>Case status becomes "Pending Risk Approval"</li>
+                    <li>Risk team gets notified there's a case to review</li>
+                    <li>Risk team reviews the basic information submitted</li>
+                    <li>Risk approver either Approves, Declines, or Requests Revisions</li>
                 </ol>
-                <p><strong>Status Path:</strong> Submitted → Pending Risk Approval → Approved/Declined</p>
+                <p><strong>Status Path:</strong> Submitted → Pending Risk Approval → Approved/Declined/Revision Requested</p>
+                <div class="info">
+                    <strong>Note:</strong> For Abbreviated Review, the sales team does NOT need to fill out any additional forms. The Risk team reviews what was already submitted in the original request form.
+                </div>
             </div>
 
             <h3>Tier 3: Full Credit Review</h3>
@@ -471,21 +476,207 @@ TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure
                     <li>Exposure ≥ $500,000 AND</li>
                     <li>Advance Delivery Days > 45</li>
                 </ul>
-                <p><strong>Process:</strong></p>
+                <p><strong>What Happens:</strong></p>
                 <ol>
-                    <li>Submitter must provide additional documentation</li>
-                    <li>Case requires extensive Risk team analysis</li>
-                    <li>May request additional information from merchant</li>
+                    <li>Sales team submits the request form</li>
+                    <li>System calculates exposure and sees it's a high-risk case</li>
+                    <li>Case status becomes "Pending Risk Approval"</li>
+                    <li><strong>Sales team must complete the Manual Review Form with additional details</strong></li>
+                    <li>Risk team performs detailed analysis</li>
                     <li>Senior risk approver makes final decision</li>
                 </ol>
-                <p><strong>Documentation Required:</strong></p>
+                <p><strong>Status Path:</strong> Submitted → Pending Risk Approval (complete manual form) → Risk Review → Approved/Declined</p>
+            </div>
+
+            <!-- NEW SECTION: The Manual Review Form -->
+            <h3 style="color: #dc2626; margin-top: 30px;">THE MANUAL REVIEW FORM (For Full Credit Review Cases)</h3>
+            <p>When a case requires Full Credit Review, the sales team must provide additional information by completing the Manual Review Form. Here's exactly what needs to be filled out:</p>
+            
+            <div class="subsection">
+                <h4>Section A - Merchant Information (Pre-filled, can be edited)</h4>
+                <p>This section is already filled from the original request. Sales can update if needed:</p>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>What to Enter</th>
+                    </tr>
+                    <tr>
+                        <td>Parent Company Name</td>
+                        <td>Legal name of the parent company</td>
+                    </tr>
+                    <tr>
+                        <td>Subsidiary Name</td>
+                        <td>Name of subsidiary (if different from parent)</td>
+                    </tr>
+                    <tr>
+                        <td>DBA</td>
+                        <td>Doing Business As name</td>
+                    </tr>
+                    <tr>
+                        <td>MCC</td>
+                        <td>Merchant Category Code (e.g., 5812)</td>
+                    </tr>
+                    <tr>
+                        <td>Salesforce Account Number</td>
+                        <td>Account number from Salesforce</td>
+                    </tr>
+                    <tr>
+                        <td>Salesforce Link</td>
+                        <td>URL to the Salesforce account</td>
+                    </tr>
+                    <tr>
+                        <td>AE Name</td>
+                        <td>Account Executive handling this merchant</td>
+                    </tr>
+                    <tr>
+                        <td>Brick & Mortar</td>
+                        <td>Yes or No - Does merchant have physical locations?</td>
+                    </tr>
+                    <tr>
+                        <td>Website URL</td>
+                        <td><strong>NEW for manual form</strong> - Merchant's website address</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>Section B - Processing Profile (Pre-filled, can be edited)</h4>
+                <p>Processing details from original submission, plus new fields:</p>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>What to Enter</th>
+                    </tr>
+                    <tr>
+                        <td>Annual Processing Volume</td>
+                        <td>Total yearly card processing in USD</td>
+                    </tr>
+                    <tr>
+                        <td>Average Ticket Size</td>
+                        <td>Average transaction amount in USD</td>
+                    </tr>
+                    <tr>
+                        <td>CNP Volume %</td>
+                        <td>Percentage of Card Not Present transactions</td>
+                    </tr>
+                    <tr>
+                        <td>Advance Delivery Days</td>
+                        <td>Days between payment and delivery</td>
+                    </tr>
+                    <tr>
+                        <td>Refund/Return Rate %</td>
+                        <td><strong>NEW for manual form</strong> - Historical refund rate percentage</td>
+                    </tr>
+                    <tr>
+                        <td>Chargeback Rate %</td>
+                        <td><strong>NEW for manual form</strong> - Historical chargeback rate percentage</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>Section C - Exposure Calculator (Auto-calculated)</h4>
+                <p>The system automatically calculates and displays:</p>
                 <ul>
-                    <li>Detailed business description</li>
-                    <li>Refund and chargeback rates</li>
-                    <li>Financial reserves information</li>
-                    <li>Personal guarantees or collateral</li>
-                    <li>Business snapshot/proof of operations</li>
+                    <li>Daily Volume</li>
+                    <li>Base Exposure</li>
+                    <li>Chargeback Exposure (5%)</li>
+                    <li>Refund/Return Exposure (1%)</li>
+                    <li><strong>Total Exposure</strong></li>
                 </ul>
+                <p>Sales team does NOT need to calculate this - the system does it automatically based on the processing profile entered.</p>
+            </div>
+
+            <div class="subsection">
+                <h4>Section D - Reserves & Guarantees</h4>
+                <p>This is where sales documents any risk mitigation measures:</p>
+                
+                <p><strong>Reserve Options:</strong></p>
+                <table>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                        <th>What to Enter</th>
+                    </tr>
+                    <tr>
+                        <td>Reserve Percentage</td>
+                        <td>Percentage of transactions held as reserve</td>
+                        <td>Enable toggle, enter percentage (0-100)</td>
+                    </tr>
+                    <tr>
+                        <td>Capped Reserve</td>
+                        <td>Fixed dollar amount held as reserve</td>
+                        <td>Enable toggle, enter dollar amount</td>
+                    </tr>
+                </table>
+
+                <p><strong>Guarantee Options:</strong></p>
+                <table>
+                    <tr>
+                        <th>Guarantee Type</th>
+                        <th>What It Is</th>
+                        <th>What to Enter</th>
+                    </tr>
+                    <tr>
+                        <td>Personal Guarantee</td>
+                        <td>Business owner personally guarantees payment</td>
+                        <td>Enable toggle, enter guarantor's name</td>
+                    </tr>
+                    <tr>
+                        <td>Corporate Guarantee</td>
+                        <td>Parent company guarantees payment</td>
+                        <td>Enable toggle, enter guarantor company name</td>
+                    </tr>
+                    <tr>
+                        <td>Letter of Credit</td>
+                        <td>Bank-issued letter guaranteeing payment</td>
+                        <td>Enable toggle, enter bank name and LC amount</td>
+                    </tr>
+                    <tr>
+                        <td>Collateral</td>
+                        <td>Assets pledged as security</td>
+                        <td>Enable toggle, describe collateral and value</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>Section E - Case Description</h4>
+                <p>A detailed narrative about the case:</p>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>What to Enter</th>
+                    </tr>
+                    <tr>
+                        <td>Case Description</td>
+                        <td>Detailed explanation of why this merchant should be approved despite high exposure. Include business history, growth plans, industry context, and any mitigating factors.</td>
+                    </tr>
+                </table>
+                <div class="warning">
+                    <strong>Important:</strong> This is the sales team's opportunity to "sell" the case to the Risk team. Be thorough and include all relevant information that supports approval.
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h4>Section F - Snapshot (Business Proof)</h4>
+                <p>Upload visual proof of the business:</p>
+                <ul>
+                    <li>Click "Upload Snapshot Image" button</li>
+                    <li>Upload a screenshot or photo showing the business is legitimate</li>
+                    <li>Examples: Website screenshot, storefront photo, product images</li>
+                    <li>Accepted formats: JPG, PNG, GIF</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>Saving and Submitting the Manual Form</h4>
+                <p><strong>Save Draft:</strong> Click "Save Draft" to save progress without submitting. You can return later to complete.</p>
+                <p><strong>Submit for Approval:</strong> When all sections are complete, click "Submit for Approval" to send to Risk team.</p>
+                <div class="step">
+                    <span class="step-number">!</span>
+                    <strong>The case will change from "Pending Risk Approval" to active review status once submitted.</strong>
+                </div>
             </div>
 
             <h3>What Happens During Risk Approval</h3>
