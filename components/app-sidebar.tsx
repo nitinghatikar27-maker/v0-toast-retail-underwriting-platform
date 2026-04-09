@@ -28,7 +28,8 @@ import {
   Users,
   Shield,
   Bell,
-  MessageCircle
+  MessageCircle,
+  BookOpen
 } from 'lucide-react'
 
 const navItems = [
@@ -61,6 +62,12 @@ const navItems = [
     href: '/dashboard/settings',
     icon: Settings,
     roles: ['admin']
+  },
+  {
+    title: 'Documentation',
+    href: '/dashboard/documentation',
+    icon: BookOpen,
+    roles: ['admin', 'user', 'approver']
   }
 ]
 
