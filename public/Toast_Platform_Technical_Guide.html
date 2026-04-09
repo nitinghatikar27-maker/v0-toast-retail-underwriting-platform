@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Retail Underwriting Platform - Technical Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2563eb;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2563eb;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #1e40af;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 5px;
+            border-left: 4px solid #2563eb;
+        }
+        .subsection {
+            margin-left: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 3px;
+            border-left: 2px solid #60a5fa;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-left: 3px solid #10b981;
+        }
+        .step-number {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .formula {
+            background-color: #f0fdf4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 3px solid #10b981;
+        }
+        .warning {
+            background-color: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        .info {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .toc {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .toc a {
+            display: block;
+            color: #2563eb;
+            text-decoration: none;
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Toast Retail Underwriting Platform - Technical Guide</h1>
+        <p><strong>A Complete Guide for Tech Teams</strong></p>
+        
+        <div class="toc">
+            <h3>Quick Navigation</h3>
+            <a href="#overview">1. Platform Overview</a>
+            <a href="#how-it-works">2. How It Works</a>
+            <a href="#user-types">3. User Types & Permissions</a>
+            <a href="#submission-flow">4. Case Submission Flow</a>
+            <a href="#exposure-calculation">5. Exposure Calculation</a>
+            <a href="#approval-workflow">6. Approval & Risk Process</a>
+            <a href="#dashboard">7. Dashboard & Monitoring</a>
+            <a href="#data-management">8. Data Management</a>
+            <a href="#audit">9. Audit & Compliance</a>
+        </div>
+
+        <div id="overview" class="section">
+            <h2>1. Platform Overview</h2>
+            <h3>What is Toast?</h3>
+            <p>Toast is a web-based underwriting system designed for retail payment processing companies. It helps manage the approval process for new merchant accounts by:</p>
+            <ul>
+                <li>Collecting merchant account information from customers</li>
+                <li>Automatically calculating risk exposure based on business metrics</li>
+                <li>Routing cases through appropriate approval workflows</li>
+                <li>Tracking all approvals and decisions in an audit trail</li>
+                <li>Providing dashboards for monitoring and reporting</li>
+            </ul>
+
+            <h3>Core Purpose</h3>
+            <p>When a company wants to accept card payments through your platform, they submit information. Toast analyzes their business to determine:</p>
+            <ul>
+                <li><strong>How much money</strong> they process annually</li>
+                <li><strong>How risky</strong> their business is</li>
+                <li><strong>What approval process</strong> they need to go through</li>
+                <li><strong>Who needs to approve</strong> their account</li>
+            </ul>
+        </div>
+
+        <div id="how-it-works" class="section">
+            <h2>2. How It Works - Simple Overview</h2>
+            <h3>The Basic Flow</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Merchant Submits Info:</strong> Company fills out a form with their details (name, business type, annual processing volume, etc.)
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>System Calculates Risk:</strong> Toast calculates how much money they handle and how long they can wait for funding
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Automatic Decision or Review:</strong> Based on the calculation:
+                <ul style="margin-top: 10px;">
+                    <li>If LOW RISK → Auto-approved immediately</li>
+                    <li>If MEDIUM RISK → Sent to Risk team for review</li>
+                    <li>If HIGH RISK → Sent to Risk team with special documentation</li>
+                </ul>
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Risk Team Approves/Declines:</strong> Risk approvers review the case and make final decision
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>Merchant Gets Answer:</strong> Company is notified of approval or decline
+            </div>
+        </div>
+
+        <div id="user-types" class="section">
+            <h2>3. User Types & Permissions</h2>
+            <h3>Three Types of Users</h3>
+            
+            <h3>Account Executives (Users)</h3>
+            <div class="subsection">
+                <p><strong>What They Do:</strong> Submit new merchant applications</p>
+                <p><strong>Permissions:</strong></p>
+                <ul>
+                    <li>Can submit new cases</li>
+                    <li>Can edit their own draft cases (before submission)</li>
+                    <li>Can view all their submitted cases</li>
+                    <li>Can add notes/comments to their cases</li>
+                    <li>CANNOT approve cases</li>
+                    <li>CANNOT see other team members' cases (unless admin)</li>
+                </ul>
+            </div>
+
+            <h3>Risk Approvers</h3>
+            <div class="subsection">
+                <p><strong>What They Do:</strong> Review and approve/decline submitted cases</p>
+                <p><strong>Permissions:</strong></p>
+                <ul>
+                    <li>Can view all submitted cases (global view)</li>
+                    <li>Can approve cases (with optional comments)</li>
+                    <li>Can decline cases (with reason required)</li>
+                    <li>Can request revisions from submitters</li>
+                    <li>Can add notes to case activity</li>
+                    <li>Can view full audit trail</li>
+                    <li>Each approver has an approval limit (max $ they can approve)</li>
+                </ul>
+                <div class="info">
+                    <strong>Example:</strong> If an approver's limit is $500K and a case needs $600K approval, it goes to a higher-level approver.
+                </div>
+            </div>
+
+            <h3>Admins</h3>
+            <div class="subsection">
+                <p><strong>What They Do:</strong> Manage users, view reports, configure system</p>
+                <p><strong>Permissions:</strong></p>
+                <ul>
+                    <li>Can do everything Users and Approvers can do</li>
+                    <li>Can create, edit, delete user accounts</li>
+                    <li>Can set user roles and approval limits</li>
+                    <li>Can view system-wide reports and analytics</li>
+                    <li>Can export data to CSV/PDF</li>
+                    <li>Can view all cases regardless of who submitted</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="submission-flow" class="section">
+            <h2>4. Case Submission Flow - Step by Step</h2>
+            <h3>What Information is Collected</h3>
+            
+            <h3>Company Information</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>What It Means</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td>Parent Company Name</td>
+                    <td>The main company name</td>
+                    <td>ABC Retail Corp</td>
+                </tr>
+                <tr>
+                    <td>Subsidiary Name</td>
+                    <td>If this is a division of the company</td>
+                    <td>ABC West Coast Division</td>
+                </tr>
+                <tr>
+                    <td>DBA (Doing Business As)</td>
+                    <td>What customers know them as</td>
+                    <td>ABC Stores</td>
+                </tr>
+                <tr>
+                    <td>MCC Code</td>
+                    <td>Merchant Category Code (industry type)</td>
+                    <td>5411 = Grocery Store</td>
+                </tr>
+            </table>
+
+            <h3>Business Metrics (The Important Numbers)</h3>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>What It Measures</th>
+                    <th>Why It Matters</th>
+                </tr>
+                <tr>
+                    <td>Annual Processing Volume (APV)</td>
+                    <td>Total dollars they process per year</td>
+                    <td>Higher volume = potentially higher risk</td>
+                </tr>
+                <tr>
+                    <td>Average Ticket Size</td>
+                    <td>Average transaction amount</td>
+                    <td>$1 vs $1000 transactions have different risk</td>
+                </tr>
+                <tr>
+                    <td>CNP Volume %</td>
+                    <td>Percentage of Card Not Present transactions</td>
+                    <td>Online sales are higher fraud risk</td>
+                </tr>
+                <tr>
+                    <td>Advance Delivery Days (ADD)</td>
+                    <td>How many days until they can wait for money</td>
+                    <td>Higher ADD = they need money faster = higher risk</td>
+                </tr>
+            </table>
+
+            <h3>Optional Information</h3>
+            <ul>
+                <li><strong>Salesforce Account Number:</strong> Link to CRM system</li>
+                <li><strong>Account Executive Name:</strong> Who submitted this</li>
+                <li><strong>Business Description:</strong> What they do</li>
+                <li><strong>Brick & Mortar:</strong> Do they have physical stores?</li>
+                <li><strong>Initial Notes:</strong> Any context for the approval team</li>
+            </ul>
+
+            <h3>For High-Risk Cases (Additional Information)</h3>
+            <p>If a case requires special documentation, the submitter must also provide:</p>
+            <ul>
+                <li>Refund & Return Rate (what % of transactions get refunded)</li>
+                <li>Chargeback Rate (what % result in disputes)</li>
+                <li>Case Description (detailed explanation of business)</li>
+                <li>Business Reserves (how much cash they keep on hand)</li>
+                <li>Guarantees (personal guarantees, collateral, etc.)</li>
+                <li>Snapshot Image (proof of business, store photo, etc.)</li>
+            </ul>
+        </div>
+
+        <div id="exposure-calculation" class="section">
+            <h2>5. Exposure Calculation - How Risk is Measured</h2>
+            <h3>What is Exposure?</h3>
+            <p>Exposure is a dollar amount that represents the company's maximum monthly risk to the platform.</p>
+            
+            <h3>The Calculation Formula</h3>
+            <div class="formula">
+Monthly Exposure = (Annual Processing Volume / 12) × Risk Multiplier
+
+Where Risk Multiplier is based on:
+- Average Ticket Size
+- CNP Volume %
+- Advance Delivery Days
+- Industry (MCC Code)
+            </div>
+
+            <h3>Simple Example</h3>
+            <div class="info">
+                <strong>Company A:</strong>
+                <ul>
+                    <li>Annual Processing: $12 million</li>
+                    <li>Monthly Average: $1 million</li>
+                    <li>Risk Multiplier: 0.2 (low risk business)</li>
+                    <li><strong>Monthly Exposure = $1,000,000 × 0.2 = $200,000</strong></li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <strong>Company B:</strong>
+                <ul>
+                    <li>Annual Processing: $12 million</li>
+                    <li>Monthly Average: $1 million</li>
+                    <li>Risk Multiplier: 0.5 (higher risk business)</li>
+                    <li><strong>Monthly Exposure = $1,000,000 × 0.5 = $500,000</strong></li>
+                </ul>
+            </div>
+
+            <h3>Risk Multiplier Factors</h3>
+            <p>The system adjusts the risk multiplier based on:</p>
+            <table>
+                <tr>
+                    <th>Factor</th>
+                    <th>Effect on Risk</th>
+                </tr>
+                <tr>
+                    <td>High Average Ticket Size (>$500)</td>
+                    <td>Increases multiplier (fewer, larger transactions = higher variance)</td>
+                </tr>
+                <tr>
+                    <td>High CNP Volume (>50%)</td>
+                    <td>Increases multiplier (online = more fraud risk)</td>
+                </tr>
+                <tr>
+                    <td>Long Advance Delivery Days (>30)</td>
+                    <td>Increases multiplier (they need money urgently)</td>
+                </tr>
+                <tr>
+                    <td>High-Risk MCC Codes</td>
+                    <td>Increases multiplier (some industries are inherently risky)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="approval-workflow" class="section">
+            <h2>6. Approval & Risk Process - How Cases Get Approved</h2>
+            <h3>Three Approval Tiers (Based on Exposure + Days)</h3>
+            
+            <h3>Tier 1: Auto-Approved</h3>
+            <div class="subsection">
+                <p><strong>Criteria:</strong></p>
+                <ul>
+                    <li>Exposure ≤ $200,000 AND</li>
+                    <li>Advance Delivery Days ≤ 3</li>
+                </ul>
+                <p><strong>Process:</strong> Automatically approved on submission, no human review needed</p>
+                <p><strong>Status:</strong> Goes straight to "Approved"</p>
+                <p><strong>When:</strong> Usually for established retailers with low risk</p>
+            </div>
+
+            <h3>Tier 2: Abbreviated Review</h3>
+            <div class="subsection">
+                <p><strong>Criteria:</strong></p>
+                <ul>
+                    <li>Exposure > $200,000 AND < $500,000 AND</li>
+                    <li>Advance Delivery Days between 4-45</li>
+                </ul>
+                <p><strong>Process:</strong></p>
+                <ol>
+                    <li>Case stays in "Pending Approval" status</li>
+                    <li>Risk team reviews basic information</li>
+                    <li>Quick assessment without extensive documentation</li>
+                    <li>Risk approver approves or declines</li>
+                </ol>
+                <p><strong>Status Path:</strong> Submitted → Pending Risk Approval → Approved/Declined</p>
+            </div>
+
+            <h3>Tier 3: Full Credit Review</h3>
+            <div class="subsection">
+                <p><strong>Criteria:</strong></p>
+                <ul>
+                    <li>Exposure ≥ $500,000 AND</li>
+                    <li>Advance Delivery Days > 45</li>
+                </ul>
+                <p><strong>Process:</strong></p>
+                <ol>
+                    <li>Submitter must provide additional documentation</li>
+                    <li>Case requires extensive Risk team analysis</li>
+                    <li>May request additional information from merchant</li>
+                    <li>Senior risk approver makes final decision</li>
+                </ol>
+                <p><strong>Documentation Required:</strong></p>
+                <ul>
+                    <li>Detailed business description</li>
+                    <li>Refund and chargeback rates</li>
+                    <li>Financial reserves information</li>
+                    <li>Personal guarantees or collateral</li>
+                    <li>Business snapshot/proof of operations</li>
+                </ul>
+            </div>
+
+            <h3>What Happens During Risk Approval</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Risk Team Reviews:</strong> Looks at company info, exposure calculation, and all supporting docs
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Risk Team Can:</strong>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Approve:</strong> Case is approved, can proceed</li>
+                    <li><strong>Decline:</strong> Case is rejected with explanation</li>
+                    <li><strong>Request Revisions:</strong> Ask submitter for more info and resubmit</li>
+                    <li><strong>Request Higher Approval:</strong> If case exceeds approver's limit</li>
+                </ul>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Decision is Documented:</strong> All decisions logged in audit trail with comments
+            </div>
+
+            <h3>Approval Limits</h3>
+            <p>Each approver has a maximum exposure they can approve. Examples:</p>
+            <div class="info">
+                <ul>
+                    <li><strong>Junior Approver:</strong> Can approve up to $300,000 exposure</li>
+                    <li><strong>Senior Approver:</strong> Can approve up to $1,000,000 exposure</li>
+                    <li><strong>VP/Director:</strong> Can approve unlimited amounts</li>
+                </ul>
+                <p>If a case exposure exceeds an approver's limit, it must go to someone with higher authority.</p>
+            </div>
+        </div>
+
+        <div id="dashboard" class="section">
+            <h2>7. Dashboard & Monitoring</h2>
+            <h3>Dashboard Metrics</h3>
+            <p>When users log in, they see key metrics:</p>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>What It Shows</th>
+                </tr>
+                <tr>
+                    <td>Total Cases</td>
+                    <td>How many cases exist in system</td>
+                </tr>
+                <tr>
+                    <td>Pending Cases</td>
+                    <td>Cases waiting for approval</td>
+                </tr>
+                <tr>
+                    <td>Approved This Week</td>
+                    <td>Approvals completed in last 7 days</td>
+                </tr>
+                <tr>
+                    <td>Approval Rate %</td>
+                    <td>Percentage of submitted cases that get approved</td>
+                </tr>
+                <tr>
+                    <td>Total Exposure</td>
+                    <td>Sum of all exposure for active cases</td>
+                </tr>
+            </table>
+
+            <h3>Case Tables</h3>
+            <p>Users can see sortable/filterable tables of cases showing:</p>
+            <ul>
+                <li>Case Number (unique ID)</li>
+                <li>Company Name</li>
+                <li>Status (Auto Approved, Pending, Approved, Declined)</li>
+                <li>Exposure Amount</li>
+                <li>Approval Type (Auto, Abbreviated, Full)</li>
+                <li>Created Date</li>
+                <li>Last Modified Date</li>
+            </ul>
+
+            <h3>Filtering & Search</h3>
+            <p>Users can filter by:</p>
+            <ul>
+                <li>Status (Pending, Approved, Declined)</li>
+                <li>Approval Type (Auto, Abbreviated, Full)</li>
+                <li>Date Range (submitted between X and Y)</li>
+                <li>Exposure Range (from $X to $Y)</li>
+                <li>Account Executive (who submitted)</li>
+            </ul>
+        </div>
+
+        <div id="data-management" class="section">
+            <h2>8. Data Management</h2>
+            <h3>Where Data is Stored</h3>
+            <p>All platform data is stored in the browser's <span class="highlight">localStorage</span>, which means:</p>
+            <ul>
+                <li><strong>Persistent:</strong> Data stays even if browser is closed</li>
+                <li><strong>Local:</strong> Data exists on the user's computer</li>
+                <li><strong>Automatic:</strong> All changes save automatically</li>
+                <li><strong>Size Limit:</strong> Usually 5-10MB per domain</li>
+            </ul>
+
+            <div class="warning">
+                <strong>Important:</strong> This is a local system. For production use with sensitive data, you would want to integrate with a backend database (like PostgreSQL, MongoDB, etc.).
+            </div>
+
+            <h3>Data That Gets Saved</h3>
+            <ul>
+                <li>All user accounts and roles</li>
+                <li>All submitted cases and their details</li>
+                <li>All approvals and decisions</li>
+                <li>All chat/comments on cases</li>
+                <li>Audit trail of all actions</li>
+            </ul>
+
+            <h3>Export Options</h3>
+            <p>Admins can export data as:</p>
+            <ul>
+                <li><strong>CSV:</strong> Comma-separated values (open in Excel)</li>
+                <li><strong>PDF:</strong> Professional formatted report</li>
+            </ul>
+            <p>Can export:</p>
+            <ul>
+                <li>All cases</li>
+                <li>Approval decisions and timeline</li>
+                <li>User activity reports</li>
+                <li>Audit trail</li>
+            </ul>
+        </div>
+
+        <div id="audit" class="section">
+            <h2>9. Audit & Compliance</h2>
+            <h3>What Gets Tracked</h3>
+            <p>Every action in the system is logged, including:</p>
+            <table>
+                <tr>
+                    <th>Action</th>
+                    <th>Information Captured</th>
+                </tr>
+                <tr>
+                    <td>Case Submitted</td>
+                    <td>Who submitted, when, all data provided</td>
+                </tr>
+                <tr>
+                    <td>Case Approved</td>
+                    <td>Who approved, when, approval limit used, comments</td>
+                </tr>
+                <tr>
+                    <td>Case Declined</td>
+                    <td>Who declined, when, reason provided</td>
+                </tr>
+                <tr>
+                    <td>Case Revised</td>
+                    <td>Who revised, what changed, when</td>
+                </tr>
+                <tr>
+                    <td>Comments Added</td>
+                    <td>Who commented, what they said, when</td>
+                </tr>
+                <tr>
+                    <td>User Actions</td>
+                    <td>Login, logout, role changes</td>
+                </tr>
+            </table>
+
+            <h3>Audit Trail Example</h3>
+            <div class="code-block">
+Case #1001 - ABC Retail Corp
+Timeline:
+- 2024-04-09 10:15 - John Smith submitted case with $250K exposure
+- 2024-04-09 10:20 - System calculated: Abbreviated Review needed
+- 2024-04-09 11:30 - Sarah Johnson reviewed case
+- 2024-04-09 11:45 - Sarah requested revisions: "Need more info on CNP volume"
+- 2024-04-09 14:00 - John Smith resubmitted with updated CNP data
+- 2024-04-09 14:30 - Sarah Johnson approved case
+            </div>
+
+            <h3>Compliance Features</h3>
+            <ul>
+                <li><strong>No Deletions:</strong> Cases cannot be deleted, only archived</li>
+                <li><strong>Full History:</strong> All changes are recorded with timestamps</li>
+                <li><strong>User Attribution:</strong> Every action shows who did it</li>
+                <li><strong>Immutable Records:</strong> Once logged, audit entries cannot be changed</li>
+                <li><strong>Export for Audit:</strong> Full audit trail can be exported for compliance review</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Additional Technical Details</h2>
+            
+            <h3>Case Number Format</h3>
+            <p>Each case gets a unique case number:</p>
+            <ul>
+                <li><strong>Format:</strong> "CASE-" followed by auto-incrementing number</li>
+                <li><strong>Example:</strong> CASE-1001, CASE-1002, etc.</li>
+                <li><strong>Purpose:</strong> Easy reference for all communications</li>
+            </ul>
+
+            <h3>Status Workflow</h3>
+            <div class="code-block">
+Draft
+  ↓
+[Submit]
+  ↓
+Auto Approved → APPROVED (Case Complete)
+    OR
+Pending Risk Approval
+  ↓
+[Risk Approver Reviews]
+  ↓
+Approved → APPROVED (Case Complete)
+  OR
+Declined → DECLINED (Case Complete)
+  OR
+Revisions Requested → Back to Draft
+            </div>
+
+            <h3>User Session</h3>
+            <ul>
+                <li>Users login with email and password</li>
+                <li>Session stays active until they logout</li>
+                <li>Each user sees data based on their role</li>
+                <li>Admins see everything, others see only relevant cases</li>
+            </ul>
+
+            <h3>Performance Notes</h3>
+            <ul>
+                <li>System caches frequently accessed data</li>
+                <li>Exposure calculations are done in real-time</li>
+                <li>All operations are fast (no backend calls)</li>
+                <li>Works offline after initial load</li>
+            </ul>
+        </div>
+
+        <div class="section" style="background-color: #f0fdf4; border-left: 4px solid #10b981;">
+            <h2>Summary: How Tech Team Should Think About It</h2>
+            <p>The platform is essentially a <span class="highlight">state machine</span> where:</p>
+            <ul>
+                <li><strong>Input:</strong> Merchant submits business information</li>
+                <li><strong>Processing:</strong> System calculates exposure and determines approval tier</li>
+                <li><strong>Routing:</strong> Cases route to Auto-Approve, Abbreviated, or Full Review path</li>
+                <li><strong>Approval:</strong> Risk team approves/declines based on exposure and limits</li>
+                <li><strong>Output:</strong> Final decision is made and logged</li>
+                <li><strong>Audit:</strong> Complete history available for compliance</li>
+            </ul>
+            <p>The whole system ensures that no case falls through the cracks and every decision is traceable and reversible.</p>
+        </div>
+
+    </div>
+</body>
+</html>
