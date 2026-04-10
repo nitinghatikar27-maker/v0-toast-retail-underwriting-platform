@@ -451,13 +451,13 @@ TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure
             <div class="subsection">
                 <p><strong>Criteria:</strong></p>
                 <ul>
-                    <li>Exposure > $200,000 AND < $500,000 AND</li>
+                    <li>(Exposure > $200,000 AND ≤ $500,000) OR</li>
                     <li>Advance Delivery Days between 4-45</li>
                 </ul>
                 <p><strong>What Happens:</strong></p>
                 <ol>
                     <li>Sales team submits the request form (same as auto-approved cases)</li>
-                    <li>System calculates exposure and sees it exceeds $200K threshold</li>
+                    <li>System calculates exposure and meets abbreviated review criteria</li>
                     <li>Case status becomes "Pending Risk Approval"</li>
                     <li>Risk team gets notified there's a case to review</li>
                     <li>Risk team reviews the basic information submitted</li>
@@ -475,13 +475,13 @@ TOTAL EXPOSURE = Base Exposure + Chargeback Exposure + Refund/Return Exposure
             <div class="subsection">
                 <p><strong>Criteria:</strong></p>
                 <ul>
-                    <li>Exposure ≥ $500,000 AND</li>
+                    <li>Exposure > $500,000 OR</li>
                     <li>Advance Delivery Days > 45</li>
                 </ul>
                 <p><strong>What Happens:</strong></p>
                 <ol>
                     <li>Sales team submits the request form</li>
-                    <li>System calculates exposure and sees it's a high-risk case</li>
+                    <li>System calculates exposure and meets full credit review criteria</li>
                     <li>Case status becomes "Pending Risk Approval"</li>
                     <li><strong>Sales team must complete the Manual Review Form with additional details</strong></li>
                     <li>Risk team performs detailed analysis</li>

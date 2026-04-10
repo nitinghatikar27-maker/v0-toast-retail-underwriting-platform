@@ -41,14 +41,14 @@ export function getExposureDecision(totalExposure: number, advanceDeliveryDays: 
     return 'auto_approved'
   }
   
-  // Abbreviated review: exposure > $200K AND < $500K AND ADD between 4 to 45 days
-  if (totalExposure > 200000 && totalExposure < 500000 && advanceDeliveryDays >= 4 && advanceDeliveryDays <= 45) {
-    return 'abbreviated_review'
+  // Full credit review: exposure > $500K OR ADD > 45 days
+  if (totalExposure > 500000 || advanceDeliveryDays > 45) {
+    return 'full_credit_review'
   }
   
-  // Full credit review: exposure >= $500K AND ADD > 45 days
-  if (totalExposure >= 500000 && advanceDeliveryDays > 45) {
-    return 'full_credit_review'
+  // Abbreviated review: (exposure > $200K AND <= $500K) OR (ADD >= 4 AND <= 45 days)
+  if ((totalExposure > 200000 && totalExposure <= 500000) || (advanceDeliveryDays >= 4 && advanceDeliveryDays <= 45)) {
+    return 'abbreviated_review'
   }
   
   // Default to manual if criteria don't match

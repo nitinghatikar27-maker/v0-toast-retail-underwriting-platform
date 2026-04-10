@@ -806,7 +806,7 @@ export default function SubmitRequestPage() {
                 <div className="h-3 w-3 rounded-full bg-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="font-medium text-sm">Abbreviated Review</p>
-                  <p className="text-xs text-muted-foreground">Exposure &gt; $200K - &lt; $500K AND ADD 4-45 days</p>
+                  <p className="text-xs text-muted-foreground">(Exposure &gt; $200K AND &le; $500K) OR (ADD &ge; 4-45 days)</p>
                   <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
                     <p className="font-semibold text-yellow-900">Financial Docs Required:</p>
                     <p className="text-yellow-800 mt-1">Codat data for latest 2 years. If unavailable: 3-year financials with YTD statements</p>
@@ -817,7 +817,7 @@ export default function SubmitRequestPage() {
                 <div className="h-3 w-3 rounded-full bg-destructive mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="font-medium text-sm">Full Credit Review</p>
-                  <p className="text-xs text-muted-foreground">Exposure &ge; $500K AND ADD &gt; 45 days</p>
+                  <p className="text-xs text-muted-foreground">Exposure &gt; $500K OR ADD &gt; 45 days</p>
                   <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
                     <p className="font-semibold text-yellow-900">Financial Docs Required:</p>
                     <p className="text-yellow-800 mt-1">3-year financials with YTD and comparable YTD statements</p>
