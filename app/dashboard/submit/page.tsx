@@ -16,7 +16,6 @@ import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeft, Calculator, CheckCircle, FileText, MessageCircle, Save, XCircle } from 'lucide-react'
-import { MCCSelector } from '@/components/mcc-selector'
 import {
   Dialog,
   DialogContent,
@@ -558,11 +557,13 @@ export default function SubmitRequestPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="mcc">MCC (Merchant Category Code) *</Label>
-                  <MCCSelector
+                  <Input
+                    id="mcc"
                     value={formData.mcc}
-                    onChange={(val) => setFormData(prev => ({ ...prev, mcc: val }))}
+                    onChange={handleChange('mcc')}
+                    placeholder="e.g., 5812"
                   />
-                  <p className="text-xs text-muted-foreground">Search by code or business description</p>
+                  <p className="text-xs text-muted-foreground">4-digit merchant category code</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
