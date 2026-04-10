@@ -215,8 +215,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       lastModifiedAt: new Date().toISOString()
     }
     
-    storage.updateCase(updatedCase)
-    
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
@@ -226,7 +224,14 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       comment: nextReviewDate ? `Case approved. Next review: ${nextReviewDate}` : 'Case approved',
       timestamp: new Date().toISOString()
     }
-    storage.addAuditEntry(auditEntry)
+
+    storage.batchUpdate((state) => {
+      const index = state.cases.findIndex(c => c.id === caseData.id)
+      if (index !== -1) {
+        state.cases[index] = updatedCase
+      }
+      state.auditEntries.push(auditEntry)
+    })
     
     toast.success('Case approved successfully')
     setApprovalDialogOpen(false)
@@ -246,8 +251,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       lastModifiedAt: new Date().toISOString()
     }
     
-    storage.updateCase(updatedCase)
-    
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
@@ -257,7 +260,14 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       comment: declineReason,
       timestamp: new Date().toISOString()
     }
-    storage.addAuditEntry(auditEntry)
+
+    storage.batchUpdate((state) => {
+      const index = state.cases.findIndex(c => c.id === caseData.id)
+      if (index !== -1) {
+        state.cases[index] = updatedCase
+      }
+      state.auditEntries.push(auditEntry)
+    })
     
     toast.success('Case declined')
     setDeclineDialogOpen(false)
@@ -277,8 +287,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       lastModifiedAt: new Date().toISOString()
     }
     
-    storage.updateCase(updatedCase)
-    
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId: caseData.id,
@@ -288,7 +296,14 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       comment: revisionComment,
       timestamp: new Date().toISOString()
     }
-    storage.addAuditEntry(auditEntry)
+
+    storage.batchUpdate((state) => {
+      const index = state.cases.findIndex(c => c.id === caseData.id)
+      if (index !== -1) {
+        state.cases[index] = updatedCase
+      }
+      state.auditEntries.push(auditEntry)
+    })
     
     toast.success('Revision requested')
     setRevisionDialogOpen(false)

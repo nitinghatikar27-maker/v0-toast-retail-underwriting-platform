@@ -347,11 +347,6 @@ export default function SubmitRequestPage() {
 
     setIsSubmitting(true)
 
-    // Determine approval flow based on exposure OR ADD criteria:
-    // Auto Approved: exposure <= $200K AND ADD <= 3 days
-    // Full credit review: exposure > $500K OR ADD > 45 days
-    // Abbreviated review: (exposure > $200K AND <= $500K) OR (ADD >= 4 AND <= 45 days)
-    
     const totalExposure = exposure.totalExposure
     const add = parseFloat(formData.advanceDeliveryDays)
     
@@ -359,19 +354,15 @@ export default function SubmitRequestPage() {
     let initialStatus: CaseStatus
     
     if (totalExposure <= 200000 && add <= 3) {
-      // Auto Approved
       approvalTypeValue = 'auto'
       initialStatus = 'auto_approved'
-    } else if (totalExposure > 500000 || add > 45) {
-      // Full credit review - requires Risk approval with manual form
-      approvalTypeValue = 'full_review'
-      initialStatus = 'pending_risk_approval'
     } else if ((totalExposure > 200000 && totalExposure <= 500000) || (add >= 4 && add <= 45)) {
-      // Abbreviated review - requires Risk approval
       approvalTypeValue = 'abbreviated'
       initialStatus = 'pending_risk_approval'
+    } else if (totalExposure > 500000 || add > 45) {
+      approvalTypeValue = 'full_review'
+      initialStatus = 'pending_risk_approval'
     } else {
-      // Default to manual if criteria don't match exactly
       approvalTypeValue = 'manual'
       initialStatus = 'pending_risk_approval'
     }
@@ -404,23 +395,19 @@ export default function SubmitRequestPage() {
       approvals: {}
     }
 
-    // Batch all storage operations into a single update
-    const auditComment = `Case submitted - ${approvalTypeValue === 'auto' ? 'Auto Approved' : approvalTypeValue === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'}`
-
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId,
       userId: user.id,
       userName: user.name,
       action: 'submitted',
-      comment: auditComment,
+      comment: `Case submitted - ${approvalTypeValue === 'auto' ? 'Auto Approved' : approvalTypeValue === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'}`,
       timestamp: new Date().toISOString()
     }
 
     storage.batchUpdate((state) => {
       state.cases.push(newCase)
       state.auditEntries.push(auditEntry)
-      
       if (initialNotes.trim()) {
         const chatMessage: ChatMessage = {
           id: generateId(),
@@ -437,6 +424,7 @@ export default function SubmitRequestPage() {
     })
 
     clearDraft()
+    setIsSubmitting(false)
     toast.success('Case submitted successfully!')
     router.push('/dashboard')
   }
