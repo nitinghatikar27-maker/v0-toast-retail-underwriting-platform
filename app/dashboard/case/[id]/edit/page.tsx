@@ -229,7 +229,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       if (index !== -1) {
         state.cases[index] = updatedCase
       }
-      state.auditEntries.push(auditEntry)
+      state.auditTrail.push(auditEntry)
     })
     
     setApprovalDialogOpen(false)
@@ -265,7 +265,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       if (index !== -1) {
         state.cases[index] = updatedCase
       }
-      state.auditEntries.push(auditEntry)
+      state.auditTrail.push(auditEntry)
     })
     
     setDeclineDialogOpen(false)
@@ -301,7 +301,7 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       if (index !== -1) {
         state.cases[index] = updatedCase
       }
-      state.auditEntries.push(auditEntry)
+      state.auditTrail.push(auditEntry)
     })
     
     setRevisionDialogOpen(false)

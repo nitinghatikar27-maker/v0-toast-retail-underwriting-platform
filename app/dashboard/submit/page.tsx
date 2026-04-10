@@ -347,12 +347,8 @@ export default function SubmitRequestPage() {
     setIsSubmitting(true)
 
     try {
-      console.log('[v0] Starting submit - user:', user.email)
-      
       const totalExposure = exposure.totalExposure
       const add = parseFloat(formData.advanceDeliveryDays)
-      
-      console.log('[v0] Exposure:', totalExposure, 'ADD:', add)
       
       let approvalTypeValue: ApprovalType
       let initialStatus: CaseStatus
@@ -367,14 +363,11 @@ export default function SubmitRequestPage() {
         approvalTypeValue = 'full_review'
         initialStatus = 'pending_risk_approval'
       } else {
-        approvalTypeValue = 'manual'
-        initialStatus = 'pending_risk_approval'
-      }
-
-      console.log('[v0] Approval type:', approvalTypeValue, 'Status:', initialStatus)
+      approvalTypeValue = 'manual'
+      initialStatus = 'pending_risk_approval'
+    }
 
       const caseId = generateId()
-      console.log('[v0] Case ID:', caseId)
       
       const newCase: Case = {
         id: caseId,
@@ -400,10 +393,8 @@ export default function SubmitRequestPage() {
         createdBy: user.id,
         lastModifiedBy: user.id,
         lastModifiedAt: new Date().toISOString(),
-        approvals: {}
-      }
-
-      console.log('[v0] Case object created:', newCase)
+      approvals: {}
+    }
 
       const auditEntry: AuditEntry = {
         id: generateId(),
@@ -415,11 +406,9 @@ export default function SubmitRequestPage() {
         timestamp: new Date().toISOString()
       }
 
-      console.log('[v0] About to call batchUpdate')
       storage.batchUpdate((state) => {
-        console.log('[v0] Inside batchUpdate, state keys:', Object.keys(state))
         state.cases.push(newCase)
-        state.auditEntries.push(auditEntry)
+        state.auditTrail.push(auditEntry)
         if (initialNotes.trim()) {
           const chatMessage: ChatMessage = {
             id: generateId(),
@@ -435,16 +424,9 @@ export default function SubmitRequestPage() {
         }
       })
 
-      console.log('[v0] batchUpdate complete')
-
       clearDraft()
-      console.log('[v0] Draft cleared')
-      
       toast.success('Case submitted successfully!')
-      console.log('[v0] Toast shown, navigating...')
-      
       router.replace('/dashboard')
-      console.log('[v0] Navigation initiated')
     } catch (error) {
       console.error('[v0] Submit error:', error)
       console.error('[v0] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
