@@ -344,10 +344,6 @@ export default function SubmitRequestPage() {
 
   const handleSubmit = () => {
     if (!user || !exposure) return
-
-    console.log('[PERF] Submit started')
-    const submitStart = performance.now()
-    
     setIsSubmitting(true)
 
     const totalExposure = exposure.totalExposure
@@ -398,7 +394,6 @@ export default function SubmitRequestPage() {
       approvals: {}
     }
 
-    console.log('[PERF] About to batchUpdate at', performance.now() - submitStart, 'ms')
     const auditEntry: AuditEntry = {
       id: generateId(),
       caseId,
@@ -427,17 +422,9 @@ export default function SubmitRequestPage() {
       }
     })
 
-    console.log('[PERF] batchUpdate done at', performance.now() - submitStart, 'ms')
-    
     clearDraft()
-    setIsSubmitting(false)
-    console.log('[PERF] clearDraft done at', performance.now() - submitStart, 'ms')
-    
     toast.success('Case submitted successfully!')
-    console.log('[PERF] toast shown at', performance.now() - submitStart, 'ms')
-    
-    router.push('/dashboard')
-    console.log('[PERF] router.push called at', performance.now() - submitStart, 'ms')
+    router.replace('/dashboard')
   }
 
   const decision = exposure && formData.advanceDeliveryDays 

@@ -203,10 +203,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
 
   const handleApprove = () => {
     if (!caseData || !user) return
-    
-    console.log('[PERF] Approve started')
-    const approveStart = performance.now()
-    
     setIsProcessing(true)
     
     const updatedCase: Case = {
@@ -228,7 +224,6 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       timestamp: new Date().toISOString()
     }
 
-    console.log('[PERF] About to batchUpdate at', performance.now() - approveStart, 'ms')
     storage.batchUpdate((state) => {
       const index = state.cases.findIndex(c => c.id === caseData.id)
       if (index !== -1) {
@@ -237,14 +232,10 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       state.auditEntries.push(auditEntry)
     })
     
-    console.log('[PERF] batchUpdate done at', performance.now() - approveStart, 'ms')
-    toast.success('Case approved successfully')
-    console.log('[PERF] toast shown at', performance.now() - approveStart, 'ms')
     setApprovalDialogOpen(false)
     setIsProcessing(false)
-    console.log('[PERF] about to push at', performance.now() - approveStart, 'ms')
-    router.push('/dashboard')
-    console.log('[PERF] Approve finished at', performance.now() - approveStart, 'ms')
+    toast.success('Case approved successfully')
+    router.replace('/dashboard')
   }
 
   const handleDecline = () => {
@@ -277,10 +268,10 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       state.auditEntries.push(auditEntry)
     })
     
-    toast.success('Case declined')
     setDeclineDialogOpen(false)
     setIsProcessing(false)
-    router.push('/dashboard')
+    toast.success('Case declined')
+    router.replace('/dashboard')
   }
 
   const handleRequestRevision = () => {
@@ -313,10 +304,10 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
       state.auditEntries.push(auditEntry)
     })
     
-    toast.success('Revision requested')
     setRevisionDialogOpen(false)
     setIsProcessing(false)
-    router.push('/dashboard')
+    toast.success('Revision requested')
+    router.replace('/dashboard')
   }
 
   const canApprove = user && (user.roles.includes('approver') || user.roles.includes('admin')) && caseData?.status === 'pending_review'
