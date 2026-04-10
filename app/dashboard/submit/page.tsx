@@ -557,12 +557,12 @@ export default function SubmitRequestPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>MCC (Merchant Category Code) *</Label>
+                  <Label htmlFor="mcc">MCC (Merchant Category Code) *</Label>
                   <MCCSelector
                     value={formData.mcc}
                     onChange={(val) => setFormData(prev => ({ ...prev, mcc: val }))}
                   />
-                  <p className="text-xs text-muted-foreground">Search by code number or business description</p>
+                  <p className="text-xs text-muted-foreground">Search by code or business description</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
