@@ -97,7 +97,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
           Abbreviated Review
         </p>
         <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
-          Criteria: Exposure &gt; $200K AND &lt; $500K AND ADD between 4 to 45 days. Case requires Risk approval.
+          Criteria: (Exposure &gt; $200K AND &le; $500K) OR (ADD &ge; 4 days AND &le; 45 days). Case requires Risk approval.
         </p>
       </div>
     )
@@ -111,7 +111,7 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
             Full Credit Review
           </p>
           <p className="text-sm text-warning-foreground/80 mt-1">
-            Criteria: Exposure &ge; $500K AND ADD &gt; 45 days. Case requires Risk approval with additional documentation.
+            Criteria: Exposure &gt; $500K OR ADD &gt; 45 days. Case requires Risk approval with additional documentation.
           </p>
         </div>
         <DocumentRequirements type="red" />
