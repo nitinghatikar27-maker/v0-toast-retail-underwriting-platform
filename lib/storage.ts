@@ -92,7 +92,7 @@ export const storage = {
   
   // Batch update to avoid multiple localStorage writes
   batchUpdate(updateFn: (state: AppState) => void): void {
-    const state = this.getState()
+    const state = JSON.parse(JSON.stringify(this.getState())) as AppState
     updateFn(state)
     this.setState(state)
   },

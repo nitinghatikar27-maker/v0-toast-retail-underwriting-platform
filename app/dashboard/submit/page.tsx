@@ -346,85 +346,91 @@ export default function SubmitRequestPage() {
     if (!user || !exposure) return
     setIsSubmitting(true)
 
-    const totalExposure = exposure.totalExposure
-    const add = parseFloat(formData.advanceDeliveryDays)
-    
-    let approvalTypeValue: ApprovalType
-    let initialStatus: CaseStatus
-    
-    if (totalExposure <= 200000 && add <= 3) {
-      approvalTypeValue = 'auto'
-      initialStatus = 'auto_approved'
-    } else if ((totalExposure > 200000 && totalExposure <= 500000) || (add >= 4 && add <= 45)) {
-      approvalTypeValue = 'abbreviated'
-      initialStatus = 'pending_risk_approval'
-    } else if (totalExposure > 500000 || add > 45) {
-      approvalTypeValue = 'full_review'
-      initialStatus = 'pending_risk_approval'
-    } else {
-      approvalTypeValue = 'manual'
-      initialStatus = 'pending_risk_approval'
-    }
-
-    const caseId = generateId()
-    const newCase: Case = {
-      id: caseId,
-      caseNumber: storage.generateCaseNumber(),
-      parentCompanyName: formData.parentCompanyName,
-      subsidiaryName: formData.subsidiaryName,
-      dba: formData.dba,
-      mcc: formData.mcc,
-      salesforceAccountNumber: formData.salesforceAccountNumber,
-      salesforceLink: formData.salesforceLink || undefined,
-      aeName: formData.aeName,
-      annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
-      averageTicketSize: parseFloat(formData.averageTicketSize),
-      cnpVolume: parseFloat(formData.cnpVolume),
-      advanceDeliveryDays: add,
-      brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
-      businessDescription: formData.businessDescription || undefined,
-      exposure,
-      status: initialStatus,
-      approvalType: approvalTypeValue,
-      submittedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      createdBy: user.id,
-      lastModifiedBy: user.id,
-      lastModifiedAt: new Date().toISOString(),
-      approvals: {}
-    }
-
-    const auditEntry: AuditEntry = {
-      id: generateId(),
-      caseId,
-      userId: user.id,
-      userName: user.name,
-      action: 'submitted',
-      comment: `Case submitted - ${approvalTypeValue === 'auto' ? 'Auto Approved' : approvalTypeValue === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'}`,
-      timestamp: new Date().toISOString()
-    }
-
-    storage.batchUpdate((state) => {
-      state.cases.push(newCase)
-      state.auditEntries.push(auditEntry)
-      if (initialNotes.trim()) {
-        const chatMessage: ChatMessage = {
-          id: generateId(),
-          caseId,
-          senderId: user.id,
-          senderName: user.name,
-          message: initialNotes.trim(),
-          timestamp: new Date().toISOString(),
-          isRead: true,
-          readBy: [user.id]
-        }
-        state.chatMessages.push(chatMessage)
+    try {
+      const totalExposure = exposure.totalExposure
+      const add = parseFloat(formData.advanceDeliveryDays)
+      
+      let approvalTypeValue: ApprovalType
+      let initialStatus: CaseStatus
+      
+      if (totalExposure <= 200000 && add <= 3) {
+        approvalTypeValue = 'auto'
+        initialStatus = 'auto_approved'
+      } else if ((totalExposure > 200000 && totalExposure <= 500000) || (add >= 4 && add <= 45)) {
+        approvalTypeValue = 'abbreviated'
+        initialStatus = 'pending_risk_approval'
+      } else if (totalExposure > 500000 || add > 45) {
+        approvalTypeValue = 'full_review'
+        initialStatus = 'pending_risk_approval'
+      } else {
+        approvalTypeValue = 'manual'
+        initialStatus = 'pending_risk_approval'
       }
-    })
 
-    clearDraft()
-    toast.success('Case submitted successfully!')
-    router.replace('/dashboard')
+      const caseId = generateId()
+      const newCase: Case = {
+        id: caseId,
+        caseNumber: storage.generateCaseNumber(),
+        parentCompanyName: formData.parentCompanyName,
+        subsidiaryName: formData.subsidiaryName,
+        dba: formData.dba,
+        mcc: formData.mcc,
+        salesforceAccountNumber: formData.salesforceAccountNumber,
+        salesforceLink: formData.salesforceLink || undefined,
+        aeName: formData.aeName,
+        annualProcessingVolume: parseFloat(formData.annualProcessingVolume),
+        averageTicketSize: parseFloat(formData.averageTicketSize),
+        cnpVolume: parseFloat(formData.cnpVolume),
+        advanceDeliveryDays: add,
+        brickAndMortar: formData.brickAndMortar as 'yes' | 'no' | undefined,
+        businessDescription: formData.businessDescription || undefined,
+        exposure,
+        status: initialStatus,
+        approvalType: approvalTypeValue,
+        submittedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        createdBy: user.id,
+        lastModifiedBy: user.id,
+        lastModifiedAt: new Date().toISOString(),
+        approvals: {}
+      }
+
+      const auditEntry: AuditEntry = {
+        id: generateId(),
+        caseId,
+        userId: user.id,
+        userName: user.name,
+        action: 'submitted',
+        comment: `Case submitted - ${approvalTypeValue === 'auto' ? 'Auto Approved' : approvalTypeValue === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'}`,
+        timestamp: new Date().toISOString()
+      }
+
+      storage.batchUpdate((state) => {
+        state.cases.push(newCase)
+        state.auditEntries.push(auditEntry)
+        if (initialNotes.trim()) {
+          const chatMessage: ChatMessage = {
+            id: generateId(),
+            caseId,
+            senderId: user.id,
+            senderName: user.name,
+            message: initialNotes.trim(),
+            timestamp: new Date().toISOString(),
+            isRead: true,
+            readBy: [user.id]
+          }
+          state.chatMessages.push(chatMessage)
+        }
+      })
+
+      clearDraft()
+      toast.success('Case submitted successfully!')
+      router.replace('/dashboard')
+    } catch (error) {
+      console.error('[v0] Submit error:', error)
+      toast.error('Failed to submit case. Please try again.')
+      setIsSubmitting(false)
+    }
   }
 
   const decision = exposure && formData.advanceDeliveryDays 
