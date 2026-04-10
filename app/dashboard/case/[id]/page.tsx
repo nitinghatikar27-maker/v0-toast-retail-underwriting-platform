@@ -136,7 +136,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     
     const currentApprovals = caseData.approvals || {}
     const newApprovals = { ...currentApprovals }
-    const isManualCase = caseData.approvalType === 'manual' || caseData.approvalType === 'full_review'
+    const isManualCase = caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review'
     
     // Add Risk approval
     newApprovals.riskApproverId = user.id
@@ -682,7 +682,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="font-medium">{caseData.cnpVolume}%</p>
                 </div>
                 {/* Refund Rate and Chargeback Rate - Only for manual cases (when manual form is filled) */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.refundReturnRate !== undefined && (
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.refundReturnRate !== undefined && (
                   <>
                     <div>
                       <p className="text-muted-foreground">Refund Rate</p>
@@ -714,7 +714,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           )}
 
                 {/* Reserves & Guarantees - Only show for manual/full_review cases when filled */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.reserves && (
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.reserves && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -808,7 +808,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           )}
 
                 {/* Case Description - Only show for manual/full_review cases when filled */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.description && (
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.description && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -827,7 +827,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
           )}
 
                 {/* Snapshot - Only show for manual/full_review cases when filled */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'full_review') && caseData.snapshotImage && (
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.snapshotImage && (
             <Card>
               <CardHeader>
                 <CardTitle>Snapshot</CardTitle>
