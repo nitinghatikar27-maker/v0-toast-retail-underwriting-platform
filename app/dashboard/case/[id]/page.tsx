@@ -685,17 +685,33 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
                   <p className="text-muted-foreground">CNP Volume</p>
                   <p className="font-medium">{caseData.cnpVolume}%</p>
                 </div>
-                {/* Refund Rate and Chargeback Rate - Only for manual cases (when manual form is filled) */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.refundReturnRate !== undefined && (
+                {/* Refund Rate and Chargeback Rate - Always show for manual/abbreviated/full_review cases */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && (
                   <>
                     <div>
                       <p className="text-muted-foreground">Refund Rate</p>
-                      <p className="font-medium">{caseData.refundReturnRate || 0}%</p>
+                      <p className="font-medium">
+                        {caseData.refundReturnRate !== undefined 
+                          ? `${caseData.refundReturnRate}%` 
+                          : <span className="text-muted-foreground italic">Not provided</span>}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Chargeback Rate</p>
-                      <p className="font-medium">{caseData.chargebackRate || 0}%</p>
+                      <p className="font-medium">
+                        {caseData.chargebackRate !== undefined 
+                          ? `${caseData.chargebackRate}%` 
+                          : <span className="text-muted-foreground italic">Not provided</span>}
+                      </p>
                     </div>
+                    {caseData.websiteUrl && (
+                      <div>
+                        <p className="text-muted-foreground">Website URL</p>
+                        <a href={caseData.websiteUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
+                          {caseData.websiteUrl}
+                        </a>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -717,8 +733,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-                {/* Reserves & Guarantees - Only show for manual/full_review cases when filled */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.reserves && (
+                {/* Reserves & Guarantees - Always show for manual/abbreviated/full_review cases */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -811,8 +827,8 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-                {/* Case Description - Only show for manual/full_review cases when filled */}
-                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.description && (
+                {/* Case Description - Always show for manual/abbreviated/full_review cases */}
+                {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -830,7 +846,7 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-                {/* Snapshot - Only show for manual/full_review cases when filled */}
+                {/* Snapshot - Only show for manual/abbreviated/full_review cases when filled */}
                 {(caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review') && caseData.snapshotImage && (
             <Card>
               <CardHeader>

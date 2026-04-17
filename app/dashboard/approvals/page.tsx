@@ -331,7 +331,7 @@ export default function ApprovalsPage() {
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
                           <Link href={`/dashboard/case/${caseItem.id}`}>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" title="View full case form">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
