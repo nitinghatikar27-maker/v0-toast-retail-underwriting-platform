@@ -288,7 +288,11 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  const canEdit = caseData.status === 'draft' || caseData.status === 'revision_requested'
+  // Check if sales needs to fill manual form for abbreviated/full review cases
+  const isManualFormType = caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review'
+  const isCreator = user && caseData.createdBy === user.id
+  const needsManualForm = isManualFormType && caseData.status === 'pending_risk_approval' && isCreator
+  const canEdit = caseData.status === 'draft' || caseData.status === 'revision_requested' || needsManualForm
 
   return (
     <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">

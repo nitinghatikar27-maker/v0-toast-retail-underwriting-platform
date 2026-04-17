@@ -341,7 +341,15 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
     )
   }
 
-  const isEditable = caseData.status === 'draft' || caseData.status === 'revision_requested'
+  // Manual form types that require additional info from sales
+  const isManualFormType = caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review'
+  
+  // Allow editing for:
+  // - Draft or revision_requested cases
+  // - Pending Risk Approval cases where sales still needs to complete manual form (abbreviated/full_review)
+  const isCreator = user && caseData.createdBy === user.id
+  const needsManualForm = isManualFormType && caseData.status === 'pending_risk_approval' && isCreator
+  const isEditable = caseData.status === 'draft' || caseData.status === 'revision_requested' || needsManualForm
 
   return (
     <div className="flex min-h-screen">
@@ -547,6 +555,19 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </Alert>
           )}
 
+          {/* Manual Form Alert - for abbreviated/full review cases */}
+          {needsManualForm && (
+            <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
+              <FileText className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+              <AlertTitle className="text-blue-700 dark:text-blue-300">
+                {caseData.approvalType === 'abbreviated' ? 'Abbreviated Review' : 'Full Credit Review'} - Manual Form Required
+              </AlertTitle>
+              <AlertDescription className="text-blue-700/80 dark:text-blue-300/80">
+                Please complete the additional manual form fields below (Website URL, Refund/Return Rate, Chargeback Rate, Reserves, Guarantees, and Case Description) before this case proceeds to Risk approval.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Section A - Merchant Information */}
           <Card>
             <CardHeader>
@@ -640,8 +661,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Website URL - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
+                {/* Website URL - Only for manual/abbreviated/full review cases */}
+                {isManualFormType && (
                   <div className="space-y-2">
                     <Label htmlFor="websiteUrl">Website URL</Label>
                     <Input
@@ -715,8 +736,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
                     disabled={!isEditable}
                   />
                 </div>
-{/* Refund/Return Rate and Chargeback Rate - Only for manual (high exposure) cases */}
-                {caseData.approvalType === 'manual' && (
+{/* Refund/Return Rate and Chargeback Rate - Only for manual/abbreviated/full review cases */}
+                {isManualFormType && (
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="refundReturnRate">Refund/Return Rate (%)</Label>
@@ -787,8 +808,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Exposure Calculator - Only for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Exposure Calculator - Only for manual/abbreviated/full review cases */}
+          {isManualFormType && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -836,8 +857,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
             </Card>
           )}
 
-          {/* Section D - Reserves & Guarantees - Only for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Section D - Reserves & Guarantees - Only for manual/abbreviated/full review cases */}
+          {isManualFormType && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1185,8 +1206,8 @@ export default function CaseEditPage({ params }: { params: Promise<{ id: string 
           </Card>
           )}
 
-          {/* Section E - Case Description & Review - Only for manual (high exposure) cases */}
-          {caseData.approvalType === 'manual' && (
+          {/* Section E - Case Description & Review - Only for manual/abbreviated/full review cases */}
+          {isManualFormType && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
