@@ -427,11 +427,12 @@ export default function SubmitRequestPage() {
       clearDraft()
       toast.success('Case submitted successfully!')
       
-      // For abbreviated and full credit review cases, navigate to edit page to complete manual form
-      if (approvalTypeValue === 'abbreviated' || approvalTypeValue === 'full_review') {
+      // For abbreviated/full credit review cases, navigate to edit page to complete manual form,
+      // but only if the user has elevated role (admin/approver). Plain 'user' role cannot edit post-submission.
+      const hasElevatedRole = user.roles.includes('admin') || user.roles.includes('approver')
+      if ((approvalTypeValue === 'abbreviated' || approvalTypeValue === 'full_review') && hasElevatedRole) {
         router.replace(`/dashboard/case/${caseId}/edit`)
       } else {
-        // For auto-approved cases, go back to dashboard
         router.replace('/dashboard')
       }
     } catch (error) {

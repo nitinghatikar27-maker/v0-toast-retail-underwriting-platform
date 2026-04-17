@@ -288,10 +288,13 @@ export default function CaseViewPage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  // Check if sales needs to fill manual form for abbreviated/full review cases
+  // Check if manual form is needed for abbreviated/full review cases
   const isManualFormType = caseData.approvalType === 'manual' || caseData.approvalType === 'abbreviated' || caseData.approvalType === 'full_review'
-  const isCreator = user && caseData.createdBy === user.id
-  const needsManualForm = isManualFormType && caseData.status === 'pending_risk_approval' && isCreator
+  const hasElevatedRole = user && (user.roles.includes('admin') || user.roles.includes('approver'))
+  
+  // Plain 'user' role can only edit drafts and revision_requested cases (post-submission edit not allowed)
+  // Admin/Approver roles can also complete the manual form on pending_risk_approval cases
+  const needsManualForm = isManualFormType && caseData.status === 'pending_risk_approval' && hasElevatedRole
   const canEdit = caseData.status === 'draft' || caseData.status === 'revision_requested' || needsManualForm
 
   return (
