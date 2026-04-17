@@ -92,13 +92,16 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
 
   if (decision === 'abbreviated_review') {
     return (
-      <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-4">
-        <p className="text-blue-700 dark:text-blue-300 font-medium">
-          Abbreviated Review
-        </p>
-        <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
-          Criteria: (Exposure &gt; $200K AND &le; $500K) OR (ADD &ge; 4 days AND &le; 45 days). Case requires Risk approval.
-        </p>
+      <div className="space-y-3">
+        <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-4">
+          <p className="text-blue-700 dark:text-blue-300 font-medium">
+            Abbreviated Review
+          </p>
+          <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
+            Criteria: (Exposure &gt; $200K AND &le; $500K) OR (ADD &ge; 4 days AND &le; 45 days). Case requires Risk approval.
+          </p>
+        </div>
+        <DocumentRequirements type="abbreviated" />
       </div>
     )
   }
@@ -132,7 +135,25 @@ export function DecisionBanner({ decision }: DecisionBannerProps) {
   )
 }
 
-function DocumentRequirements({ type }: { type: 'amber' | 'red' }) {
+function DocumentRequirements({ type }: { type: 'amber' | 'red' | 'abbreviated' }) {
+  if (type === 'abbreviated') {
+    return (
+      <div className="rounded-lg bg-muted p-4">
+        <p className="font-medium text-sm mb-2">Required Documents:</p>
+        <p className="text-sm text-muted-foreground">
+          Please provide Codat data for the latest 2 years.
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          If Codat data is unavailable, please submit:
+        </p>
+        <ul className="list-disc list-inside text-sm text-muted-foreground mt-1 space-y-1">
+          <li>Latest 3 years of financial statements</li>
+          <li>Year-to-date (YTD) statements</li>
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-lg bg-muted p-4">
       <p className="font-medium text-sm mb-2">Required Documents:</p>
