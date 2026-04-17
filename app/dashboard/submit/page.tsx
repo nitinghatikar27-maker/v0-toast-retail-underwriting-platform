@@ -426,7 +426,14 @@ export default function SubmitRequestPage() {
 
       clearDraft()
       toast.success('Case submitted successfully!')
-      router.replace('/dashboard')
+      
+      // For abbreviated and full credit review cases, navigate to edit page to complete manual form
+      if (approvalTypeValue === 'abbreviated' || approvalTypeValue === 'full_review') {
+        router.replace(`/dashboard/case/${caseId}/edit`)
+      } else {
+        // For auto-approved cases, go back to dashboard
+        router.replace('/dashboard')
+      }
     } catch (error) {
       console.error('[v0] Submit error:', error)
       console.error('[v0] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
